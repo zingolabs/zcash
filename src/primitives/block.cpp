@@ -34,7 +34,7 @@ uint256 CBlockHeader::GetHash() const
     return SerializeHash(*this);
 }
 
-uint256 CBlock::BuildMerkleTree(bool* fMutated) const
+uint256 CBlock::ComputeMerkleRoot(bool* fMutated) const
 {
     /* WARNING! If you're reading this because you're learning about crypto
        and/or designing a new system that will use merkle trees, keep in mind
@@ -71,7 +71,7 @@ uint256 CBlock::BuildMerkleTree(bool* fMutated) const
        known ways of changing the transactions without affecting the merkle
        root.
     */
-    vMerkleTree.clear();
+    std::vector<uint256> vMerkleTree;
     vMerkleTree.reserve(vtx.size() * 2 + 16); // Safe upper bound for the number of total nodes.
     for (std::vector<CTransaction>::const_iterator it(vtx.begin()); it != vtx.end(); ++it)
         vMerkleTree.push_back(it->GetHash());
@@ -190,9 +190,5 @@ std::string CBlock::ToString() const
     {
         s << "  " << vtx[i].ToString() << "\n";
     }
-    s << "  vMerkleTree: ";
-    for (unsigned int i = 0; i < vMerkleTree.size(); i++)
-        s << " " << vMerkleTree[i].ToString();
-    s << "\n";
     return s.str();
 }
