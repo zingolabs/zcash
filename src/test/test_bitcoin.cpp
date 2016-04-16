@@ -38,6 +38,8 @@ TracingHandle* pTracingHandle = nullptr;
 uint256 insecure_rand_seed = GetRandHash();
 FastRandomContext insecure_rand_ctx(insecure_rand_seed);
 
+std::unique_ptr<CConnman> g_connman;
+
 extern bool fPrintToConsole;
 extern void noui_connect();
 
@@ -82,7 +84,8 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName)
 
 BasicTestingSetup::~BasicTestingSetup()
 {
-    ECC_Stop();
+        ECC_Stop();
+        g_connman.reset();
 }
 
 TestingSetup::TestingSetup(const std::string& chainName) : JoinSplitTestingSetup(chainName)
@@ -90,6 +93,7 @@ TestingSetup::TestingSetup(const std::string& chainName) : JoinSplitTestingSetup
     const CChainParams& chainparams = Params();
         // Ideally we'd move all the RPC tests to the functional testing framework
         // instead of unit tests, but for now we need these here.
+
         RegisterAllCoreRPCCommands(tableRPC);
 
         // Save current path, in case a test changes it
@@ -106,6 +110,8 @@ TestingSetup::TestingSetup(const std::string& chainName) : JoinSplitTestingSetup
         nScriptCheckThreads = 3;
         for (int i=0; i < nScriptCheckThreads-1; i++)
             threadGroup.create_thread(&ThreadScriptCheck);
+        g_connman = std::unique_ptr<CConnman>(new CConnman());
+        connman = g_connman.get();
         RegisterNodeSignals(GetNodeSignals());
 }
 
