@@ -29,11 +29,13 @@ struct JoinSplitTestingSetup: public BasicTestingSetup {
 /** Testing setup that configures a complete environment.
  * Included are data directory, coins database, script check threads setup.
  */
+class CConnman;
 struct TestingSetup: public JoinSplitTestingSetup {
     CCoinsViewDB *pcoinsdbview;
     fs::path orig_current_path;
     fs::path pathTemp;
     boost::thread_group threadGroup;
+    CConnman* connman;
 
     TestingSetup(const std::string& chainName = CBaseChainParams::MAIN);
     ~TestingSetup();
