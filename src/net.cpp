@@ -144,7 +144,7 @@ static std::vector<CAddress> convertSeed6(const std::vector<SeedSpec6> &vSeedsIn
     {
         struct in6_addr ip;
         memcpy(&ip, i->addr, sizeof(ip));
-        CAddress addr(CService(ip, i->port));
+        CAddress addr(CService(ip, i->port), NODE_NETWORK);
         addr.nTime = GetTime() - GetRand(nOneWeek) - nOneWeek;
         vSeedsOut.push_back(addr);
     }
@@ -161,9 +161,8 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer)
     CService addr;
     if (GetLocal(addr, paddrPeer))
     {
-        ret = CAddress(addr);
+        ret = CAddress(addr, nLocalServices);
     }
-    ret.nServices = nLocalServices;
     ret.nTime = GetTime();
     return ret;
 }
@@ -451,7 +450,7 @@ void CNode::PushVersion()
     int nBestHeight = g_signals.GetHeight().get_value_or(0);
 
     int64_t nTime = GetTime();
-    CAddress addrYou = (addr.IsRoutable() && !IsProxy(addr) ? addr : CAddress(CService("0.0.0.0",0)));
+    CAddress addrYou = (addr.IsRoutable() && !IsProxy(addr) ? addr : CAddress(CService("0.0.0.0",0), addr.nServices));
     CAddress addrMe = GetLocalAddress(&addr);
     GetRandBytes((unsigned char*)&nLocalHostNonce, sizeof(nLocalHostNonce));
     if (fLogIPs)
@@ -1409,7 +1408,7 @@ void ThreadDNSAddressSeed()
         } else {
             vector<CNetAddr> vIPs;
             vector<CAddress> vAdd;
-            if (LookupHost(seed.host.c_str(), vIPs))
+            if (LookupHost(seed.host.c_str(), vIPs, 0, true))
             {
                 for (const CNetAddr& ip : vIPs)
                 {
@@ -1483,8 +1482,11 @@ void ThreadOpenConnections()
             ProcessOneShot();
             for (const std::string& strAddr : mapMultiArgs["-connect"])
             {
-                CAddress addr;
-                OpenNetworkConnection(addr, NULL, strAddr.c_str());
+                CAddress addr(CService(), 0);
+                OpenNetworkConnection(addr, NULL, strAddr.c_str());  //We're not sure about this yet
+                //=======
+                //OpenNetworkConnection(addr, false, NULL, strAddr.c_str());
+                //>>>>>>> 15bf863219 (Don't require services in -addnode)
                 for (int i = 0; i < 10 && i < nLoop; i++)
                 {
                     MilliSleep(500);
@@ -1636,7 +1638,12 @@ void ThreadOpenAddedConnections()
         for (vector<CService>& vserv : lservAddressesToAdd)
         {
             CSemaphoreGrant grant(*semOutbound);
-            OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
+            OpenNetworkConnection(CAddress(vserv[i % vserv.size()], 0), &grant);
+            //=======
+            ///* We want -addnode to work even for nodes that don't provide all
+            // * wanted services, so pass in nServices=0 to CAddress. */
+            //OpenNetworkConnection(CAddress(vserv[i % vserv.size()], 0), false, &grant);
+            //>>>>>>> 15bf863219 (Don't require services in -addnode)
             MilliSleep(500);
         }
         MilliSleep(120000); // Retry every 2 minutes
