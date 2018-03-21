@@ -13,135 +13,60 @@ BOOST_FIXTURE_TEST_SUITE(streams_tests, TestingSetup)
 
 BOOST_AUTO_TEST_CASE(streams_buffered_file)
 {
-    FILE* file = fopen("streams_test_tmp", "w+b");
-    // The value at each offset is the offset.
-    for (uint8_t j = 0; j < 40; ++j) {
-        fwrite(&j, 1, 1, file);
-    }
-    rewind(file);
+    unsigned char a(1);
+    unsigned char b(2);
+    unsigned char bytes[] = { 3, 4, 5, 6 };
+    std::vector<unsigned char> vch;
 
-    // The buffer size (second arg) must be greater than the rewind
-    // amount (third arg).
-    try {
-        CBufferedFile bfbad(file, 25, 25, 222, 333);
-        BOOST_CHECK(false);
-    } catch (const std::exception& e) {
-        BOOST_CHECK(strstr(e.what(),
-                        "Rewind limit must be less than buffer size") != nullptr);
-    }
+    // Each test runs twice. Serializing a second time at the same starting
+    // point should yield the same results, even if the first test grew the
+    // vector.
 
-    // The buffer is 25 bytes, allow rewinding 10 bytes.
-    CBufferedFile bf(file, 25, 10, 222, 333);
-    BOOST_CHECK(!bf.eof());
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{1, 2}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{1, 2}}));
+    vch.clear();
 
-    // These two members have no functional effect.
-    BOOST_CHECK_EQUAL(bf.GetType(), 222);
-    BOOST_CHECK_EQUAL(bf.GetVersion(), 333);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 1, 2}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 1, 2}}));
+    vch.clear();
 
-    uint8_t i;
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 0);
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 1);
+    vch.resize(5, 0);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 1, 2, 0}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 1, 2, 0}}));
+    vch.clear();
 
-    // After reading bytes 0 and 1, we're positioned at 2.
-    BOOST_CHECK_EQUAL(bf.GetPos(), 2);
+    vch.resize(4, 0);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 3, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 0, 1, 2}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 3, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 0, 1, 2}}));
+    vch.clear();
 
-    // Rewind to offset 0, ok (within the 10 byte window).
-    BOOST_CHECK(bf.SetPos(0));
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 0);
+    vch.resize(4, 0);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 4, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 0, 0, 1, 2}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 4, a, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{0, 0, 0, 0, 1, 2}}));
+    vch.clear();
 
-    // We can go forward to where we've been, but beyond may fail.
-    BOOST_CHECK(bf.SetPos(2));
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 2);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, bytes);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{3, 4, 5, 6}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 0, bytes);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{3, 4, 5, 6}}));
+    vch.clear();
 
-    // If you know the maximum number of bytes that should be
-    // read to deserialize the variable, you can limit the read
-    // extent. The current file offset is 3, so the following
-    // SetLimit() allows zero bytes to be read.
-    BOOST_CHECK(bf.SetLimit(3));
-    try {
-        bf >> i;
-        BOOST_CHECK(false);
-    } catch (const std::exception& e) {
-        BOOST_CHECK(strstr(e.what(),
-                        "Read attempted past buffer limit") != nullptr);
-    }
-    // The default argument removes the limit completely.
-    BOOST_CHECK(bf.SetLimit());
-    // The read position should still be at 3 (no change).
-    BOOST_CHECK_EQUAL(bf.GetPos(), 3);
-
-    // Read from current offset, 3, forward until position 10.
-    for (uint8_t j = 3; j < 10; ++j) {
-        bf >> i;
-        BOOST_CHECK_EQUAL(i, j);
-    }
-    BOOST_CHECK_EQUAL(bf.GetPos(), 10);
-
-    // We're guaranteed (just barely) to be able to rewind to zero.
-    BOOST_CHECK(bf.SetPos(0));
-    BOOST_CHECK_EQUAL(bf.GetPos(), 0);
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 0);
-
-    // We can set the position forward again up to the farthest
-    // into the stream we've been, but no farther. (Attempting
-    // to go farther may succeed, but it's not guaranteed.)
-    BOOST_CHECK(bf.SetPos(10));
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 10);
-    BOOST_CHECK_EQUAL(bf.GetPos(), 11);
-
-    // Now it's only guaranteed that we can rewind to offset 1
-    // (current read position, 11, minus rewind amount, 10).
-    BOOST_CHECK(bf.SetPos(1));
-    BOOST_CHECK_EQUAL(bf.GetPos(), 1);
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 1);
-
-    // We can stream into large variables, even larger than
-    // the buffer size.
-    BOOST_CHECK(bf.SetPos(11));
-    {
-        uint8_t a[40 - 11];
-        bf >> FLATDATA(a);
-        for (uint8_t j = 0; j < sizeof(a); ++j) {
-            BOOST_CHECK_EQUAL(a[j], 11 + j);
-        }
-    }
-    BOOST_CHECK_EQUAL(bf.GetPos(), 40);
-
-    // We've read the entire file, the next read should throw.
-    try {
-        bf >> i;
-        BOOST_CHECK(false);
-    } catch (const std::exception& e) {
-        BOOST_CHECK(strstr(e.what(),
-                        "CBufferedFile::Fill: end of file") != nullptr);
-    }
-    // Attempting to read beyond the end sets the EOF indicator.
-    BOOST_CHECK(bf.eof());
-
-    // Still at offset 40, we can go back 10, to 30.
-    BOOST_CHECK_EQUAL(bf.GetPos(), 40);
-    BOOST_CHECK(bf.SetPos(30));
-    bf >> i;
-    BOOST_CHECK_EQUAL(i, 30);
-    BOOST_CHECK_EQUAL(bf.GetPos(), 31);
-
-    // We're too far to rewind to position zero.
-    BOOST_CHECK(!bf.SetPos(0));
-    // But we should now be positioned at least as far back as allowed
-    // by the rewind window (relative to our farthest read position, 40).
-    BOOST_CHECK(bf.GetPos() <= 30);
-
-    // We can explicitly close the file, or the destructor will do it.
-    bf.fclose();
-
-    fs::remove("streams_test_tmp");
+    vch.resize(4, 8);
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, bytes, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{8, 8, 1, 3, 4, 5, 6, 2}}));
+    CVectorWriter(SER_NETWORK, INIT_PROTO_VERSION, vch, 2, a, bytes, b);
+    BOOST_CHECK((vch == std::vector<unsigned char>{{8, 8, 1, 3, 4, 5, 6, 2}}));
+    vch.clear();
 }
 
 BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
