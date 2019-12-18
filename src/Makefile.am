@@ -126,6 +126,7 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  asmap.h \
   arith_uint256.h \
   asyncrpcoperation.h \
   asyncrpcqueue.h \
@@ -417,6 +418,7 @@ libbitcoin_common_a_SOURCES = \
 libbitcoin_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_util_a_SOURCES = \
+  asmap.cpp \
   support/lockedpool.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \
