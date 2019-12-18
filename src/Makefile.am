@@ -229,6 +229,7 @@ BITCOIN_CORE_H = \
   utilstrencodings.h \
   utiltest.h \
   utiltime.h \
+  asmap.h \
   validationinterface.h \
   version.h \
   wallet/asyncrpcoperation_common.h \
@@ -435,7 +436,8 @@ libbitcoin_util_a_SOURCES = \
   utilstrencodings.cpp \
   utiltime.cpp \
   $(BITCOIN_CORE_H) \
-  $(LIBZCASH_H)
+  $(LIBZCASH_H) \
+  asmap.cpp
 
 if GLIBC_BACK_COMPAT
 libbitcoin_util_a_SOURCES += compat/glibc_compat.cpp
