@@ -40,6 +40,8 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
+#include "util/asmap.h"
+#include "hash.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
@@ -102,6 +104,7 @@ enum BindFlags {
     BF_REPORT_ERROR = (1U << 1),
     BF_WHITELIST    = (1U << 2),
 };
+static const char* DEFAULT_ASMAP_FILENAME="ip_asn.map";
 
 static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 CClientUIInterface uiInterface; // Declared but not defined in ui_interface.h
@@ -362,6 +365,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-reindex", _("Rebuild chain state and block index from the blk*.dat files on disk"));
 #ifndef WIN32
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
+    gArgs.AddArg("-asmap=<file>", "Specify asn mapping used for bucketing of the peers. Path should be relative to the -datadir path.", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
 #endif
     strUsage += HelpMessageOpt("-txexpirynotify=<cmd>", _("Execute command when transaction expires (%s in cmd is replaced by transaction id)"));
     strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), DEFAULT_TXINDEX));
@@ -1801,23 +1805,3 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     GenerateBitcoins(GetBoolArg("-gen", DEFAULT_GENERATE), GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
 #endif
 
-    // ********************************************************* Step 12: finished
-
-    SetRPCWarmupFinished();
-    uiInterface.InitMessage(_("Done loading"));
-
-#ifdef ENABLE_WALLET
-    if (pwalletMain) {
-        // Add wallet transactions that aren't already in a block to mapTransactions
-        pwalletMain->ReacceptWalletTransactions();
-
-        // Run a thread to flush wallet periodically
-        threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
-    }
-#endif
-
-    // SENDALERT
-    threadGroup.create_thread(boost::bind(ThreadSendAlert));
-
-    return !fRequestShutdown;
-}

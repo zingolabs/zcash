@@ -120,9 +120,10 @@ class CNetAddr
         unsigned int GetByte(int n) const;
         uint64_t GetHash() const;
         bool GetInAddr(struct in_addr* pipv4Addr) const;
-        std::vector<unsigned char> GetGroup() const;
+        std::vector<unsigned char> GetGroup(const std::vector<bool> &asmap) const;
         std::vector<unsigned char> GetAddrBytes() const { return {std::begin(ip), std::end(ip)}; }
-        int GetReachabilityFrom(const CNetAddr *paddrPartner = NULL) const;
+
+        int GetReachabilityFrom(const CNetAddr *paddrPartner = nullptr) const;
 
         CNetAddr(const struct in6_addr& pipv6Addr, const uint32_t scope = 0);
         bool GetIn6Addr(struct in6_addr* pipv6Addr) const;

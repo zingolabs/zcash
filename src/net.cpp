@@ -1539,7 +1539,7 @@ void ThreadOpenConnections()
             LOCK(cs_vNodes);
             for (CNode* pnode : vNodes) {
                 if (!pnode->fInbound) {
-                    setConnected.insert(pnode->addr.GetGroup());
+                    setConnected.insert(pnode->addr.GetGroup(addrman.m_asmap));
                     nOutbound++;
                 }
             }
@@ -2393,7 +2393,7 @@ void CNode::EndMessage() UNLOCK_FUNCTION(cs_vSend)
     static const uint64_t k0 = GetRand(std::numeric_limits<uint64_t>::max());
     static const uint64_t k1 = GetRand(std::numeric_limits<uint64_t>::max());
 
-    std::vector<unsigned char> vchNetGroup(ad.GetGroup());
+    std::vector<unsigned char> vchNetGroup(ad.GetGroup(addrman.m_asmap));
 
     return CSipHasher(k0, k1).Write(&vchNetGroup[0], vchNetGroup.size()).Finalize();
 }
