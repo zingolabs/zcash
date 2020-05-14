@@ -49,10 +49,17 @@ enum Network
     NET_MAX,
 };
 
-/** IP address (IPv6, or IPv4 using mapped IPv6 range (::FFFF:0:0/96)) */
+/**
+ * Network address.
+ */
 class CNetAddr
 {
     protected:
+        /**
+         * Network to which this address belongs.
+         */
+        Network m_net{NET_IPV6};
+
         unsigned char ip[16]; // in network byte order
         uint32_t scopeId; // for scoped/link-local ipv6 addresses
 
@@ -61,6 +68,14 @@ class CNetAddr
         CNetAddr(const struct in_addr& ipv4Addr);
         void Init();
         void SetIP(const CNetAddr& ip);
+
+        /**
+         * Set from a legacy IPv6 address.
+         * Legacy IPv6 address may be a normal IPv6 address, or another address
+         * (e.g. IPv4) disguised as IPv6. This encoding is used in the legacy
+         * `addr` encoding.
+         */
+        void SetLegacyIPv6(const uint8_t ipv6[16]);
 
         /**
          * Set raw IPv4 or IPv6 address (in network byte order)
