@@ -45,54 +45,11 @@ static const unsigned int MAX_SIZE = 0x02000000;
 struct deserialize_type {};
 constexpr deserialize_type deserialize {};
 
-/**
- * Used to bypass the rule against non-const reference to temporary
- * where it makes sense with wrappers such as CFlatData or CTxDB
- */
-template<typename T>
-inline T& REF(const T& val)
-{
-    return const_cast<T&>(val);
-}
-
-/**
- * Used to acquire a non-const pointer "this" to generate bodies
- * of const serialization operations from a template
- */
-template<typename T>
-inline T* NCONST_PTR(const T* val)
-{
-    return const_cast<T*>(val);
-}
-
-/** 
- * Get begin pointer of vector (non-const version).
- * @note These functions avoid the undefined case of indexing into an empty
- * vector, as well as that of indexing after the end of the vector.
- */
-template <typename V>
-inline typename V::value_type* begin_ptr(V& v)
-{
-    return v.empty() ? NULL : &v[0];
-}
-/** Get begin pointer of vector (const version) */
-template <typename V>
-inline const typename V::value_type* begin_ptr(const V& v)
-{
-    return v.empty() ? NULL : &v[0];
-}
-/** Get end pointer of vector (non-const version) */
-template <typename V>
-inline typename V::value_type* end_ptr(V& v)
-{
-    return v.empty() ? NULL : (&v[0] + v.size());
-}
-/** Get end pointer of vector (const version) */
-template <typename V>
-inline const typename V::value_type* end_ptr(const V& v)
-{
-    return v.empty() ? NULL : (&v[0] + v.size());
-}
+//! Safely convert odd char pointer types to standard ones.
+inline char* CharCast(char* c) { return c; }
+inline char* CharCast(unsigned char* c) { return (char*)c; }
+inline const char* CharCast(const char* c) { return c; }
+inline const char* CharCast(const unsigned char* c) { return (const char*)c; }
 
 /*
  * Lowest-level serialization and conversion.
@@ -201,21 +158,29 @@ template<typename X> const X& ReadWriteAsHelper(const X& x) { return x; }
 #define READWRITE(...) (::SerReadWriteMany(s, ser_action, __VA_ARGS__))
 #define READWRITEAS(type, obj) (::SerReadWriteMany(s, ser_action, ReadWriteAsHelper<type>(obj)))
 
-/** 
- * Implement two methods, "Serialize" and "Unserialize", for serializable objects. These are
- * actually wrappers over the "SerializationOp" template method, which implements the body of each
- * classes' serialization code. Adding "ADD_SERIALIZE_METHODS" in the body of the class causes these
- * wrapper methods to be added as members. 
+/**
+ * Implement the Ser and Unser methods needed for implementing a formatter (see Using below).
+ *
+ * Both Ser and Unser are delegated to a single static method SerializationOps, which is polymorphic
+ * in the serialized/deserialized type (allowing it to be const when serializing, and non-const when
+ * deserializing).
+ *
+ * Example use:
+ *   struct FooFormatter {
+ *     FORMATTER_METHODS(Class, obj) { READWRITE(obj.val1, VARINT(obj.val2)); }
+ *   }
+ *   would define a class FooFormatter that defines a serialization of Class objects consisting
+ *   of serializing its val1 member using the default serialization, and its val2 member using
+ *   VARINT serialization. That FooFormatter can then be used in statements like
+ *   READWRITE(Using<FooFormatter>(obj.bla)).
  */
-#define ADD_SERIALIZE_METHODS                                         \
-    template<typename Stream>                                         \
-    void Serialize(Stream& s) const {                                 \
-        NCONST_PTR(this)->SerializationOp(s, CSerActionSerialize());  \
-    }                                                                 \
-    template<typename Stream>                                         \
-    void Unserialize(Stream& s) {                                     \
-        SerializationOp(s, CSerActionUnserialize());                  \
-    }
+#define FORMATTER_METHODS(cls, obj) \
+    template<typename Stream> \
+    static void Ser(Stream& s, const cls& obj) { SerializationOps(obj, s, CSerActionSerialize()); } \
+    template<typename Stream> \
+    static void Unser(Stream& s, cls& obj) { SerializationOps(obj, s, CSerActionUnserialize()); } \
+    template<typename Stream, typename Type, typename Operation> \
+    static inline void SerializationOps(Type& obj, Stream& s, Operation ser_action) \
 
 /**
  * Implement the Serialize and Unserialize methods by delegating to a single templated
@@ -1000,6 +965,7 @@ void Unserialize(Stream& is, std::shared_ptr<const T>& p)
 
 
 /**
+<<<<<<< HEAD
  * Ed25519SigningKey
  */
 template<typename Stream>
@@ -1051,7 +1017,7 @@ void Unserialize(Stream& is, Ed25519Signature& sig)
 
 
 /**
- * Support for ADD_SERIALIZE_METHODS and READWRITE macro
+ * Support for SERIALIZE_METHODS and READWRITE macro.
  */
 struct CSerActionSerialize
 {
