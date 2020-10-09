@@ -493,7 +493,7 @@ static inline Wrapper<Formatter, T&> Using(T&& t) { return Wrapper<Formatter, T&
 #define FLATDATA(obj) CFlatData((char*)&(obj), (char*)&(obj) + sizeof(obj))
 #define VARINT_MODE(obj, mode) Using<VarIntFormatter<mode>>(obj)
 #define VARINT(obj) Using<VarIntFormatter<VarIntMode::DEFAULT>>(obj)
-#define COMPACTSIZE(obj) Using<CompactSizeFormatter>(obj)
+#define COMPACTSIZE(obj) Using<CompactSizeFormatter<true>>(obj)
 #define LIMITED_STRING(obj,n) Using<LimitedStringFormatter<n>>(obj)
 
 template<int Bytes, bool BigEndian = false>
