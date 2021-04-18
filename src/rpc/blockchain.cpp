@@ -17,6 +17,7 @@
 #include "streams.h"
 #include "sync.h"
 #include "util.h"
+#include "rpc/docstrings.h"
 
 #include <stdint.h>
 
@@ -731,6 +732,7 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "{\n"
             "  ...,                     Same output as verbosity = 1.\n"
             "  \"tx\" : [               (array of Objects) The transactions in the format of the getrawtransaction RPC. Different from verbosity = 1 \"tx\" result.\n"
+            + RAWTRANSACTION_DESCRIPTION +
             "         ,...\n"
             "  ],\n"
             "  ,...                     Same output as verbosity = 1.\n"
