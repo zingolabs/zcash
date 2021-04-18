@@ -294,7 +294,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
 
             "\nResult (if verbose > 0):\n"
             "{\n"
-            "  \"in_active_chain\": b,   (bool) Whether specified block is in the active chain or not (only present with explicit \"blockhash\" argument)\n"
+            "  \"in_active_chain\": b,   (boolean) Whether specified block is in the active chain or not (only present with explicit \"blockhash\" argument)\n"
             "  \"hex\" : \"data\",       (string) The serialized, hex-encoded data for 'txid'\n"
             "  \"txid\" : \"id\",        (string) The transaction id (same as provided)\n"
             "  \"size\" : n,             (numeric) The transaction size\n"
