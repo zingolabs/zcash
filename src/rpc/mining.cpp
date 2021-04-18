@@ -172,7 +172,7 @@ UniValue generate(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. numblocks    (numeric, required) How many blocks are generated immediately.\n"
             "\nResult\n"
-            "[ blockhashes ]     (array) hashes of blocks generated\n"
+            "[\n blockhashes     (string) hashes of blocks generated\n]"
             "\nExamples:\n"
             "\nGenerate 11 blocks\n"
             + HelpExampleCli("generate", "11")
