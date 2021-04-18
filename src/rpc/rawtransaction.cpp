@@ -269,10 +269,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     }
 }
 
-UniValue getrawtransaction(const UniValue& params, bool fHelp)
-{
-    if (fHelp || params.size() < 1 || params.size() > 3)
-        throw runtime_error(
+const string GETRAWTRANSACTION_HELP =
             "getrawtransaction \"txid\" ( verbose \"blockhash\" )\n"
             "\nNOTE: If \"blockhash\" is not provided and the -txindex option is not enabled, then this call only\n"
             "works for mempool transactions. If either \"blockhash\" is provided or the -txindex option is\n"
@@ -364,6 +361,11 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n"
+UniValue getrawtransaction(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 3)
+        throw runtime_error(
+           GETRAWTRANSACTION_HELP
             + HelpExampleCli("getrawtransaction", "\"mytxid\"")
             + HelpExampleCli("getrawtransaction", "\"mytxid\" 1")
             + HelpExampleRpc("getrawtransaction", "\"mytxid\", 1")
