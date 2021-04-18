@@ -691,7 +691,34 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
 
     return blockheaderToJSON(pblockindex);
 }
+const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
+            "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
+            "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+            "  \"size\" : n,            (numeric) The block size\n"
+            "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
+            "  \"version\" : n,         (numeric) The block version\n"
+            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
+            "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n"
+            "  \"finalorchardroot\" : \"xxxx\", (string) The root of the Orchard commitment tree after applying this block.\n"
+            "                                        Omitted for blocks prior to NU5 activation. This will be the null\n"
+            "                                        hash if this block has never been connected to a main chain.\n";
 
+const std::string VERBOSITY_ONE_DESCRIPTION_PART_TWO = ""
+            "  \"tx\" : [               (array of string) The transaction ids\n"
+            "     \"transactionid\"     (string) The transaction id\n"
+            "     ,...\n"
+            "  ],\n";
+            
+const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
+            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"nonce\" : n,           (numeric) The nonce\n"
+            "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
+            "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+            "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
+            "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
+ 
+const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE 
++ VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
 UniValue getblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -706,36 +733,15 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "\nResult (for verbosity = 0):\n"
             "\"data\"             (string) A string that is serialized, hex-encoded data for the block.\n"
             "\nResult (for verbosity = 1):\n"
+            "{\n" + VERBOSITY_ONE_DESCRIPTION + "}\n"
+           "\nResult (for verbosity = 2):\n"
             "{\n"
-            "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
-            "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
-            "  \"size\" : n,            (numeric) The block size\n"
-            "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
-            "  \"version\" : n,         (numeric) The block version\n"
-            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-            "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n"
-            "  \"finalorchardroot\" : \"xxxx\", (string) The root of the Orchard commitment tree after applying this block.\n"
-            "                                        Omitted for blocks prior to NU5 activation. This will be the null\n"
-            "                                        hash if this block has never been connected to a main chain.\n"
-            "  \"tx\" : [               (array of string) The transaction ids\n"
-            "     \"transactionid\"     (string) The transaction id\n"
-            "     ,...\n"
-            "  ],\n"
-            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "  \"nonce\" : n,           (numeric) The nonce\n"
-            "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
-            "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
-            "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-            "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
-            "}\n"
-            "\nResult (for verbosity = 2):\n"
-            "{\n"
-            "  ...,                     Same output as verbosity = 1.\n"
+            + VERBOSITY_ONE_DESCRIPTION_PART_ONE +
             "  \"tx\" : [               (array of Objects) The transactions in the format of the getrawtransaction RPC. Different from verbosity = 1 \"tx\" result.\n"
             + RAWTRANSACTION_DESCRIPTION +
             "         ,...\n"
             "  ],\n"
-            "  ,...                     Same output as verbosity = 1.\n"
+            + VERBOSITY_ONE_DESCRIPTION_PART_THREE +
             "}\n"
             "\nExamples:\n"
             + HelpExampleCli("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"")
