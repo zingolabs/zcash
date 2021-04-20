@@ -636,7 +636,10 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. \"hash\"          (string, required) The block hash\n"
             "2. verbose           (boolean, optional, default=true) true for a json object, false for the hex encoded data\n"
-            "\nResult (for verbose = true):\n"
+            "\nResult:\n"
+            "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
+	    "\n"
+            "\nResult:\n"
             "{\n"
             "  \"hash\" : \"hash\",     (string) the block hash (same as provided)\n"
             "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
@@ -651,8 +654,6 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
             "}\n"
-            "\nResult (for verbose=false):\n"
-            "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
             "\nExamples:\n"
             + HelpExampleCli("getblockheader", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
             + HelpExampleRpc("getblockheader", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
