@@ -543,8 +543,8 @@ std::string experimentalDisabledHelpMsg(const std::string& rpc, const std::vecto
             config += enableArgs.at(i) + "=1\n";
         }
         else {
-            cmd += "\nOR\n-experimentalfeatures and -" + enableArgs.at(i);
-            config += "\nOR\n\n";
+            cmd += " or:\n-experimentalfeatures and -" + enableArgs.at(i);
+            config += "\nor:\n\n";
             config += "experimentalfeatures=1\n";
             config += enableArgs.at(i) + "=1\n";
         }
