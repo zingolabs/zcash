@@ -970,6 +970,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
             "  \"addresses\":\n"
             "    [\n"
             "      \"address\"  (string) The base58check encoded address\n"
+            "       , ...\n"
             "    ]\n"
             "}\n"
             "(or)\n"
