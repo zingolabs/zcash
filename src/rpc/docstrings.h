@@ -1,3 +1,5 @@
+const std::string HELPTEXT_TEMPLATE = "foobar";
+
 const std::string RAWTRANSACTION_DESCRIPTION = "{\n"
             "  \"in_active_chain\": b,   (boolean) Whether specified block is in the active chain or not (only present with explicit \"blockhash\" argument)\n"
             "  \"hex\" : \"data\",       (string) The serialized, hex-encoded data for 'txid'\n"
