@@ -1,4 +1,20 @@
-const std::string HELPTEXT_TEMPLATE = "foobar";
+#ifndef RPC_DOCSTRINGS_H
+#define RPC_DOCSTRINGS_H
+
+using namespace std;
+
+struct HelpSections {
+    string name;
+    string description;
+    string arguments;
+    string result;
+    string examples;
+    string makeHelpMessage() {
+            string argstring = "";
+            if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
+            return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
+    }
+};
 
 const std::string RAWTRANSACTION_DESCRIPTION = "{\n"
             "  \"in_active_chain\": b,   (boolean) Whether specified block is in the active chain or not (only present with explicit \"blockhash\" argument)\n"
@@ -94,3 +110,4 @@ const std::string GETRAWTRANSACTION_HELP =
             + RAWTRANSACTION_DESCRIPTION +
             "\nExamples:\n";
 
+#endif
