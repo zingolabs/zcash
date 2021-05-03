@@ -499,10 +499,11 @@ UniValue getexperimentalfeatures(const UniValue& params, bool fHelp)
             "getexperimentalfeatures\n"
             "\nReturns enabled experimental features.\n"
             "\nResult:\n"
-            "  [\n"
-            "     \"experimentalfeature\"     (string) The enabled experimental feature\n"
-            "     ,...\n"
-            "  ],\n"            "\nExamples:\n"
+            "[\n"
+            "  \"experimentalfeature\"     (string) The enabled experimental feature\n"
+            "  , ...\n"
+            "]\n"            
+            "\nExamples:\n"
             + HelpExampleCli("getexperimentalfeatures", "")
             + HelpExampleRpc("getexperimentalfeatures", "")
         );
