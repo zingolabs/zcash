@@ -5,6 +5,7 @@ using namespace std;
 
 struct HelpSections {
     string name;
+    string usage;
     string description;
     string arguments;
     string result;
@@ -14,9 +15,16 @@ struct HelpSections {
             if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
             return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
-    HelpSections(): name("") {}
-    HelpSections help_builder() {
-        return HelpSections();
+    HelpSections(string rpc_name): 
+        name(rpc_name),
+        usage(""),
+        description(""),
+        arguments(""),
+        result(""),
+        examples("") {}
+    HelpSections& set_usage(string usage_message) {
+        this->usage = usage_message;
+        return *this;
     }
 };
 
