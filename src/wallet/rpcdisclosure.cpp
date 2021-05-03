@@ -6,6 +6,7 @@
 #include "init.h"
 #include "key_io.h"
 #include "main.h"
+#include "rpc/docstrings.h"
 #include "rpc/server.h"
 #include "script/script.h"
 #include "script/standard.h"
@@ -153,18 +154,22 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         disabledMsg = experimentalDisabledHelpMsg("z_validatepaymentdisclosure", {"paymentdisclosure"});
     }
 
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        string help_message = "";
+        string description = "Validates a payment disclosure." + disabledMsg; 
+        string examples = 
+                HelpExampleCli("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
+                + HelpExampleRpc("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
+                HelpSections output;
+                output.name = "z_validatepaymentdisclosure \"paymentdisclosure\"";
+                output.description = description;
+                output.arguments = "1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.";
+                output.result = "foo";
+                output.examples = examples;
         throw runtime_error(
-            "z_validatepaymentdisclosure \"paymentdisclosure\"\n"
-            "\nValidates a payment disclosure.\n"
-            "\nEXPERIMENTAL FEATURE\n"
-            + disabledMsg +
-            "\nArguments:\n"
-            "1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
-            + HelpExampleRpc("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
+              output.makeHelpMessage()
         );
+    }
 
     if (!fExperimentalPaymentDisclosure) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: payment disclosure is disabled.");
