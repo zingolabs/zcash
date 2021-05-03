@@ -53,7 +53,6 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
         throw runtime_error(
             "z_getpaymentdisclosure \"txid\" \"js_index\" \"output_index\" (\"message\") \n"
             "\nGenerate a payment disclosure for a given joinsplit output.\n"
-            "\nEXPERIMENTAL FEATURE\n"
             + disabledMsg +
             "\nArguments:\n"
             "1. \"txid\"            (string, required) \n"
@@ -61,7 +60,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
             "3. \"output_index\"    (string, required) \n"
             "4. \"message\"         (string, optional) \n"
             "\nResult:\n"
-            "\"paymentdisclosure\"  (string) Hex data string, with \"zpd:\" prefix.\n"
+            "\"zpd:paymentdisclosure\"  (string) Hex data string, with \"zpd:\" prefix.\n"
             "\nExamples:\n"
             + HelpExampleCli("z_getpaymentdisclosure", "96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2 0 0 \"refund\"")
             + HelpExampleRpc("z_getpaymentdisclosure", "\"96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2\", 0, 0, \"refund\"")

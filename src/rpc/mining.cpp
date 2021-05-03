@@ -171,10 +171,12 @@ UniValue generate(const UniValue& params, bool fHelp)
             "\nNote: this function can only be used on the regtest network\n"
             "\nArguments:\n"
             "1. numblocks    (numeric, required) How many blocks are generated immediately.\n"
-            "\nResult\n"
-            "[\n blockhashes     (string) hashes of blocks generated\n]"
+            "\nResult:\n"
+            "[\n"
+            "  \"blockhashes\"     (string) hashes of blocks generated\n"
+            "  , ...\n"
+            "]\n"
             "\nExamples:\n"
-            "\nGenerate 11 blocks\n"
             + HelpExampleCli("generate", "11")
         );
 
