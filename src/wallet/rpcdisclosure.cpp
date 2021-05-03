@@ -154,20 +154,26 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         disabledMsg = experimentalDisabledHelpMsg("z_validatepaymentdisclosure", {"paymentdisclosure"});
     }
 
+    HelpSections help_doc = HelpSections(__func__)
+                        .set_usage(" \"paymentdisclosure\"\n");/*
+
+                        .description("DESCRIPTION")
+                        .arguments("ARGUMENTS")
+                        .results("RESULTS")
+                        .examples("EXAMPLES");*/
     if (fHelp || params.size() != 1) {
-        string help_message = "";
+        /*string help_message = "";
         string description = "Validates a payment disclosure." + disabledMsg; 
         string examples = 
                 HelpExampleCli("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
                 + HelpExampleRpc("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
-                HelpSections output;
-                output.name = "z_validatepaymentdisclosure \"paymentdisclosure\"";
+        help_doc.usage = 
                 output.description = description;
                 output.arguments = "1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.";
                 output.result = "foo";
-                output.examples = examples;
+                output.examples = examples;*/
         throw runtime_error(
-              output.makeHelpMessage()
+              "output.makeHelpMessage()"
         );
     }
 
