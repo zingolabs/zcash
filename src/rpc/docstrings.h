@@ -14,6 +14,10 @@ struct HelpSections {
             if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
             return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
+    HelpSections(): name("") {}
+    HelpSections help_builder() {
+        return HelpSections();
+    }
 };
 
 const std::string RAWTRANSACTION_DESCRIPTION = "{\n"
