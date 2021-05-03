@@ -79,6 +79,7 @@ Makefile
 .cargo/.configured-for-*
 .cargo/config
 target/
+tags
 
 # Unit-tests
 Makefile.test
