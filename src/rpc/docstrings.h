@@ -18,7 +18,7 @@ struct HelpSections {
         usage(""),
         description(""),
         arguments(""),
-        result("This RPC does not return a result by default."),
+        result("This RPC does not return a result by default.\n"),
         examples("") {}
 
     // begin method section
@@ -26,7 +26,7 @@ struct HelpSections {
         // formats data section members into help message
         string argstring = "";
         if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
-        return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
+        return this->name + usage + "\n\nDescription:\n" + this->description + argstring + "\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
 
     // setter methods below.
@@ -46,18 +46,19 @@ struct HelpSections {
         this->result = result_message;
         return *this;
     }
-    HelpSections& set_examples() {
-        this->examples = this->make_example_cli() + this->make_example_rpc();
+    HelpSections& set_examples(string args) {
+        this->examples = 
+            this->make_example_cli(args) + this->make_example_rpc(args);
         return *this;
     }
     
     // helper methods below
-    string make_example_cli(){
-        return "> zcash-cli " + this->name + " " + this->usage + "\n";
+    string make_example_cli(string args){
+        return "> zcash-cli " + this->name + " " + args + "\n";
     }
-    string make_example_rpc(){
+    string make_example_rpc(string args){
         return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-        "\"method\": \"" + this->name + "\", \"params\": [" + this->usage + "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
+        "\"method\": \"" + this->name + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
     }
 
 };
