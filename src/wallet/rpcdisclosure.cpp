@@ -156,12 +156,12 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1) {
         HelpSections help_doc = HelpSections(__func__)
-                                .set_usage(" \"paymentdisclosure\"\n")
-                                .set_description("Validates a payment disclosure." + disabledMsg)
-                                .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
-                                .set_examples("z_validatepaymentdisclosure \"zpd:706462ff004c561a0447ba2ec51184e6c204...\"\ncurl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"z_validatepaymentdisclosure\", \"params\": [\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/");
+            .set_usage(" \"paymentdisclosure\"\n")
+            .set_description("Validates a payment disclosure." + disabledMsg)
+            .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
+            .set_examples();
         throw runtime_error(
-              "output.makeHelpMessage()"
+            help_doc.makeHelpMessage()
         );
     }
 
