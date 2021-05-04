@@ -30,6 +30,18 @@ struct HelpSections {
         this->description = description_message;
         return *this;
     }
+    HelpSections& set_arguments(string arguments_message) {
+        this->arguments = arguments_message;
+        return *this;
+    }
+    HelpSections& set_result(string result_message) {
+        this->result = result_message;
+        return *this;
+    }
+    HelpSections& set_examples(string examples_message) {
+        this->examples = examples_message;
+        return *this;
+    }
 };
 
 const std::string RAWTRANSACTION_DESCRIPTION = "{\n"
