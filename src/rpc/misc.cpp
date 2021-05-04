@@ -10,6 +10,7 @@
 #include "main.h"
 #include "net.h"
 #include "netbase.h"
+#include "rpc/docstrings.h"
 #include "rpc/server.h"
 #include "txmempool.h"
 #include "util.h"
@@ -961,32 +962,33 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         disabledMsg = experimentalDisabledHelpMsg("getaddressbalance", {"insightexplorer", "lightwalletd"});
     }
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage("{\"addresses\": [\"taddr\", ...]}")
+            .set_description(
+                "Returns the balance for addresses.\n" 
+                + disabledMsg
+                + "/nNOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n"
+            ).set_arguments(
+                "{\n"
+                "  \"addresses\":\n"
+                "    [\n"
+                "      \"address\"\t(string) The base58check encoded address\n"
+                "      , ...\n"
+                "    ]\n"
+                "}\n"
+                "(or)\n"
+                "\"address\"\t(string) The base58check encoded address\n"
+            ).set_result(
+                "{\n"
+                "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
+                "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
+                "}\n"
+            ).set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
         throw runtime_error(
-            "getaddressbalance {\"addresses\": [\"taddr\", ...]}\n"
-            "\nReturns the balance for addresses.\n"
-            + disabledMsg +
-            "\n"
-            "NOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n"
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\":\n"
-            "    [\n"
-            "      \"address\"\t(string) The base58check encoded address\n"
-            "      , ...\n"
-            "    ]\n"
-            "}\n"
-            "(or)\n"
-            "\"address\"\t(string) The base58check encoded address\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
-            "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'")
-            + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}")
+                help_sections.makeHelpMessage()
         );
+    }
 
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getaddressbalance is disabled. "
