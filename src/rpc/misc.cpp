@@ -958,11 +958,11 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getaddressbalance(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getaddressbalance", {"insightexplorer", "lightwalletd"});
-    }
     if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getaddressbalance", {"insightexplorer", "lightwalletd"});
+        }
         HelpSections help_sections = HelpSections(__func__)
             .set_usage("{\"addresses\": [\"taddr\", ...]}")
             .set_description(
