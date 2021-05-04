@@ -26,7 +26,7 @@ struct HelpSections {
         // formats data section members into help message
         string argstring = "";
         if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
-        return this->name + usage + "\n\nDescription:\n" + this->description + argstring + "\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
+        return this->name + " " + usage + "\n\nDescription:\n" + this->description + argstring + "\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
 
     // setter methods below.

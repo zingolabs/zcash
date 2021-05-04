@@ -157,7 +157,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1) {
         HelpSections help_doc = HelpSections(__func__)
-            .set_usage(" \"paymentdisclosure\"")
+            .set_usage("\"paymentdisclosure\"")
             .set_description("Validates a payment disclosure.\n" + disabledMsg)
             .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
             .set_examples("\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
