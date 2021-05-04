@@ -45,12 +45,12 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    string disabledMsg = "";
-    if (!fExperimentalPaymentDisclosure) {
-        disabledMsg = experimentalDisabledHelpMsg("z_getpaymentdisclosure", {"paymentdisclosure"});
-    }
+    if (fHelp || params.size() < 3 || params.size() > 4 ) {
+        string disabledMsg = "";
+        if (!fExperimentalPaymentDisclosure) {
+            disabledMsg = experimentalDisabledHelpMsg("z_getpaymentdisclosure", {"paymentdisclosure"});
+        }
 
-    if (fHelp || params.size() < 3 || params.size() > 4 )
         throw runtime_error(
             "z_getpaymentdisclosure \"txid\" \"js_index\" \"output_index\" (\"message\") \n"
             "\nGenerate a payment disclosure for a given joinsplit output.\n"
@@ -66,6 +66,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
             + HelpExampleCli("z_getpaymentdisclosure", "96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2 0 0 \"refund\"")
             + HelpExampleRpc("z_getpaymentdisclosure", "\"96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2\", 0, 0, \"refund\"")
         );
+    }
 
     if (!fExperimentalPaymentDisclosure) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: payment disclosure is disabled.");
@@ -156,10 +157,10 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1) {
         HelpSections help_doc = HelpSections(__func__)
-            .set_usage(" \"paymentdisclosure\"\n")
-            .set_description("Validates a payment disclosure." + disabledMsg)
+            .set_usage(" \"paymentdisclosure\"")
+            .set_description("Validates a payment disclosure.\n" + disabledMsg)
             .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
-            .set_examples();
+            .set_examples("\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
         throw runtime_error(
             help_doc.makeHelpMessage()
         );
