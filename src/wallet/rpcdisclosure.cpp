@@ -155,15 +155,14 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
     }
 
     HelpSections help_doc = HelpSections(__func__)
-                        .set_usage(" \"paymentdisclosure\"\n");/*
+                        .set_usage(" \"paymentdisclosure\"\n")
 
-                        .description("DESCRIPTION")
+                        .set_description("Validates a payment disclosure." + disabledMsg);/*
                         .arguments("ARGUMENTS")
                         .results("RESULTS")
                         .examples("EXAMPLES");*/
     if (fHelp || params.size() != 1) {
         /*string help_message = "";
-        string description = "Validates a payment disclosure." + disabledMsg; 
         string examples = 
                 HelpExampleCli("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
                 + HelpExampleRpc("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
