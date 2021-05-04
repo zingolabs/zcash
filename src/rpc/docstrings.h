@@ -20,10 +20,14 @@ struct HelpSections {
         usage(""),
         description(""),
         arguments(""),
-        result(""),
+        result("This RPC does not return a result by default."),
         examples("") {}
     HelpSections& set_usage(string usage_message) {
         this->usage = usage_message;
+        return *this;
+    }
+    HelpSections& set_description(string description_message) {
+        this->description = description_message;
         return *this;
     }
 };
