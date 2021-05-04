@@ -154,23 +154,12 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         disabledMsg = experimentalDisabledHelpMsg("z_validatepaymentdisclosure", {"paymentdisclosure"});
     }
 
-    HelpSections help_doc = HelpSections(__func__)
-                        .set_usage(" \"paymentdisclosure\"\n")
-
-                        .set_description("Validates a payment disclosure." + disabledMsg);/*
-                        .arguments("ARGUMENTS")
-                        .results("RESULTS")
-                        .examples("EXAMPLES");*/
     if (fHelp || params.size() != 1) {
-        /*string help_message = "";
-        string examples = 
-                HelpExampleCli("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"")
-                + HelpExampleRpc("z_validatepaymentdisclosure", "\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
-        help_doc.usage = 
-                output.description = description;
-                output.arguments = "1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.";
-                output.result = "foo";
-                output.examples = examples;*/
+        HelpSections help_doc = HelpSections(__func__)
+                                .set_usage(" \"paymentdisclosure\"\n")
+                                .set_description("Validates a payment disclosure." + disabledMsg)
+                                .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
+                                .set_examples("z_validatepaymentdisclosure \"zpd:706462ff004c561a0447ba2ec51184e6c204...\"\ncurl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"z_validatepaymentdisclosure\", \"params\": [\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/");
         throw runtime_error(
               "output.makeHelpMessage()"
         );
