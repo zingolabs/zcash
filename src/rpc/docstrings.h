@@ -4,24 +4,32 @@
 using namespace std;
 
 struct HelpSections {
+    // begin data section
     string name;
     string usage;
     string description;
     string arguments;
     string result;
     string examples;
-    string makeHelpMessage() {
-            string argstring = "";
-            if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
-            return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
-    }
+    
     HelpSections(string rpc_name): 
+        // constructor: includes defaults
         name(rpc_name),
         usage(""),
         description(""),
         arguments(""),
         result("This RPC does not return a result by default."),
         examples("") {}
+
+    // begin method section
+    string makeHelpMessage() {
+        // formats data section members into help message
+        string argstring = "";
+        if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;
+        return this->name + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
+    }
+
+    // setter methods below.
     HelpSections& set_usage(string usage_message) {
         this->usage = usage_message;
         return *this;
@@ -38,10 +46,20 @@ struct HelpSections {
         this->result = result_message;
         return *this;
     }
-    HelpSections& set_examples(string examples_message) {
-        this->examples = examples_message;
+    HelpSections& set_examples() {
+        this->examples = this->make_example_cli() + this->make_example_rpc();
         return *this;
     }
+    
+    // helper methods below
+    string make_example_cli(){
+        return "> zcash-cli " + this->name + " " + this->usage + "\n";
+    }
+    string make_example_rpc(){
+        return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
+        "\"method\": \"" + this->name + "\", \"params\": [" + this->usage + "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
+    }
+
 };
 
 const std::string RAWTRANSACTION_DESCRIPTION = "{\n"
