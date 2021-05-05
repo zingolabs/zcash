@@ -985,9 +985,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
                 "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
                 "}\n"
             ).set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
-        throw runtime_error(
-                help_sections.makeHelpMessage()
-        );
+        throw runtime_error(help_sections.makeHelpMessage());
     }
 
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
