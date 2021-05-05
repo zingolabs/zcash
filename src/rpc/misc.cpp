@@ -815,65 +815,66 @@ static void getAddressesInHeightRange(
 // insightexplorer
 UniValue getaddressdeltas(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getaddressdeltas", {"insightexplorer", "lightwalletd"});
+    if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getaddressdeltas", {"insightexplorer", "lightwalletd"});
+        }
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_usage("{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n), (\"chainInfo\": true|false)}")
+                                         .set_description("Returns all changes for an address.\n"
+                                                          "\nReturns information about all changes to the given transparent addresses within the given (inclusive)\n"
+                                                          "\nblock height range, default is the full blockchain.\n" +
+                                                          disabledMsg)
+                                         .set_arguments(
+                                             "{\n"
+                                             "  \"addresses\":\n"
+                                             "    [\n"
+                                             "      \"address\" (string) The base58check encoded address\n"
+                                             "      ,...\n"
+                                             "    ]\n"
+                                             "  \"start\"       (numeric, optional) The start block height\n"
+                                             "  \"end\"         (numeric, optional) The end block height\n"
+                                             "  \"chainInfo\"   (boolean, optional, default=false) Include chain info in results, only applies if start and end specified\n"
+                                             "}\n"
+                                             "(or)\n"
+                                             "\"address\"       (string) The base58check encoded address")
+                                         .set_result(
+                                             "[\n"
+                                             "  {\n"
+                                             "    \"satoshis\"  (numeric) The difference of zatoshis\n"
+                                             "    \"txid\"      (string) The related txid\n"
+                                             "    \"index\"     (numeric) The related input or output index\n"
+                                             "    \"height\"    (numeric) The block height\n"
+                                             "    \"address\"   (string) The base58check encoded address\n"
+                                             "  }, ...\n"
+                                             "]\n\n"
+                                             "(or, if chainInfo is true):\n\n"
+                                             "{\n"
+                                             "  \"deltas\":\n"
+                                             "    [\n"
+                                             "      {\n"
+                                             "        \"satoshis\"    (numeric) The difference of zatoshis\n"
+                                             "        \"txid\"        (string) The related txid\n"
+                                             "        \"index\"       (numeric) The related input or output index\n"
+                                             "        \"height\"      (numeric) The block height\n"
+                                             "        \"address\"     (string)  The address base58check encoded\n"
+                                             "      }, ...\n"
+                                             "    ],\n"
+                                             "  \"start\":\n"
+                                             "    {\n"
+                                             "      \"hash\"          (string)  The start block hash\n"
+                                             "      \"height\"        (numeric) The height of the start block\n"
+                                             "    }\n"
+                                             "  \"end\":\n"
+                                             "    {\n"
+                                             "      \"hash\"          (string)  The end block hash\n"
+                                             "      \"height\"        (numeric) The height of the end block\n"
+                                             "    }\n"
+                                             "}")
+                                         .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}'");
+        throw runtime_error(help_sections.combine_sections());
     }
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getaddressdeltas {\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n), (\"chainInfo\": true|false)}\n"
-            "\nReturns all changes for an address.\n"
-            "\nReturns information about all changes to the given transparent addresses within the given (inclusive)\n"
-            "\nblock height range, default is the full blockchain.\n" +
-            disabledMsg +
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\":\n"
-            "    [\n"
-            "      \"address\" (string) The base58check encoded address\n"
-            "      ,...\n"
-            "    ]\n"
-            "  \"start\"       (numeric, optional) The start block height\n"
-            "  \"end\"         (numeric, optional) The end block height\n"
-            "  \"chainInfo\"   (boolean, optional, default=false) Include chain info in results, only applies if start and end specified\n"
-            "}\n"
-            "(or)\n"
-            "\"address\"       (string) The base58check encoded address\n"
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"satoshis\"  (numeric) The difference of zatoshis\n"
-            "    \"txid\"      (string) The related txid\n"
-            "    \"index\"     (numeric) The related input or output index\n"
-            "    \"height\"    (numeric) The block height\n"
-            "    \"address\"   (string) The base58check encoded address\n"
-            "  }, ...\n"
-            "]\n\n"
-            "(or, if chainInfo is true):\n\n"
-            "{\n"
-            "  \"deltas\":\n"
-            "    [\n"
-            "      {\n"
-            "        \"satoshis\"    (numeric) The difference of zatoshis\n"
-            "        \"txid\"        (string) The related txid\n"
-            "        \"index\"       (numeric) The related input or output index\n"
-            "        \"height\"      (numeric) The block height\n"
-            "        \"address\"     (string)  The address base58check encoded\n"
-            "      }, ...\n"
-            "    ],\n"
-            "  \"start\":\n"
-            "    {\n"
-            "      \"hash\"          (string)  The start block hash\n"
-            "      \"height\"        (numeric) The height of the start block\n"
-            "    }\n"
-            "  \"end\":\n"
-            "    {\n"
-            "      \"hash\"          (string)  The end block hash\n"
-            "      \"height\"        (numeric) The height of the end block\n"
-            "    }\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}'") + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}"));
 
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getaddressdeltas is disabled. "
