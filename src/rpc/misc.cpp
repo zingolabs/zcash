@@ -587,32 +587,33 @@ UniValue getaddressmempool(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getaddressmempool", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("{\"addresses\": [\"taddr\", ...]}")
-                                         .set_description("Returns all mempool deltas for an address.\n" +
-                                                          disabledMsg)
-                                         .set_arguments("{\n"
-                                                        "  \"addresses\":\n"
-                                                        "    [\n"
-                                                        "      \"address\"  (string) The base58check encoded address\n"
-                                                        "      , ...\n"
-                                                        "    ]\n"
-                                                        "}\n"
-                                                        "(or)\n"
-                                                        "\"address\"  (string) The base58check encoded address")
-                                         .set_result(
-                                             "[\n"
-                                             "  {\n"
-                                             "    \"address\"  (string) The base58check encoded address\n"
-                                             "    \"txid\"  (string) The related txid\n"
-                                             "    \"index\"  (numeric) The related input or output index\n"
-                                             "    \"satoshis\"  (numeric) The difference of zatoshis\n"
-                                             "    \"timestamp\"  (numeric) The time the transaction entered the mempool (seconds)\n"
-                                             "    \"prevtxid\"  (string) The previous txid (if spending)\n"
-                                             "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
-                                             "  }\n"
-                                             "]")
-                                         .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("{\"addresses\": [\"taddr\", ...]}")
+                .set_description("Returns all mempool deltas for an address.\n" +
+                                 disabledMsg)
+                .set_arguments("{\n"
+                               "  \"addresses\":\n"
+                               "    [\n"
+                               "      \"address\"  (string) The base58check encoded address\n"
+                               "      , ...\n"
+                               "    ]\n"
+                               "}\n"
+                               "(or)\n"
+                               "\"address\"  (string) The base58check encoded address")
+                .set_result(
+                    "[\n"
+                    "  {\n"
+                    "    \"address\"  (string) The base58check encoded address\n"
+                    "    \"txid\"  (string) The related txid\n"
+                    "    \"index\"  (numeric) The related input or output index\n"
+                    "    \"satoshis\"  (numeric) The difference of zatoshis\n"
+                    "    \"timestamp\"  (numeric) The time the transaction entered the mempool (seconds)\n"
+                    "    \"prevtxid\"  (string) The previous txid (if spending)\n"
+                    "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
+                    "  }\n"
+                    "]")
+                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
         throw runtime_error(help_sections.combine_sections());
     }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
@@ -663,52 +664,53 @@ UniValue getaddressutxos(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getaddressutxos", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage(
-                                             "{\"addresses\": [\"taddr\", ...], (\"chainInfo\": true|false)}")
-                                         .set_description(
-                                             "Returns all unspent outputs for an address.\n" +
-                                             disabledMsg)
-                                         .set_arguments(
-                                             "{\n"
-                                             "  \"addresses\":\n"
-                                             "    [\n"
-                                             "      \"address\"  (string) The base58check encoded address\n"
-                                             "      ,...\n"
-                                             "    ],\n"
-                                             "  \"chainInfo\"  (boolean, optional, default=false) Include chain info with results\n"
-                                             "}\n"
-                                             "(or)\n"
-                                             "\"address\"  (string) The base58check encoded address")
-                                         .set_result(
-                                             "[\n"
-                                             "  {\n"
-                                             "    \"address\"  (string) The address base58check encoded\n"
-                                             "    \"txid\"  (string) The output txid\n"
-                                             "    \"height\"  (numeric) The block height\n"
-                                             "    \"outputIndex\"  (numeric) The output index\n"
-                                             "    \"script\"  (string) The script hex encoded\n"
-                                             "    \"satoshis\"  (numeric) The number of zatoshis of the output\n"
-                                             "  }, ...\n"
-                                             "]\n\n"
-                                             "(or, if chainInfo is true):\n\n"
-                                             "{\n"
-                                             "  \"utxos\":\n"
-                                             "    [\n"
-                                             "      {\n"
-                                             "        \"address\"     (string)  The address base58check encoded\n"
-                                             "        \"txid\"        (string)  The output txid\n"
-                                             "        \"height\"      (numeric)  The block height\n"
-                                             "        \"outputIndex\" (numeric)  The output index\n"
-                                             "        \"script\"      (string)  The script hex encoded\n"
-                                             "        \"satoshis\"    (numeric)  The number of zatoshis of the output\n"
-                                             "      }, ...\n"
-                                             "    ],\n"
-                                             "  \"hash\"              (string)  The block hash\n"
-                                             "  \"height\"            (numeric) The block height\n"
-                                             "}")
-                                         .set_examples(
-                                             "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(
+                    "{\"addresses\": [\"taddr\", ...], (\"chainInfo\": true|false)}")
+                .set_description(
+                    "Returns all unspent outputs for an address.\n" +
+                    disabledMsg)
+                .set_arguments(
+                    "{\n"
+                    "  \"addresses\":\n"
+                    "    [\n"
+                    "      \"address\"  (string) The base58check encoded address\n"
+                    "      ,...\n"
+                    "    ],\n"
+                    "  \"chainInfo\"  (boolean, optional, default=false) Include chain info with results\n"
+                    "}\n"
+                    "(or)\n"
+                    "\"address\"  (string) The base58check encoded address")
+                .set_result(
+                    "[\n"
+                    "  {\n"
+                    "    \"address\"  (string) The address base58check encoded\n"
+                    "    \"txid\"  (string) The output txid\n"
+                    "    \"height\"  (numeric) The block height\n"
+                    "    \"outputIndex\"  (numeric) The output index\n"
+                    "    \"script\"  (string) The script hex encoded\n"
+                    "    \"satoshis\"  (numeric) The number of zatoshis of the output\n"
+                    "  }, ...\n"
+                    "]\n\n"
+                    "(or, if chainInfo is true):\n\n"
+                    "{\n"
+                    "  \"utxos\":\n"
+                    "    [\n"
+                    "      {\n"
+                    "        \"address\"     (string)  The address base58check encoded\n"
+                    "        \"txid\"        (string)  The output txid\n"
+                    "        \"height\"      (numeric)  The block height\n"
+                    "        \"outputIndex\" (numeric)  The output index\n"
+                    "        \"script\"      (string)  The script hex encoded\n"
+                    "        \"satoshis\"    (numeric)  The number of zatoshis of the output\n"
+                    "      }, ...\n"
+                    "    ],\n"
+                    "  \"hash\"              (string)  The block hash\n"
+                    "  \"height\"            (numeric) The block height\n"
+                    "}")
+                .set_examples(
+                    "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}'");
         throw runtime_error(help_sections.combine_sections());
     }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
@@ -822,59 +824,60 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getaddressdeltas", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n), (\"chainInfo\": true|false)}")
-                                         .set_description("Returns all changes for an address.\n"
-                                                          "\nReturns information about all changes to the given transparent addresses within the given (inclusive)\n"
-                                                          "\nblock height range, default is the full blockchain.\n" +
-                                                          disabledMsg)
-                                         .set_arguments(
-                                             "{\n"
-                                             "  \"addresses\":\n"
-                                             "    [\n"
-                                             "      \"address\" (string) The base58check encoded address\n"
-                                             "      , ...\n"
-                                             "    ]\n"
-                                             "  \"start\"       (numeric, optional) The start block height\n"
-                                             "  \"end\"         (numeric, optional) The end block height\n"
-                                             "  \"chainInfo\"   (boolean, optional, default=false) Include chain info in results, only applies if start and end specified\n"
-                                             "}\n"
-                                             "(or)\n"
-                                             "\"address\"       (string) The base58check encoded address")
-                                         .set_result(
-                                             "[\n"
-                                             "  {\n"
-                                             "    \"satoshis\"  (numeric) The difference of zatoshis\n"
-                                             "    \"txid\"      (string) The related txid\n"
-                                             "    \"index\"     (numeric) The related input or output index\n"
-                                             "    \"height\"    (numeric) The block height\n"
-                                             "    \"address\"   (string) The base58check encoded address\n"
-                                             "  }, ...\n"
-                                             "]\n\n"
-                                             "(or, if chainInfo is true):\n\n"
-                                             "{\n"
-                                             "  \"deltas\":\n"
-                                             "    [\n"
-                                             "      {\n"
-                                             "        \"satoshis\"    (numeric) The difference of zatoshis\n"
-                                             "        \"txid\"        (string) The related txid\n"
-                                             "        \"index\"       (numeric) The related input or output index\n"
-                                             "        \"height\"      (numeric) The block height\n"
-                                             "        \"address\"     (string)  The address base58check encoded\n"
-                                             "      }, ...\n"
-                                             "    ],\n"
-                                             "  \"start\":\n"
-                                             "    {\n"
-                                             "      \"hash\"          (string)  The start block hash\n"
-                                             "      \"height\"        (numeric) The height of the start block\n"
-                                             "    }\n"
-                                             "  \"end\":\n"
-                                             "    {\n"
-                                             "      \"hash\"          (string)  The end block hash\n"
-                                             "      \"height\"        (numeric) The height of the end block\n"
-                                             "    }\n"
-                                             "}")
-                                         .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n), (\"chainInfo\": true|false)}")
+                .set_description("Returns all changes for an address.\n"
+                                 "\nReturns information about all changes to the given transparent addresses within the given (inclusive)\n"
+                                 "\nblock height range, default is the full blockchain.\n" +
+                                 disabledMsg)
+                .set_arguments(
+                    "{\n"
+                    "  \"addresses\":\n"
+                    "    [\n"
+                    "      \"address\" (string) The base58check encoded address\n"
+                    "      , ...\n"
+                    "    ]\n"
+                    "  \"start\"       (numeric, optional) The start block height\n"
+                    "  \"end\"         (numeric, optional) The end block height\n"
+                    "  \"chainInfo\"   (boolean, optional, default=false) Include chain info in results, only applies if start and end specified\n"
+                    "}\n"
+                    "(or)\n"
+                    "\"address\"       (string) The base58check encoded address")
+                .set_result(
+                    "[\n"
+                    "  {\n"
+                    "    \"satoshis\"  (numeric) The difference of zatoshis\n"
+                    "    \"txid\"      (string) The related txid\n"
+                    "    \"index\"     (numeric) The related input or output index\n"
+                    "    \"height\"    (numeric) The block height\n"
+                    "    \"address\"   (string) The base58check encoded address\n"
+                    "  }, ...\n"
+                    "]\n\n"
+                    "(or, if chainInfo is true):\n\n"
+                    "{\n"
+                    "  \"deltas\":\n"
+                    "    [\n"
+                    "      {\n"
+                    "        \"satoshis\"    (numeric) The difference of zatoshis\n"
+                    "        \"txid\"        (string) The related txid\n"
+                    "        \"index\"       (numeric) The related input or output index\n"
+                    "        \"height\"      (numeric) The block height\n"
+                    "        \"address\"     (string)  The address base58check encoded\n"
+                    "      }, ...\n"
+                    "    ],\n"
+                    "  \"start\":\n"
+                    "    {\n"
+                    "      \"hash\"          (string)  The start block hash\n"
+                    "      \"height\"        (numeric) The height of the start block\n"
+                    "    }\n"
+                    "  \"end\":\n"
+                    "    {\n"
+                    "      \"hash\"          (string)  The end block hash\n"
+                    "      \"height\"        (numeric) The height of the end block\n"
+                    "    }\n"
+                    "}")
+                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}'");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -950,26 +953,27 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getaddressbalance", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("{\"addresses\": [\"taddr\", ...]}")
-                                         .set_description(
-                                             "Returns the balance for addresses.\n" + disabledMsg + "\nNOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n")
-                                         .set_arguments(
-                                             "{\n"
-                                             "  \"addresses\":\n"
-                                             "    [\n"
-                                             "      \"address\"\t(string) The base58check encoded address\n"
-                                             "      , ...\n"
-                                             "    ]\n"
-                                             "}\n"
-                                             "(or)\n"
-                                             "\"address\"\t(string) The base58check encoded address")
-                                         .set_result(
-                                             "{\n"
-                                             "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
-                                             "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
-                                             "}")
-                                         .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("{\"addresses\": [\"taddr\", ...]}")
+                .set_description(
+                    "Returns the balance for addresses.\n" + disabledMsg + "\nNOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n")
+                .set_arguments(
+                    "{\n"
+                    "  \"addresses\":\n"
+                    "    [\n"
+                    "      \"address\"\t(string) The base58check encoded address\n"
+                    "      , ...\n"
+                    "    ]\n"
+                    "}\n"
+                    "(or)\n"
+                    "\"address\"\t(string) The base58check encoded address")
+                .set_result(
+                    "{\n"
+                    "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
+                    "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
+                    "}")
+                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -1006,32 +1010,33 @@ UniValue getaddresstxids(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getaddresstxids", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage(
-                                             "{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n)}")
-                                         .set_description(
-                                             "Returns the txids for given transparent addresses within the given (inclusive)\n"
-                                             "\nblock height range, default is the full blockchain.\n" +
-                                             disabledMsg)
-                                         .set_arguments(
-                                             "{\n"
-                                             "  \"addresses\":\n"
-                                             "    [\n"
-                                             "      \"taddr\"  (string) The base58check encoded address\n"
-                                             "      ,...\n"
-                                             "    ]\n"
-                                             "  \"start\" (numeric, optional) The start block height\n"
-                                             "  \"end\" (numeric, optional) The end block height\n"
-                                             "}\n"
-                                             "(or)\n"
-                                             "\"address\"  (string) The base58check encoded address\n")
-                                         .set_result(
-                                             "[\n"
-                                             "  \"transactionid\"  (string) The transaction id\n"
-                                             "  ,...\n"
-                                             "]")
-                                         .set_examples(
-                                             "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(
+                    "{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n)}")
+                .set_description(
+                    "Returns the txids for given transparent addresses within the given (inclusive)\n"
+                    "\nblock height range, default is the full blockchain.\n" +
+                    disabledMsg)
+                .set_arguments(
+                    "{\n"
+                    "  \"addresses\":\n"
+                    "    [\n"
+                    "      \"taddr\"  (string) The base58check encoded address\n"
+                    "      ,...\n"
+                    "    ]\n"
+                    "  \"start\" (numeric, optional) The start block height\n"
+                    "  \"end\" (numeric, optional) The end block height\n"
+                    "}\n"
+                    "(or)\n"
+                    "\"address\"  (string) The base58check encoded address\n")
+                .set_result(
+                    "[\n"
+                    "  \"transactionid\"  (string) The transaction id\n"
+                    "  ,...\n"
+                    "]")
+                .set_examples(
+                    "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}'");
         throw runtime_error(help_sections.combine_sections());
     }
 
