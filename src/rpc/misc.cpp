@@ -951,7 +951,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
         HelpSections help_sections = HelpSections(__func__)
                                          .set_usage("{\"addresses\": [\"taddr\", ...]}")
                                          .set_description(
-                                             "Returns the balance for addresses.\n" + disabledMsg + "/nNOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n")
+                                             "Returns the balance for addresses.\n" + disabledMsg + "\nNOTE: -insightexplorer requires -txindex. You need to rebuild the database using -reindex to change -lightwalletd or -txindex.\n")
                                          .set_arguments(
                                              "{\n"
                                              "  \"addresses\":\n"
@@ -961,12 +961,12 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
                                              "    ]\n"
                                              "}\n"
                                              "(or)\n"
-                                             "\"address\"\t(string) The base58check encoded address\n")
+                                             "\"address\"\t(string) The base58check encoded address")
                                          .set_result(
                                              "{\n"
                                              "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
                                              "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
-                                             "}\n")
+                                             "}")
                                          .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
         throw runtime_error(help_sections.combine_sections());
     }
