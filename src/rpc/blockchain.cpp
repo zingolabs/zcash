@@ -272,17 +272,13 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
 
 UniValue getblockcount(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getblockcount\n"
-            "\nReturns the number of blocks in the best valid block chain.\n"
-            "\nResult:\n"
-            "n    (numeric) The current block count\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockcount", "")
-            + HelpExampleRpc("getblockcount", "")
-        );
-
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_description("\nReturns the number of blocks in the best valid block chain.\n")
+            .set_result("n    (numeric) The current block count\n")
+            .set_examples("");
+        throw runtime_error(help_sections.makeHelpMessage());
+    }
     LOCK(cs_main);
     return chainActive.Height();
 }
