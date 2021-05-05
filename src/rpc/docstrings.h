@@ -22,7 +22,7 @@ struct HelpSections {
         examples("") {}
 
     // begin method section
-    string makeHelpMessage() {
+    string combine_sections() {
         // formats data section members into help message
         string argstring = "";
         if (!this->arguments.empty()) argstring += "\n\nArguments:\n" + this->arguments;

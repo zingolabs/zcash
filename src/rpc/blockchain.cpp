@@ -286,7 +286,7 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
             .set_description("\nReturns the number of blocks in the best valid block chain.\n")
             .set_result("n    (numeric) The current block count\n")
             .set_examples("");
-        throw runtime_error(help_sections.makeHelpMessage());
+        throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
     return chainActive.Height();
@@ -299,7 +299,7 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
             .set_description("Returns the hash of the best (tip) block in the longest block chain.\n")
             .set_result("\"hex\"      (string) the block hash hex encoded")
             .set_examples("");
-        throw runtime_error(help_sections.makeHelpMessage());
+        throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
     return chainActive.Tip()->GetBlockHash().GetHex();
