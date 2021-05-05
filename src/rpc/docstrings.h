@@ -47,7 +47,7 @@ struct HelpSections {
         return *this;
     }
     HelpSections& set_examples(string args) {
-        this->examples = 
+        this->examples +=
             this->make_example_cli(args) + this->make_example_rpc(args);
         return *this;
     }
