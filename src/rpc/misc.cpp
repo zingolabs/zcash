@@ -830,7 +830,7 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
                                              "  \"addresses\":\n"
                                              "    [\n"
                                              "      \"address\" (string) The base58check encoded address\n"
-                                             "      ,...\n"
+                                             "      , ...\n"
                                              "    ]\n"
                                              "  \"start\"       (numeric, optional) The start block height\n"
                                              "  \"end\"         (numeric, optional) The end block height\n"
@@ -998,35 +998,39 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getaddresstxids(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getaddresstxids", {"insightexplorer", "lightwalletd"});
+    if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getaddresstxids", {"insightexplorer", "lightwalletd"});
+        }
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_usage(
+                                             "{\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n)}")
+                                         .set_description(
+                                             "Returns the txids for given transparent addresses within the given (inclusive)\n"
+                                             "\nblock height range, default is the full blockchain.\n" +
+                                             disabledMsg)
+                                         .set_arguments(
+                                             "{\n"
+                                             "  \"addresses\":\n"
+                                             "    [\n"
+                                             "      \"taddr\"  (string) The base58check encoded address\n"
+                                             "      ,...\n"
+                                             "    ]\n"
+                                             "  \"start\" (numeric, optional) The start block height\n"
+                                             "  \"end\" (numeric, optional) The end block height\n"
+                                             "}\n"
+                                             "(or)\n"
+                                             "\"address\"  (string) The base58check encoded address\n")
+                                         .set_result(
+                                             "[\n"
+                                             "  \"transactionid\"  (string) The transaction id\n"
+                                             "  ,...\n"
+                                             "]")
+                                         .set_examples(
+                                             "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}'");
+        throw runtime_error(help_sections.combine_sections());
     }
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getaddresstxids {\"addresses\": [\"taddr\", ...], (\"start\": n), (\"end\": n)}\n"
-            "\nReturns the txids for given transparent addresses within the given (inclusive)\n"
-            "\nblock height range, default is the full blockchain.\n" +
-            disabledMsg +
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\":\n"
-            "    [\n"
-            "      \"taddr\"  (string) The base58check encoded address\n"
-            "      ,...\n"
-            "    ]\n"
-            "  \"start\" (numeric, optional) The start block height\n"
-            "  \"end\" (numeric, optional) The end block height\n"
-            "}\n"
-            "(or)\n"
-            "\"address\"  (string) The base58check encoded address\n"
-            "\nResult:\n"
-            "[\n"
-            "  \"transactionid\"  (string) The transaction id\n"
-            "  ,...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}'") + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}"));
 
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getaddresstxids is disabled. "
