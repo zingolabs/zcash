@@ -369,14 +369,12 @@ UniValue mempoolToJSON(bool fVerbose = false)
 
 UniValue getrawmempool(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
-        throw runtime_error(
-            "getrawmempool ( verbose )\n"
-            "\nReturns all transaction ids in memory pool as a json array of string transaction ids.\n"
-            "\nArguments:\n"
-            "1. verbose           (boolean, optional, default=false) true for a json object, false for array of transaction ids\n"
-            "\nResult:\n"
-            "[                     (json array of string)\n"
+    if (fHelp || params.size() > 1){
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage(" ( verbose )")
+            .set_description("Returns all transaction ids in memory pool as a json array of string transaction ids.")
+            .set_arguments("1. verbose           (boolean, optional, default=false) true for a json object, false for array of transaction ids")
+            .set_result("[                     (json array of string)\n"
             "  \"transactionid\"     (string) The transaction id\n"
             "]\n"
             "\n"
@@ -393,11 +391,10 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
             "        \"transactionid\",    (string) parent transaction id\n"
             "        ]\n"
             "  }\n"
-            "}\n"
-            "\nExamples\n"
-            + HelpExampleCli("getrawmempool", "true")
-            + HelpExampleRpc("getrawmempool", "true")
-        );
+            "}")
+            .set_examples("true");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
