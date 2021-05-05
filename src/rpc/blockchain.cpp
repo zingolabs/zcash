@@ -284,8 +284,7 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
         HelpSections help_sections =
             HelpSections(__func__)
                 .set_description("Returns the hash of the best (tip) block in the longest block chain.")
-                .set_result("\"hex\"      (string) the block hash hex encoded")
-                .set_examples("");
+                .set_result("\"hex\"      (string) the block hash hex encoded");
         throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
