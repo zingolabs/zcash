@@ -283,8 +283,8 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
         HelpSections help_sections = HelpSections(__func__)
-            .set_description("\nReturns the number of blocks in the best valid block chain.\n")
-            .set_result("n    (numeric) The current block count\n")
+            .set_description("Returns the number of blocks in the best valid block chain.")
+            .set_result("n    (numeric) The current block count")
             .set_examples("");
         throw runtime_error(help_sections.combine_sections());
     }
@@ -296,7 +296,7 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
         HelpSections help_sections = HelpSections(__func__)
-            .set_description("Returns the hash of the best (tip) block in the longest block chain.\n")
+            .set_description("Returns the hash of the best (tip) block in the longest block chain.")
             .set_result("\"hex\"      (string) the block hash hex encoded")
             .set_examples("");
         throw runtime_error(help_sections.combine_sections());
@@ -307,16 +307,13 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
 
 UniValue getdifficulty(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getdifficulty\n"
-            "\nReturns the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
-            "\nResult:\n"
-            "n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getdifficulty", "")
-            + HelpExampleRpc("getdifficulty", "")
-        );
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_description("Returns the proof-of-work difficulty as a multiple of the minimum difficulty.")
+            .set_result("n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.")
+            .set_examples("");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
     return GetNetworkDifficulty();
