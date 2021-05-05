@@ -658,56 +658,59 @@ UniValue getaddressmempool(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getaddressutxos(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getaddressutxos", {"insightexplorer", "lightwalletd"});
+    if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getaddressutxos", {"insightexplorer", "lightwalletd"});
+        }
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_usage(
+                                             "{\"addresses\": [\"taddr\", ...], (\"chainInfo\": true|false)}")
+                                         .set_description(
+                                             "Returns all unspent outputs for an address.\n" +
+                                             disabledMsg)
+                                         .set_arguments(
+                                             "{\n"
+                                             "  \"addresses\":\n"
+                                             "    [\n"
+                                             "      \"address\"  (string) The base58check encoded address\n"
+                                             "      ,...\n"
+                                             "    ],\n"
+                                             "  \"chainInfo\"  (boolean, optional, default=false) Include chain info with results\n"
+                                             "}\n"
+                                             "(or)\n"
+                                             "\"address\"  (string) The base58check encoded address")
+                                         .set_result(
+                                             "[\n"
+                                             "  {\n"
+                                             "    \"address\"  (string) The address base58check encoded\n"
+                                             "    \"txid\"  (string) The output txid\n"
+                                             "    \"height\"  (numeric) The block height\n"
+                                             "    \"outputIndex\"  (numeric) The output index\n"
+                                             "    \"script\"  (string) The script hex encoded\n"
+                                             "    \"satoshis\"  (numeric) The number of zatoshis of the output\n"
+                                             "  }, ...\n"
+                                             "]\n\n"
+                                             "(or, if chainInfo is true):\n\n"
+                                             "{\n"
+                                             "  \"utxos\":\n"
+                                             "    [\n"
+                                             "      {\n"
+                                             "        \"address\"     (string)  The address base58check encoded\n"
+                                             "        \"txid\"        (string)  The output txid\n"
+                                             "        \"height\"      (numeric)  The block height\n"
+                                             "        \"outputIndex\" (numeric)  The output index\n"
+                                             "        \"script\"      (string)  The script hex encoded\n"
+                                             "        \"satoshis\"    (numeric)  The number of zatoshis of the output\n"
+                                             "      }, ...\n"
+                                             "    ],\n"
+                                             "  \"hash\"              (string)  The block hash\n"
+                                             "  \"height\"            (numeric) The block height\n"
+                                             "}")
+                                         .set_examples(
+                                             "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}'");
+        throw runtime_error(help_sections.combine_sections());
     }
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getaddressutxos {\"addresses\": [\"taddr\", ...], (\"chainInfo\": true|false)}\n"
-            "\nReturns all unspent outputs for an address.\n" +
-            disabledMsg +
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\":\n"
-            "    [\n"
-            "      \"address\"  (string) The base58check encoded address\n"
-            "      ,...\n"
-            "    ],\n"
-            "  \"chainInfo\"  (boolean, optional, default=false) Include chain info with results\n"
-            "}\n"
-            "(or)\n"
-            "\"address\"  (string) The base58check encoded address\n"
-            "\nResult\n"
-            "[\n"
-            "  {\n"
-            "    \"address\"  (string) The address base58check encoded\n"
-            "    \"txid\"  (string) The output txid\n"
-            "    \"height\"  (numeric) The block height\n"
-            "    \"outputIndex\"  (numeric) The output index\n"
-            "    \"script\"  (string) The script hex encoded\n"
-            "    \"satoshis\"  (numeric) The number of zatoshis of the output\n"
-            "  }, ...\n"
-            "]\n\n"
-            "(or, if chainInfo is true):\n\n"
-            "{\n"
-            "  \"utxos\":\n"
-            "    [\n"
-            "      {\n"
-            "        \"address\"     (string)  The address base58check encoded\n"
-            "        \"txid\"        (string)  The output txid\n"
-            "        \"height\"      (numeric)  The block height\n"
-            "        \"outputIndex\" (numeric)  The output index\n"
-            "        \"script\"      (string)  The script hex encoded\n"
-            "        \"satoshis\"    (numeric)  The number of zatoshis of the output\n"
-            "      }, ...\n"
-            "    ],\n"
-            "  \"hash\"              (string)  The block hash\n"
-            "  \"height\"            (numeric) The block height\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}'") + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}"));
-
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getaddressutxos is disabled. "
                                            "Run './zcash-cli help getaddressutxos' for instructions on how to enable this feature.");
