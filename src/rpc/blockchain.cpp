@@ -276,10 +276,11 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool tx
 UniValue getblockcount(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description("Returns the number of blocks in the best valid block chain.")
-                                         .set_result("n    (numeric) The current block count")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the number of blocks in the best valid block chain.")
+                .set_result("n    (numeric) The current block count")
+                .set_examples("");
         throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
@@ -289,10 +290,11 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
 UniValue getbestblockhash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description("Returns the hash of the best (tip) block in the longest block chain.")
-                                         .set_result("\"hex\"      (string) the block hash hex encoded")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the hash of the best (tip) block in the longest block chain.")
+                .set_result("\"hex\"      (string) the block hash hex encoded")
+                .set_examples("");
         throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
@@ -302,10 +304,11 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
 UniValue getdifficulty(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description("Returns the proof-of-work difficulty as a multiple of the minimum difficulty.")
-                                         .set_result("n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the proof-of-work difficulty as a multiple of the minimum difficulty.")
+                .set_result("n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.")
+                .set_examples("");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -358,30 +361,31 @@ UniValue mempoolToJSON(bool fVerbose = false)
 UniValue getrawmempool(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage(" ( verbose )")
-                                         .set_description("Returns all transaction ids in memory pool as a json array of string transaction ids.")
-                                         .set_arguments("1. verbose           (boolean, optional, default=false) true for a json object, false for array of transaction ids")
-                                         .set_result("[                     (json array of string)\n"
-                                                     "  \"transactionid\"     (string) The transaction id\n"
-                                                     "]\n"
-                                                     "\n"
-                                                     "\nResult:\n"
-                                                     "{\n"
-                                                     "  \"transactionid\" : {\n"
-                                                     "    \"size\" : n,             (numeric) transaction size in bytes\n"
-                                                     "    \"fee\" : n,              (numeric) transaction fee in " +
-                                                     CURRENCY_UNIT + "\n"
-                                                                     "    \"time\" : n,             (numeric) local time transaction entered pool in seconds since 1 Jan 1970 GMT\n"
-                                                                     "    \"height\" : n,           (numeric) block height when transaction entered pool\n"
-                                                                     "    \"startingpriority\" : n, (numeric) priority when transaction entered pool\n"
-                                                                     "    \"currentpriority\" : n,  (numeric) transaction priority now\n"
-                                                                     "    \"depends\" : [\n"
-                                                                     "        \"transactionid\",    (string) parent transaction id\n"
-                                                                     "        ]\n"
-                                                                     "  }\n"
-                                                                     "}")
-                                         .set_examples("true");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(" ( verbose )")
+                .set_description("Returns all transaction ids in memory pool as a json array of string transaction ids.")
+                .set_arguments("1. verbose           (boolean, optional, default=false) true for a json object, false for array of transaction ids")
+                .set_result("[                     (json array of string)\n"
+                            "  \"transactionid\"     (string) The transaction id\n"
+                            "]\n"
+                            "\n"
+                            "\nResult:\n"
+                            "{\n"
+                            "  \"transactionid\" : {\n"
+                            "    \"size\" : n,             (numeric) transaction size in bytes\n"
+                            "    \"fee\" : n,              (numeric) transaction fee in " +
+                            CURRENCY_UNIT + "\n"
+                                            "    \"time\" : n,             (numeric) local time transaction entered pool in seconds since 1 Jan 1970 GMT\n"
+                                            "    \"height\" : n,           (numeric) block height when transaction entered pool\n"
+                                            "    \"startingpriority\" : n, (numeric) priority when transaction entered pool\n"
+                                            "    \"currentpriority\" : n,  (numeric) transaction priority now\n"
+                                            "    \"depends\" : [\n"
+                                            "        \"transactionid\",    (string) parent transaction id\n"
+                                            "        ]\n"
+                                            "  }\n"
+                                            "}")
+                .set_examples("true");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -402,49 +406,50 @@ UniValue getblockdeltas(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getblockdeltas", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("\"blockhash\"")
-                                         .set_description("Returns information about the given block and its transactions.\n" + disabledMsg)
-                                         .set_arguments("1. \"hash\"          (string, required) The block hash")
-                                         .set_result("{\n"
-                                                     "  \"hash\": \"hash\",              (string) block ID\n"
-                                                     "  \"confirmations\": n,          (numeric) number of confirmations\n"
-                                                     "  \"size\": n,                   (numeric) block size in bytes\n"
-                                                     "  \"height\": n,                 (numeric) block height\n"
-                                                     "  \"version\": n,                (numeric) block version (e.g. 4)\n"
-                                                     "  \"merkleroot\": \"hash\",        (hexadecimal) block Merkle root\n"
-                                                     "  \"deltas\": [\n"
-                                                     "    {\n"
-                                                     "      \"txid\": \"hash\",          (hexadecimal) transaction ID\n"
-                                                     "      \"index\": n,              (numeric) The offset of the tx in the block\n"
-                                                     "      \"inputs\": [                (array of json objects)\n"
-                                                     "        {\n"
-                                                     "          \"address\": \"taddr\",  (string) transparent address\n"
-                                                     "          \"satoshis\": n,       (numeric) negative of spend amount\n"
-                                                     "          \"index\": n,          (numeric) vin index\n"
-                                                     "          \"prevtxid\": \"hash\",  (string) source utxo tx ID\n"
-                                                     "          \"prevout\": n         (numeric) source utxo index\n"
-                                                     "        }, ...\n"
-                                                     "      ],\n"
-                                                     "      \"outputs\": [             (array of json objects)\n"
-                                                     "        {\n"
-                                                     "          \"address\": \"taddr\",  (string) transparent address\n"
-                                                     "          \"satoshis\": n,       (numeric) amount\n"
-                                                     "          \"index\": n           (numeric) vout index\n"
-                                                     "        }, ...\n"
-                                                     "      ]\n"
-                                                     "    }, ...\n"
-                                                     "  ],\n"
-                                                     "  \"time\" : n,                  (numeric) The block version\n"
-                                                     "  \"mediantime\": n,             (numeric) The most recent blocks' ave time\n"
-                                                     "  \"nonce\" : \"nonce\",           (hexadecimal) The nonce\n"
-                                                     "  \"bits\" : \"1d00ffff\",         (hexadecimal) The bits\n"
-                                                     "  \"difficulty\": n,             (numeric) the current difficulty\n"
-                                                     "  \"chainwork\": \"xxxx\"          (hexadecimal) total amount of work in active chain\n"
-                                                     "  \"previousblockhash\" : \"hash\",(hexadecimal) The hash of the previous block\n"
-                                                     "  \"nextblockhash\" : \"hash\"     (hexadecimal) The hash of the next block\n"
-                                                     "}")
-                                         .set_examples("00227e566682aebd6a7a5b772c96d7a999cadaebeaf1ce96f4191a3aad58b00b");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"blockhash\"")
+                .set_description("Returns information about the given block and its transactions.\n" + disabledMsg)
+                .set_arguments("1. \"hash\"          (string, required) The block hash")
+                .set_result("{\n"
+                            "  \"hash\": \"hash\",              (string) block ID\n"
+                            "  \"confirmations\": n,          (numeric) number of confirmations\n"
+                            "  \"size\": n,                   (numeric) block size in bytes\n"
+                            "  \"height\": n,                 (numeric) block height\n"
+                            "  \"version\": n,                (numeric) block version (e.g. 4)\n"
+                            "  \"merkleroot\": \"hash\",        (hexadecimal) block Merkle root\n"
+                            "  \"deltas\": [\n"
+                            "    {\n"
+                            "      \"txid\": \"hash\",          (hexadecimal) transaction ID\n"
+                            "      \"index\": n,              (numeric) The offset of the tx in the block\n"
+                            "      \"inputs\": [                (array of json objects)\n"
+                            "        {\n"
+                            "          \"address\": \"taddr\",  (string) transparent address\n"
+                            "          \"satoshis\": n,       (numeric) negative of spend amount\n"
+                            "          \"index\": n,          (numeric) vin index\n"
+                            "          \"prevtxid\": \"hash\",  (string) source utxo tx ID\n"
+                            "          \"prevout\": n         (numeric) source utxo index\n"
+                            "        }, ...\n"
+                            "      ],\n"
+                            "      \"outputs\": [             (array of json objects)\n"
+                            "        {\n"
+                            "          \"address\": \"taddr\",  (string) transparent address\n"
+                            "          \"satoshis\": n,       (numeric) amount\n"
+                            "          \"index\": n           (numeric) vout index\n"
+                            "        }, ...\n"
+                            "      ]\n"
+                            "    }, ...\n"
+                            "  ],\n"
+                            "  \"time\" : n,                  (numeric) The block version\n"
+                            "  \"mediantime\": n,             (numeric) The most recent blocks' ave time\n"
+                            "  \"nonce\" : \"nonce\",           (hexadecimal) The nonce\n"
+                            "  \"bits\" : \"1d00ffff\",         (hexadecimal) The bits\n"
+                            "  \"difficulty\": n,             (numeric) the current difficulty\n"
+                            "  \"chainwork\": \"xxxx\"          (hexadecimal) total amount of work in active chain\n"
+                            "  \"previousblockhash\" : \"hash\",(hexadecimal) The hash of the previous block\n"
+                            "  \"nextblockhash\" : \"hash\"     (hexadecimal) The hash of the next block\n"
+                            "}")
+                .set_examples("00227e566682aebd6a7a5b772c96d7a999cadaebeaf1ce96f4191a3aad58b00b");
         throw runtime_error(help_sections.combine_sections());
     }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
@@ -480,30 +485,31 @@ UniValue getblockhashes(const UniValue& params, bool fHelp)
         if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
             disabledMsg = experimentalDisabledHelpMsg("getblockhashes", {"insightexplorer", "lightwalletd"});
         }
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("high low ( {\"noOrphans\": true|false, \"logicalTimes\": true|false} )")
-                                         .set_description("Returns array of hashes of blocks within the timestamp range provided,\n"
-                                                          "\ngreater or equal to low, less than high.\n" +
-                                                          disabledMsg)
-                                         .set_arguments("1. high                            (numeric, required) The newer block timestamp\n"
-                                                        "2. low                             (numeric, required) The older block timestamp\n"
-                                                        "3. options                         (string, optional) A json object\n"
-                                                        "    {\n"
-                                                        "      \"noOrphans\": true|false      (boolean) will only include blocks on the main chain\n"
-                                                        "      \"logicalTimes\": true|false   (boolean) will include logical timestamps with hashes\n"
-                                                        "    }")
-                                         .set_result("[\n"
-                                                     "  \"xxxx\"                   (hexadecimal) The block hash\n"
-                                                     "]\n"
-                                                     "or\n"
-                                                     "[\n"
-                                                     "  {\n"
-                                                     "    \"blockhash\": \"xxxx\"    (hexadecimal) The block hash\n"
-                                                     "    \"logicalts\": n         (numeric) The logical timestamp\n"
-                                                     "  }\n"
-                                                     "]")
-                                         .set_examples("1558141697 1558141576")
-                                         .set_examples("1558141697 1558141576 '{\"noOrphans\":false, \"logicalTimes\":true}'");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("high low ( {\"noOrphans\": true|false, \"logicalTimes\": true|false} )")
+                .set_description("Returns array of hashes of blocks within the timestamp range provided,\n"
+                                 "\ngreater or equal to low, less than high.\n" +
+                                 disabledMsg)
+                .set_arguments("1. high                            (numeric, required) The newer block timestamp\n"
+                               "2. low                             (numeric, required) The older block timestamp\n"
+                               "3. options                         (string, optional) A json object\n"
+                               "    {\n"
+                               "      \"noOrphans\": true|false      (boolean) will only include blocks on the main chain\n"
+                               "      \"logicalTimes\": true|false   (boolean) will include logical timestamps with hashes\n"
+                               "    }")
+                .set_result("[\n"
+                            "  \"xxxx\"                   (hexadecimal) The block hash\n"
+                            "]\n"
+                            "or\n"
+                            "[\n"
+                            "  {\n"
+                            "    \"blockhash\": \"xxxx\"    (hexadecimal) The block hash\n"
+                            "    \"logicalts\": n         (numeric) The logical timestamp\n"
+                            "  }\n"
+                            "]")
+                .set_examples("1558141697 1558141576")
+                .set_examples("1558141697 1558141576 '{\"noOrphans\":false, \"logicalTimes\":true}'");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -583,12 +589,13 @@ int parseHeightArg(const std::string& strHeight, int currentHeight)
 UniValue getblockhash(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("index")
-                                         .set_description("Returns hash of block in best-block-chain at index provided.")
-                                         .set_arguments("1. index         (numeric, required) The block index. If negative then -1 is the last known valid block")
-                                         .set_result("\"hash\"         (string) The block hash")
-                                         .set_examples("1000");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("index")
+                .set_description("Returns hash of block in best-block-chain at index provided.")
+                .set_arguments("1. index         (numeric, required) The block index. If negative then -1 is the last known valid block")
+                .set_result("\"hash\"         (string) The block hash")
+                .set_examples("1000");
         throw runtime_error(help_sections.combine_sections());
     }
     LOCK(cs_main);
@@ -600,30 +607,31 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
 UniValue getblockheader(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("\"hash\" ( verbose )")
-                                         .set_description("If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.\n"
-                                                          "If verbose is true, returns an Object with information about blockheader <hash>.")
-                                         .set_arguments("1. \"hash\"          (string, required) The block hash\n"
-                                                        "2. verbose           (boolean, optional, default=true) true for a json object, false for the hex encoded data")
-                                         .set_result("\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
-                                                     "\n"
-                                                     "\nResult:\n"
-                                                     "{\n"
-                                                     "  \"hash\" : \"hash\",     (string) the block hash (same as provided)\n"
-                                                     "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
-                                                     "  \"height\" : n,          (numeric) The block height or index\n"
-                                                     "  \"version\" : n,         (numeric) The block version\n"
-                                                     "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-                                                     "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n"
-                                                     "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-                                                     "  \"nonce\" : n,           (numeric) The nonce\n"
-                                                     "  \"bits\" : \"1d00ffff\", (string) The bits\n"
-                                                     "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
-                                                     "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-                                                     "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
-                                                     "}")
-                                         .set_examples("\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hash\" ( verbose )")
+                .set_description("If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.\n"
+                                 "If verbose is true, returns an Object with information about blockheader <hash>.")
+                .set_arguments("1. \"hash\"          (string, required) The block hash\n"
+                               "2. verbose           (boolean, optional, default=true) true for a json object, false for the hex encoded data")
+                .set_result("\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
+                            "\n"
+                            "\nResult:\n"
+                            "{\n"
+                            "  \"hash\" : \"hash\",     (string) the block hash (same as provided)\n"
+                            "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+                            "  \"height\" : n,          (numeric) The block height or index\n"
+                            "  \"version\" : n,         (numeric) The block version\n"
+                            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
+                            "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n"
+                            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+                            "  \"nonce\" : n,           (numeric) The nonce\n"
+                            "  \"bits\" : \"1d00ffff\", (string) The bits\n"
+                            "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+                            "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
+                            "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
+                            "}")
+                .set_examples("\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -962,56 +970,57 @@ void NetworkUpgradeDescPushBack(
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description(
-                                             "Returns an object containing various state info regarding block chain processing.\n"
-                                             "\nNote that when the chain tip is at the last block before a network upgrade activation,\n"
-                                             "consensus.chaintip != consensus.nextblock.")
-                                         .set_result(
-                                             "{\n"
-                                             "  \"chain\": \"xxxx\",                          (string) current network name as defined in BIP70 (main, test, regtest)\n"
-                                             "  \"blocks\": xxxxxx,                         (numeric) the current number of blocks processed in the server\n"
-                                             "  \"initial_block_download_complete\": xx,    (boolean) true if the initial download of the blockchain is complete\n"
-                                             "  \"headers\": xxxxxx,                        (numeric) the current number of headers we have validated\n"
-                                             "  \"bestblockhash\": \"...\",                   (string) the hash of the currently best block\n"
-                                             "  \"difficulty\": xxxxxx,                     (numeric) the current difficulty\n"
-                                             "  \"verificationprogress\": xxxx,             (numeric) estimate of verification progress <0..1>\n"
-                                             "  \"estimatedheight\": xxxx,                  (numeric) if syncing, the estimated height of the chain, else the current best height\n"
-                                             "  \"chainwork\": \"xxxx\"                       (string) total amount of work in active chain, in hexadecimal\n"
-                                             "  \"size_on_disk\": xxxxxx,                   (numeric) the estimated size of the block and undo files on disk\n"
-                                             "  \"commitments\": xxxxxx,                    (numeric) the current number of note commitments in the commitment tree\n"
-                                             "  \"softforks\": [                            (array) status of softforks in progress\n"
-                                             "     {\n"
-                                             "        \"id\": \"xxxx\",                       (string) name of softfork\n"
-                                             "        \"version\": xx,                      (numeric) block version\n"
-                                             "        \"enforce\": {                        (object) progress toward enforcing the softfork rules for new-version blocks\n"
-                                             "           \"status\": xx,                    (boolean) true if threshold reached\n"
-                                             "           \"found\": xx,                     (numeric) number of blocks with the new version found\n"
-                                             "           \"required\": xx,                  (numeric) number of blocks required to trigger\n"
-                                             "           \"window\": xx,                    (numeric) maximum size of examined window of recent blocks\n"
-                                             "        },\n"
-                                             "        \"reject\": { \n"
-                                             "           \"status\":                        (boolean)\n"
-                                             "           \"found\":                         (numeric)\n"
-                                             "           \"required\":                      (numeric)\n"
-                                             "           \"window\":                        (numeric)\n"
-                                             "        }\n"
-                                             "     }, ...\n"
-                                             "  ],\n"
-                                             "  \"upgrades\": {                             (object) status of network upgrades\n"
-                                             "     \"xxxx\" : {                             (string) branch ID of the upgrade\n"
-                                             "        \"name\": \"xxxx\",                     (string) name of upgrade\n"
-                                             "        \"activationheight\": xxxxxx,         (numeric) block height of activation\n"
-                                             "        \"status\": \"xxxx\",                   (string) status of upgrade\n"
-                                             "        \"info\": \"xxxx\",                     (string) additional information about upgrade\n"
-                                             "     }, ...\n"
-                                             "  },\n"
-                                             "  \"consensus\": {                            (object) branch IDs of the current and upcoming consensus rules\n"
-                                             "     \"chaintip\": \"xxxxxxxx\",                (string) branch ID used to validate the current chain tip\n"
-                                             "     \"nextblock\": \"xxxxxxxx\"                (string) branch ID that the next block will be validated under\n"
-                                             "  }\n"
-                                             "}")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description(
+                    "Returns an object containing various state info regarding block chain processing.\n"
+                    "\nNote that when the chain tip is at the last block before a network upgrade activation,\n"
+                    "consensus.chaintip != consensus.nextblock.")
+                .set_result(
+                    "{\n"
+                    "  \"chain\": \"xxxx\",                          (string) current network name as defined in BIP70 (main, test, regtest)\n"
+                    "  \"blocks\": xxxxxx,                         (numeric) the current number of blocks processed in the server\n"
+                    "  \"initial_block_download_complete\": xx,    (boolean) true if the initial download of the blockchain is complete\n"
+                    "  \"headers\": xxxxxx,                        (numeric) the current number of headers we have validated\n"
+                    "  \"bestblockhash\": \"...\",                   (string) the hash of the currently best block\n"
+                    "  \"difficulty\": xxxxxx,                     (numeric) the current difficulty\n"
+                    "  \"verificationprogress\": xxxx,             (numeric) estimate of verification progress <0..1>\n"
+                    "  \"estimatedheight\": xxxx,                  (numeric) if syncing, the estimated height of the chain, else the current best height\n"
+                    "  \"chainwork\": \"xxxx\"                       (string) total amount of work in active chain, in hexadecimal\n"
+                    "  \"size_on_disk\": xxxxxx,                   (numeric) the estimated size of the block and undo files on disk\n"
+                    "  \"commitments\": xxxxxx,                    (numeric) the current number of note commitments in the commitment tree\n"
+                    "  \"softforks\": [                            (array) status of softforks in progress\n"
+                    "     {\n"
+                    "        \"id\": \"xxxx\",                       (string) name of softfork\n"
+                    "        \"version\": xx,                      (numeric) block version\n"
+                    "        \"enforce\": {                        (object) progress toward enforcing the softfork rules for new-version blocks\n"
+                    "           \"status\": xx,                    (boolean) true if threshold reached\n"
+                    "           \"found\": xx,                     (numeric) number of blocks with the new version found\n"
+                    "           \"required\": xx,                  (numeric) number of blocks required to trigger\n"
+                    "           \"window\": xx,                    (numeric) maximum size of examined window of recent blocks\n"
+                    "        },\n"
+                    "        \"reject\": { \n"
+                    "           \"status\":                        (boolean)\n"
+                    "           \"found\":                         (numeric)\n"
+                    "           \"required\":                      (numeric)\n"
+                    "           \"window\":                        (numeric)\n"
+                    "        }\n"
+                    "     }, ...\n"
+                    "  ],\n"
+                    "  \"upgrades\": {                             (object) status of network upgrades\n"
+                    "     \"xxxx\" : {                             (string) branch ID of the upgrade\n"
+                    "        \"name\": \"xxxx\",                     (string) name of upgrade\n"
+                    "        \"activationheight\": xxxxxx,         (numeric) block height of activation\n"
+                    "        \"status\": \"xxxx\",                   (string) status of upgrade\n"
+                    "        \"info\": \"xxxx\",                     (string) additional information about upgrade\n"
+                    "     }, ...\n"
+                    "  },\n"
+                    "  \"consensus\": {                            (object) branch IDs of the current and upcoming consensus rules\n"
+                    "     \"chaintip\": \"xxxxxxxx\",                (string) branch ID used to validate the current chain tip\n"
+                    "     \"nextblock\": \"xxxxxxxx\"                (string) branch ID that the next block will be validated under\n"
+                    "  }\n"
+                    "}")
+                .set_examples("");
         throw runtime_error(
             help_sections.combine_sections());
     }
@@ -1102,26 +1111,27 @@ struct CompareBlocksByHeight {
 UniValue getchaintips(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description(
-                                             "Return information about all known tips in the block tree,"
-                                             " including the main chain as well as orphaned branche.")
-                                         .set_result(
-                                             "[                           (array) chaintip descriptions\n"
-                                             "  {\n"
-                                             "    \"height\": xxxx,         (numeric) height of the chain tip\n"
-                                             "    \"hash\": \"xxxx\",         (string) block hash of the tip\n"
-                                             "    \"branchlen\": 1          (numeric) length of branch connecting the tip to the main chain, 0 for the main chain\n"
-                                             "    \"status\": \"xxxx\"        (string) \"active\" for the main chain status of the chain (active, valid-fork, valid-headers, headers-only, invalid)\n"
-                                             "  }\n"
-                                             "]\n"
-                                             "Possible values for status:\n"
-                                             "1.  \"invalid\"               This branch contains at least one invalid block\n"
-                                             "2.  \"headers-only\"          Not all blocks for this branch are available, but the headers are valid\n"
-                                             "3.  \"valid-headers\"         All blocks are available for this branch, but they were never fully validated\n"
-                                             "4.  \"valid-fork\"            This branch is not part of the active chain, but is fully validated\n"
-                                             "5.  \"active\"                This is the tip of the active main chain, which is certainly valid")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description(
+                    "Return information about all known tips in the block tree,"
+                    " including the main chain as well as orphaned branche.")
+                .set_result(
+                    "[                           (array) chaintip descriptions\n"
+                    "  {\n"
+                    "    \"height\": xxxx,         (numeric) height of the chain tip\n"
+                    "    \"hash\": \"xxxx\",         (string) block hash of the tip\n"
+                    "    \"branchlen\": 1          (numeric) length of branch connecting the tip to the main chain, 0 for the main chain\n"
+                    "    \"status\": \"xxxx\"        (string) \"active\" for the main chain status of the chain (active, valid-fork, valid-headers, headers-only, invalid)\n"
+                    "  }\n"
+                    "]\n"
+                    "Possible values for status:\n"
+                    "1.  \"invalid\"               This branch contains at least one invalid block\n"
+                    "2.  \"headers-only\"          Not all blocks for this branch are available, but the headers are valid\n"
+                    "3.  \"valid-headers\"         All blocks are available for this branch, but they were never fully validated\n"
+                    "4.  \"valid-fork\"            This branch is not part of the active chain, but is fully validated\n"
+                    "5.  \"active\"                This is the tip of the active main chain, which is certainly valid")
+                .set_examples("");
         throw runtime_error(
             help_sections.combine_sections());
     }
@@ -1184,31 +1194,32 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
 UniValue z_gettreestate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_usage("\"hash|height\"")
-                                         .set_description("Return information about the given block's tree state.")
-                                         .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n")
-                                         .set_result(
-                                             "{\n"
-                                             "  \"hash\": \"hash\",         (string) hex block hash\n"
-                                             "  \"height\": n,            (numeric) block height\n"
-                                             "  \"sprout\": {\n"
-                                             "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
-                                             "    \"commitments\": {\n"
-                                             "      \"finalRoot\": \"hex\", (string)\n"
-                                             "      \"finalState\": \"hex\" (string)\n"
-                                             "    }\n"
-                                             "  },\n"
-                                             "  \"sapling\": {\n"
-                                             "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
-                                             "    \"commitments\": {\n"
-                                             "      \"finalRoot\": \"hex\", (string)\n"
-                                             "      \"finalState\": \"hex\" (string)\n"
-                                             "    }\n"
-                                             "  }\n"
-                                             "}")
-                                         .set_examples(
-                                             "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hash|height\"")
+                .set_description("Return information about the given block's tree state.")
+                .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n")
+                .set_result(
+                    "{\n"
+                    "  \"hash\": \"hash\",         (string) hex block hash\n"
+                    "  \"height\": n,            (numeric) block height\n"
+                    "  \"sprout\": {\n"
+                    "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
+                    "    \"commitments\": {\n"
+                    "      \"finalRoot\": \"hex\", (string)\n"
+                    "      \"finalState\": \"hex\" (string)\n"
+                    "    }\n"
+                    "  },\n"
+                    "  \"sapling\": {\n"
+                    "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
+                    "    \"commitments\": {\n"
+                    "      \"finalRoot\": \"hex\", (string)\n"
+                    "      \"finalState\": \"hex\" (string)\n"
+                    "    }\n"
+                    "  }\n"
+                    "}")
+                .set_examples(
+                    "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"");
         throw runtime_error(help_sections.combine_sections());
     }
 
@@ -1303,15 +1314,16 @@ UniValue mempoolInfoToJSON()
 UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__)
-                                         .set_description("Returns details on the active state of the TX memory pool.")
-                                         .set_result(
-                                             "{\n"
-                                             "  \"size\": xxxxx                (numeric) Current tx count\n"
-                                             "  \"bytes\": xxxxx               (numeric) Sum of all tx sizes\n"
-                                             "  \"usage\": xxxxx               (numeric) Total memory usage for the mempool\n"
-                                             "}")
-                                         .set_examples("");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns details on the active state of the TX memory pool.")
+                .set_result(
+                    "{\n"
+                    "  \"size\": xxxxx                (numeric) Current tx count\n"
+                    "  \"bytes\": xxxxx               (numeric) Sum of all tx sizes\n"
+                    "  \"usage\": xxxxx               (numeric) Total memory usage for the mempool\n"
+                    "}")
+                .set_examples("");
         throw runtime_error(
             help_sections.combine_sections());
     }
