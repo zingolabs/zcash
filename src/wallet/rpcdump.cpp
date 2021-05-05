@@ -656,28 +656,24 @@ UniValue z_importkey(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
-        throw runtime_error(
-            "z_importkey \"zkey\" ( rescan startHeight )\n"
-            "\nAdds a zkey (as returned by z_exportkey) to your wallet.\n"
-            "\nArguments:\n"
-            "1. \"zkey\"             (string, required) The zkey (see z_exportkey)\n"
-            "2. rescan             (string, optional, default=\"whenkeyisnew\") Rescan the wallet for transactions - can be \"yes\", \"no\" or \"whenkeyisnew\"\n"
-            "3. startHeight        (numeric, optional, default=0) Block height to start rescan from\n"
-            "\nNote: This call can take minutes to complete if rescan is true.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"type\" : \"xxxx\",                         (string) \"sprout\" or \"sapling\"\n"
-            "  \"address\" : \"address|DefaultAddress\",    (string) The address corresponding to the spending key (for Sapling, this is the default address).\n"
-            "}\n"
-            "\nExamples:\n"
-            "\nExport a zkey\n" +
-            HelpExampleCli("z_exportkey", "\"myaddress\"") +
-            "\nImport the zkey with rescan\n" + HelpExampleCli("z_importkey", "\"mykey\"") +
-            "\nImport the zkey with partial rescan\n" + HelpExampleCli("z_importkey", "\"mykey\" whenkeyisnew 30000") +
-            "\nRe-import the zkey with longer partial rescan\n" + HelpExampleCli("z_importkey", "\"mykey\" yes 20000") +
-            "\nAs a JSON-RPC call\n" + HelpExampleRpc("z_importkey", "\"mykey\", \"no\""));
-
+    if (fHelp || params.size() < 1 || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zkey\" ( rescan startHeight )")
+                .set_description("Adds a zkey (as returned by z_exportkey) to your wallet.")
+                .set_arguments("1. \"zkey\"             (string, required) The zkey (see z_exportkey)\n"
+                               "2. rescan             (string, optional, default=\"whenkeyisnew\") Rescan the wallet for transactions - can be \"yes\", \"no\" or \"whenkeyisnew\"\n"
+                               "3. startHeight        (numeric, optional, default=0) Block height to start rescan from\n"
+                               "\nNote: This call can take minutes to complete if rescan is true.")
+                .set_result("{\n"
+                            "  \"type\" : \"xxxx\",                         (string) \"sprout\" or \"sapling\"\n"
+                            "  \"address\" : \"address|DefaultAddress\",    (string) The address corresponding to the spending key (for Sapling, this is the default address).\n"
+                            "}")
+                .set_examples("\"mykey\"")
+                .set_examples("\"mykey\" whenkeyisnew 30000")
+                .set_examples("\"mykey\" yes 20000");
+        throw runtime_error(help_sections.combine_sections());
+    }
     if (fPruneMode)
         throw JSONRPCError(RPC_WALLET_ERROR, "Importing keys is disabled in pruned mode");
 
