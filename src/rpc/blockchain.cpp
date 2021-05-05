@@ -1302,18 +1302,19 @@ UniValue mempoolInfoToJSON()
 
 UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_description("Returns details on the active state of the TX memory pool.")
+                                         .set_result(
+                                             "{\n"
+                                             "  \"size\": xxxxx                (numeric) Current tx count\n"
+                                             "  \"bytes\": xxxxx               (numeric) Sum of all tx sizes\n"
+                                             "  \"usage\": xxxxx               (numeric) Total memory usage for the mempool\n"
+                                             "}")
+                                         .set_examples("");
         throw runtime_error(
-            "getmempoolinfo\n"
-            "\nReturns details on the active state of the TX memory pool.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"size\": xxxxx                (numeric) Current tx count\n"
-            "  \"bytes\": xxxxx               (numeric) Sum of all tx sizes\n"
-            "  \"usage\": xxxxx               (numeric) Total memory usage for the mempool\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getmempoolinfo", "") + HelpExampleRpc("getmempoolinfo", ""));
+            help_sections.combine_sections());
+    }
 
     return mempoolInfoToJSON();
 }
