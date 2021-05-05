@@ -582,40 +582,39 @@ static bool getAddressesFromParams(
 // insightexplorer
 UniValue getaddressmempool(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getaddressmempool", {"insightexplorer", "lightwalletd"});
+    if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getaddressmempool", {"insightexplorer", "lightwalletd"});
+        }
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_usage("{\"addresses\": [\"taddr\", ...]}")
+                                         .set_description("Returns all mempool deltas for an address.\n" +
+                                                          disabledMsg)
+                                         .set_arguments("{\n"
+                                                        "  \"addresses\":\n"
+                                                        "    [\n"
+                                                        "      \"address\"  (string) The base58check encoded address\n"
+                                                        "      , ...\n"
+                                                        "    ]\n"
+                                                        "}\n"
+                                                        "(or)\n"
+                                                        "\"address\"  (string) The base58check encoded address")
+                                         .set_result(
+                                             "[\n"
+                                             "  {\n"
+                                             "    \"address\"  (string) The base58check encoded address\n"
+                                             "    \"txid\"  (string) The related txid\n"
+                                             "    \"index\"  (numeric) The related input or output index\n"
+                                             "    \"satoshis\"  (numeric) The difference of zatoshis\n"
+                                             "    \"timestamp\"  (numeric) The time the transaction entered the mempool (seconds)\n"
+                                             "    \"prevtxid\"  (string) The previous txid (if spending)\n"
+                                             "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
+                                             "  }\n"
+                                             "]")
+                                         .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
+        throw runtime_error(help_sections.combine_sections());
     }
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getaddressmempool {\"addresses\": [\"taddr\", ...]}\n"
-            "\nReturns all mempool deltas for an address.\n" +
-            disabledMsg +
-            "\nArguments:\n"
-            "{\n"
-            "  \"addresses\":\n"
-            "    [\n"
-            "      \"address\"  (string) The base58check encoded address\n"
-            "      ,...\n"
-            "    ]\n"
-            "}\n"
-            "(or)\n"
-            "\"address\"  (string) The base58check encoded address\n"
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"address\"  (string) The base58check encoded address\n"
-            "    \"txid\"  (string) The related txid\n"
-            "    \"index\"  (numeric) The related input or output index\n"
-            "    \"satoshis\"  (numeric) The difference of zatoshis\n"
-            "    \"timestamp\"  (numeric) The time the transaction entered the mempool (seconds)\n"
-            "    \"prevtxid\"  (string) The previous txid (if spending)\n"
-            "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
-            "  }\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'") + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}"));
-
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getaddressmempool is disabled. "
                                            "Run './zcash-cli help getaddressmempool' for instructions on how to enable this feature.");
