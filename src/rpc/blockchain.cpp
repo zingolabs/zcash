@@ -486,26 +486,24 @@ UniValue getblockdeltas(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getblockhashes(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getblockhashes", {"insightexplorer", "lightwalletd"});
-    }
-    if (fHelp || params.size() < 2)
-        throw runtime_error(
-            "getblockhashes high low ( {\"noOrphans\": true|false, \"logicalTimes\": true|false} )\n"
-            "\nReturns array of hashes of blocks within the timestamp range provided,\n"
+    if (fHelp || params.size() < 2) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getblockhashes", {"insightexplorer", "lightwalletd"});
+        }   
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage("high low ( {\"noOrphans\": true|false, \"logicalTimes\": true|false} )")
+            .set_description("Returns array of hashes of blocks within the timestamp range provided,\n"
             "\ngreater or equal to low, less than high.\n"
-            + disabledMsg +
-            "\nArguments:\n"
-            "1. high                            (numeric, required) The newer block timestamp\n"
+            + disabledMsg)
+            .set_arguments("1. high                            (numeric, required) The newer block timestamp\n"
             "2. low                             (numeric, required) The older block timestamp\n"
             "3. options                         (string, optional) A json object\n"
             "    {\n"
             "      \"noOrphans\": true|false      (boolean) will only include blocks on the main chain\n"
             "      \"logicalTimes\": true|false   (boolean) will include logical timestamps with hashes\n"
-            "    }\n"
-            "\nResult:\n"
-            "[\n"
+            "    }")
+            .set_result("[\n"
             "  \"xxxx\"                   (hexadecimal) The block hash\n"
             "]\n"
             "or\n"
@@ -514,12 +512,11 @@ UniValue getblockhashes(const UniValue& params, bool fHelp)
             "    \"blockhash\": \"xxxx\"    (hexadecimal) The block hash\n"
             "    \"logicalts\": n         (numeric) The logical timestamp\n"
             "  }\n"
-            "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockhashes", "1558141697 1558141576")
-            + HelpExampleRpc("getblockhashes", "1558141697, 1558141576")
-            + HelpExampleCli("getblockhashes", "1558141697 1558141576 '{\"noOrphans\":false, \"logicalTimes\":true}'")
-            );
+            "]")
+            .set_examples("1558141697 1558141576")
+            .set_examples("1558141697 1558141576 '{\"noOrphans\":false, \"logicalTimes\":true}'");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getblockhashes is disabled. "
