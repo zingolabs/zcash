@@ -594,19 +594,15 @@ int parseHeightArg(const std::string& strHeight, int currentHeight)
 
 UniValue getblockhash(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getblockhash index\n"
-            "\nReturns hash of block in best-block-chain at index provided.\n"
-            "\nArguments:\n"
-            "1. index         (numeric, required) The block index. If negative then -1 is the last known valid block\n"
-            "\nResult:\n"
-            "\"hash\"         (string) The block hash\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockhash", "1000")
-            + HelpExampleRpc("getblockhash", "1000")
-        );
-
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage("index")
+            .set_description("Returns hash of block in best-block-chain at index provided.")
+            .set_arguments("1. index         (numeric, required) The block index. If negative then -1 is the last known valid block")
+            .set_result("\"hash\"         (string) The block hash")
+            .set_examples("1000");
+        throw runtime_error(help_sections.combine_sections());
+    }
     LOCK(cs_main);
 
     const CBlockIndex* pblockindex = chainActive[interpretHeightArg(params[0].get_int(), chainActive.Height())];
