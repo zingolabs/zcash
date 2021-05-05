@@ -399,19 +399,16 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getblockdeltas(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
-        disabledMsg = experimentalDisabledHelpMsg("getblockdeltas", {"insightexplorer", "lightwalletd"});
-    }
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "getblockdeltas \"blockhash\"\n"
-            "\nReturns information about the given block and its transactions.\n"
-            + disabledMsg +
-            "\nArguments:\n"
-            "1. \"hash\"          (string, required) The block hash\n"
-            "\nResult:\n"
-            "{\n"
+    if (fHelp || params.size() != 1) {
+        std::string disabledMsg = "";
+        if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
+            disabledMsg = experimentalDisabledHelpMsg("getblockdeltas", {"insightexplorer", "lightwalletd"});
+        }
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage("\"blockhash\"")
+            .set_description("Returns information about the given block and its transactions.\n" + disabledMsg) 
+            .set_arguments("1. \"hash\"          (string, required) The block hash")
+            .set_result("{\n"
             "  \"hash\": \"hash\",              (string) block ID\n"
             "  \"confirmations\": n,          (numeric) number of confirmations\n"
             "  \"size\": n,                   (numeric) block size in bytes\n"
@@ -448,12 +445,10 @@ UniValue getblockdeltas(const UniValue& params, bool fHelp)
             "  \"chainwork\": \"xxxx\"          (hexadecimal) total amount of work in active chain\n"
             "  \"previousblockhash\" : \"hash\",(hexadecimal) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\"     (hexadecimal) The hash of the next block\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockdeltas", "00227e566682aebd6a7a5b772c96d7a999cadaebeaf1ce96f4191a3aad58b00b")
-            + HelpExampleRpc("getblockdeltas", "\"00227e566682aebd6a7a5b772c96d7a999cadaebeaf1ce96f4191a3aad58b00b\"")
-        );
-
+            "}")
+            .set_examples("00227e566682aebd6a7a5b772c96d7a999cadaebeaf1ce96f4191a3aad58b00b");
+        throw runtime_error(help_sections.combine_sections());
+    }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getblockdeltas is disabled. "
             "Run './zcash-cli help getblockdeltas' for instructions on how to enable this feature.");
