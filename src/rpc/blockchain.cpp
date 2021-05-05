@@ -611,16 +611,14 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
 
 UniValue getblockheader(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
-            "getblockheader \"hash\" ( verbose )\n"
-            "\nIf verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.\n"
-            "If verbose is true, returns an Object with information about blockheader <hash>.\n"
-            "\nArguments:\n"
-            "1. \"hash\"          (string, required) The block hash\n"
-            "2. verbose           (boolean, optional, default=true) true for a json object, false for the hex encoded data\n"
-            "\nResult:\n"
-            "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_usage("\"hash\" ( verbose )")
+            .set_description("If verbose is false, returns a string that is serialized, hex-encoded data for blockheader 'hash'.\n"
+            "If verbose is true, returns an Object with information about blockheader <hash>.")
+            .set_arguments("1. \"hash\"          (string, required) The block hash\n"
+            "2. verbose           (boolean, optional, default=true) true for a json object, false for the hex encoded data")
+            .set_result("\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
 	    "\n"
             "\nResult:\n"
             "{\n"
@@ -636,11 +634,10 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getblockheader", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
-            + HelpExampleRpc("getblockheader", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
-        );
+            "}")
+            .set_examples("\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
