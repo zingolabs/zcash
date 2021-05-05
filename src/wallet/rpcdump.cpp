@@ -501,17 +501,16 @@ UniValue z_exportwallet(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "z_exportwallet \"filename\"\n"
-            "\nExports all wallet keys, for taddr and zaddr, in a human-readable format.  Overwriting an existing file is not permitted.\n"
-            "\nArguments:\n"
-            "1. \"filename\"    (string, required) The filename, saved in folder set by zcashd -exportdir option\n"
-            "\nResult:\n"
-            "\"path\"           (string) The full path of the destination file\n"
-            "\nExamples:\n" +
-            HelpExampleCli("z_exportwallet", "\"test\"") + HelpExampleRpc("z_exportwallet", "\"test\""));
-
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"filename\"")
+                .set_description("Exports all wallet keys, for taddr and zaddr, in a human-readable format.  Overwriting an existing file is not permitted.")
+                .set_arguments("1. \"filename\"    (string, required) The filename, saved in folder set by zcashd -exportdir option")
+                .set_result("\"path\"           (string) The full path of the destination file")
+                .set_examples("\"test\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
     return dumpwallet_impl(params, true);
 }
 
