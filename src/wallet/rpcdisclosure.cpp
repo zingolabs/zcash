@@ -162,7 +162,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
             .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
             .set_examples("\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
         throw runtime_error(
-            help_doc.makeHelpMessage()
+            help_doc.combine_sections()
         );
     }
 
