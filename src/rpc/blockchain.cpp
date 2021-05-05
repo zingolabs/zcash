@@ -1083,28 +1083,29 @@ struct CompareBlocksByHeight {
 
 UniValue getchaintips(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections = HelpSections(__func__).set_description(
+                                                               "Return information about all known tips in the block tree,"
+                                                               " including the main chain as well as orphaned branche.")
+                                         .set_result(
+                                             "[                           (array) chaintip descriptions\n"
+                                             "  {\n"
+                                             "    \"height\": xxxx,         (numeric) height of the chain tip\n"
+                                             "    \"hash\": \"xxxx\",         (string) block hash of the tip\n"
+                                             "    \"branchlen\": 1          (numeric) length of branch connecting the tip to the main chain, 0 for the main chain\n"
+                                             "    \"status\": \"xxxx\"        (string) \"active\" for the main chain status of the chain (active, valid-fork, valid-headers, headers-only, invalid)\n"
+                                             "  }\n"
+                                             "]\n"
+                                             "Possible values for status:\n"
+                                             "1.  \"invalid\"               This branch contains at least one invalid block\n"
+                                             "2.  \"headers-only\"          Not all blocks for this branch are available, but the headers are valid\n"
+                                             "3.  \"valid-headers\"         All blocks are available for this branch, but they were never fully validated\n"
+                                             "4.  \"valid-fork\"            This branch is not part of the active chain, but is fully validated\n"
+                                             "5.  \"active\"                This is the tip of the active main chain, which is certainly valid")
+                                         .set_examples("");
         throw runtime_error(
-            "getchaintips\n"
-            "Return information about all known tips in the block tree,"
-            " including the main chain as well as orphaned branches.\n"
-            "\nResult:\n"
-            "[ (array) chaintip descriptions\n"
-            "  {\n"
-            "    \"height\": xxxx,         (numeric) height of the chain tip\n"
-            "    \"hash\": \"xxxx\",       (string) block hash of the tip\n"
-            "    \"branchlen\": 1          (numeric) length of branch connecting the tip to the main chain, 0 for the main chain\n"
-            "    \"status\": \"xxxx\"      (string) \"active\" for the main chain status of the chain (active, valid-fork, valid-headers, headers-only, invalid)\n"
-            "  }\n"
-            "]\n"
-            "Possible values for status:\n"
-            "1.  \"invalid\"               This branch contains at least one invalid block\n"
-            "2.  \"headers-only\"          Not all blocks for this branch are available, but the headers are valid\n"
-            "3.  \"valid-headers\"         All blocks are available for this branch, but they were never fully validated\n"
-            "4.  \"valid-fork\"            This branch is not part of the active chain, but is fully validated\n"
-            "5.  \"active\"                This is the tip of the active main chain, which is certainly valid\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getchaintips", "") + HelpExampleRpc("getchaintips", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
