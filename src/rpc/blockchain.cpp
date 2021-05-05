@@ -13,11 +13,11 @@
 #include "main.h"
 #include "metrics.h"
 #include "primitives/transaction.h"
+#include "rpc/docstrings.h"
 #include "rpc/server.h"
 #include "streams.h"
 #include "sync.h"
 #include "util.h"
-#include "rpc/docstrings.h"
 
 #include <stdint.h>
 
@@ -298,17 +298,13 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
 
 UniValue getbestblockhash(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getbestblockhash\n"
-            "\nReturns the hash of the best (tip) block in the longest block chain.\n"
-            "\nResult:\n"
-            "\"hex\"      (string) the block hash hex encoded\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getbestblockhash", "")
-            + HelpExampleRpc("getbestblockhash", "")
-        );
-
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections = HelpSections(__func__)
+            .set_description("Returns the hash of the best (tip) block in the longest block chain.\n")
+            .set_result("\"hex\"      (string) the block hash hex encoded")
+            .set_examples("");
+        throw runtime_error(help_sections.makeHelpMessage());
+    }
     LOCK(cs_main);
     return chainActive.Tip()->GetBlockHash().GetHex();
 }
