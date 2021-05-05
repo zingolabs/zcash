@@ -950,10 +950,11 @@ void NetworkUpgradeDescPushBack(
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__).set_description(
-                                                               "Returns an object containing various state info regarding block chain processing.\n"
-                                                               "\nNote that when the chain tip is at the last block before a network upgrade activation,\n"
-                                                               "consensus.chaintip != consensus.nextblock.")
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_description(
+                                             "Returns an object containing various state info regarding block chain processing.\n"
+                                             "\nNote that when the chain tip is at the last block before a network upgrade activation,\n"
+                                             "consensus.chaintip != consensus.nextblock.")
                                          .set_result(
                                              "{\n"
                                              "  \"chain\": \"xxxx\",                          (string) current network name as defined in BIP70 (main, test, regtest)\n"
@@ -1084,9 +1085,10 @@ struct CompareBlocksByHeight {
 UniValue getchaintips(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0) {
-        HelpSections help_sections = HelpSections(__func__).set_description(
-                                                               "Return information about all known tips in the block tree,"
-                                                               " including the main chain as well as orphaned branche.")
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_description(
+                                             "Return information about all known tips in the block tree,"
+                                             " including the main chain as well as orphaned branche.")
                                          .set_result(
                                              "[                           (array) chaintip descriptions\n"
                                              "  {\n"
@@ -1164,33 +1166,34 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
 
 UniValue z_gettreestate(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "z_gettreestate \"hash|height\"\n"
-            "Return information about the given block's tree state.\n"
-            "\nArguments:\n"
-            "1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"hash\": \"hash\",         (string) hex block hash\n"
-            "  \"height\": n,            (numeric) block height\n"
-            "  \"sprout\": {\n"
-            "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
-            "    \"commitments\": {\n"
-            "      \"finalRoot\": \"hex\", (string)\n"
-            "      \"finalState\": \"hex\" (string)\n"
-            "    }\n"
-            "  },\n"
-            "  \"sapling\": {\n"
-            "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
-            "    \"commitments\": {\n"
-            "      \"finalRoot\": \"hex\", (string)\n"
-            "      \"finalState\": \"hex\" (string)\n"
-            "    }\n"
-            "  }\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("z_gettreestate", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleRpc("z_gettreestate", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleCli("z_gettreestate", "12800") + HelpExampleRpc("z_gettreestate", "12800"));
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections = HelpSections(__func__)
+                                         .set_usage("\"hash|height\"")
+                                         .set_description("Return information about the given block's tree state.")
+                                         .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n")
+                                         .set_result(
+                                             "{\n"
+                                             "  \"hash\": \"hash\",         (string) hex block hash\n"
+                                             "  \"height\": n,            (numeric) block height\n"
+                                             "  \"sprout\": {\n"
+                                             "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
+                                             "    \"commitments\": {\n"
+                                             "      \"finalRoot\": \"hex\", (string)\n"
+                                             "      \"finalState\": \"hex\" (string)\n"
+                                             "    }\n"
+                                             "  },\n"
+                                             "  \"sapling\": {\n"
+                                             "    \"skipHash\": \"hash\",   (string) hash of most recent block with more information\n"
+                                             "    \"commitments\": {\n"
+                                             "      \"finalRoot\": \"hex\", (string)\n"
+                                             "      \"finalState\": \"hex\" (string)\n"
+                                             "    }\n"
+                                             "  }\n"
+                                             "}")
+                                         .set_examples(
+                                             "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
