@@ -47,18 +47,10 @@ struct HelpSections {
         return *this;
     }
     HelpSections& set_examples(string args) {
-        this->examples +=
-            this->make_example_cli(args) + this->make_example_rpc(args);
+        this->examples += "> zcash-cli " + this->name + " " + args + "\n"
+            "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
+            "\"method\": \"" + this->name + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n\n";
         return *this;
-    }
-    
-    // helper methods below
-    string make_example_cli(string args){
-        return "> zcash-cli " + this->name + " " + args + "\n";
-    }
-    string make_example_rpc(string args){
-        return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-        "\"method\": \"" + this->name + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
     }
 
 };
