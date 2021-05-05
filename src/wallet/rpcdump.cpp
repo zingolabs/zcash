@@ -6,6 +6,7 @@
 #include "init.h"
 #include "key_io.h"
 #include "main.h"
+#include "rpc/docstrings.h"
 #include "rpc/server.h"
 #include "script/script.h"
 #include "script/standard.h"
@@ -308,18 +309,15 @@ UniValue z_importwallet(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "z_importwallet \"filename\"\n"
-            "\nImports taddr and zaddr keys from a wallet export file (see z_exportwallet).\n"
-            "\nArguments:\n"
-            "1. \"filename\"    (string, required) The wallet file\n"
-            "\nExamples:\n"
-            "\nDump the wallet\n" +
-            HelpExampleCli("z_exportwallet", "\"nameofbackup\"") +
-            "\nImport the wallet\n" + HelpExampleCli("z_importwallet", "\"path/to/exportdir/nameofbackup\"") +
-            "\nImport using the json rpc call\n" + HelpExampleRpc("z_importwallet", "\"path/to/exportdir/nameofbackup\""));
-
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"filename\"")
+                .set_description("Imports taddr and zaddr keys from a wallet export file (see z_exportwallet).")
+                .set_arguments("1. \"filename\"    (string, required) The wallet file")
+                .set_examples("\"path/to/exportdir/nameofbackup\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
     return importwallet_impl(params, true);
 }
 
