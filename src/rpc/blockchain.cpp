@@ -296,7 +296,7 @@ UniValue getdifficulty(const UniValue& params, bool fHelp)
     if (fHelp || params.size() != 0) {
         HelpSections help_sections =
             HelpSections(__func__)
-                .set_description("Returns the proof-of-work difficulty as a multiple of the minimum difficulty.")
+                .set_description("Returns the proof-of-work difficulty as a multiple of the minimum difficulty."\n)
                 .set_result("n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.")
                 .set_examples("");
         throw runtime_error(help_sections.combine_sections());
