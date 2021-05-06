@@ -1073,28 +1073,33 @@ UniValue getaddresstxids(const UniValue& params, bool fHelp)
 // insightexplorer
 UniValue getspentinfo(const UniValue& params, bool fHelp)
 {
-    std::string disabledMsg = "";
-    if (!fExperimentalInsightExplorer) {
-        disabledMsg = experimentalDisabledHelpMsg("getspentinfo", {"insightexplorer"});
+    if (fHelp || params.size() != 1 || !params[0].isObject()) {
+        std::string disabledMsg = "";
+        if (!fExperimentalInsightExplorer) {
+            disabledMsg = experimentalDisabledHelpMsg("getspentinfo", {"insightexplorer"});
+        }
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(
+                    "{\"txid\": \"txidhex\", \"index\": n}")
+                .set_description(
+                    "Returns the txid and index where an output is spent.\n" +
+                    disabledMsg)
+                .set_arguments(
+                    "{\n"
+                    "  \"txid\"   (string) The hex string of the txid\n"
+                    "  \"index\"  (numeric) The vout (output) index\n"
+                    "}")
+                .set_result(
+                    "{\n"
+                    "  \"txid\"   (string) The transaction id\n"
+                    "  \"index\"  (numeric) The spending (vin, input) index\n"
+                    "  ,...\n"
+                    "}")
+                .set_examples(
+                    "'{\"txid\": \"33990288fb116981260be1de10b8c764f997674545ab14f9240f00346333b780\", \"index\": 4}'");
+        throw runtime_error(help_sections.combine_sections());
     }
-    if (fHelp || params.size() != 1 || !params[0].isObject())
-        throw runtime_error(
-            "getspentinfo {\"txid\": \"txidhex\", \"index\": n}\n"
-            "\nReturns the txid and index where an output is spent.\n" +
-            disabledMsg +
-            "\nArguments:\n"
-            "{\n"
-            "  \"txid\"   (string) The hex string of the txid\n"
-            "  \"index\"  (numeric) The vout (output) index\n"
-            "}\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"txid\"   (string) The transaction id\n"
-            "  \"index\"  (numeric) The spending (vin, input) index\n"
-            "  ,...\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getspentinfo", "'{\"txid\": \"33990288fb116981260be1de10b8c764f997674545ab14f9240f00346333b780\", \"index\": 4}'") + HelpExampleRpc("getspentinfo", "{\"txid\": \"33990288fb116981260be1de10b8c764f997674545ab14f9240f00346333b780\", \"index\": 4}"));
 
     if (!fExperimentalInsightExplorer) {
         throw JSONRPCError(RPC_MISC_ERROR, "Error: getspentinfo is disabled. "
