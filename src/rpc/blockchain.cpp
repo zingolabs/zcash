@@ -795,39 +795,44 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 
 UniValue gettxout(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 3)
-        throw runtime_error(
-            "gettxout \"txid\" n ( includemempool )\n"
-            "\nReturns details about an unspent transaction output.\n"
-            "\nArguments:\n"
-            "1. \"txid\"       (string, required) The transaction id\n"
-            "2. n              (numeric, required) vout value\n"
-            "3. includemempool  (boolean, optional) Whether to include the mempool\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"bestblock\" : \"hash\",    (string) the block hash\n"
-            "  \"confirmations\" : n,       (numeric) The number of confirmations\n"
-            "  \"value\" : x.xxx,           (numeric) The transaction value in " +
-            CURRENCY_UNIT + "\n"
-                            "  \"scriptPubKey\" : {         (json object)\n"
-                            "     \"asm\" : \"code\",       (string) \n"
-                            "     \"hex\" : \"hex\",        (string) \n"
-                            "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
-                            "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
-                            "     \"addresses\" : [          (array of string) array of Zcash addresses\n"
-                            "        \"zcashaddress\"        (string) Zcash address\n"
-                            "        ,...\n"
-                            "     ]\n"
-                            "  },\n"
-                            "  \"version\" : n,              (numeric) The version\n"
-                            "  \"coinbase\" : true|false     (boolean) Coinbase or not\n"
-                            "}\n"
-
-                            "\nExamples:\n"
-                            "\nGet unspent transactions\n" +
+    if (fHelp || params.size() < 2 || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(
+                    "\"txid\" n ( includemempool )")
+                .set_description(
+                    "Returns details about an unspent transaction output.\n")
+                .set_arguments(
+                    "1. \"txid\"       (string, required) The transaction id\n"
+                    "2. n              (numeric, required) vout value\n"
+                    "3. includemempool  (boolean, optional) Whether to include the mempool")
+                .set_result(
+                    "{\n"
+                    "  \"bestblock\" : \"hash\",    (string) the block hash\n"
+                    "  \"confirmations\" : n,       (numeric) The number of confirmations\n"
+                    "  \"value\" : x.xxx,           (numeric) The transaction value in " +
+                    CURRENCY_UNIT + "\n"
+                                    "  \"scriptPubKey\" : {         (json object)\n"
+                                    "     \"asm\" : \"code\",       (string) \n"
+                                    "     \"hex\" : \"hex\",        (string) \n"
+                                    "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
+                                    "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
+                                    "     \"addresses\" : [          (array of string) array of Zcash addresses\n"
+                                    "        \"zcashaddress\"        (string) Zcash address\n"
+                                    "        ,...\n"
+                                    "     ]\n"
+                                    "  },\n"
+                                    "  \"version\" : n,              (numeric) The version\n"
+                                    "  \"coinbase\" : true|false     (boolean) Coinbase or not\n"
+                                    "}")
+                .set_examples("incomplete");
+        /*                 "Get unspent transactions\n" +
             HelpExampleCli("listunspent", "") +
             "\nView the details\n" + HelpExampleCli("gettxout", "\"txid\" 1") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("gettxout", "\"txid\", 1"));
+            "\nAs a json rpc call\n" + HelpExampleRpc("gettxout", "\"txid\", 1"));*/
+        throw runtime_error(
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
