@@ -1224,8 +1224,8 @@ UniValue z_gettreestate(const UniValue& params, bool fHelp)
                     "    }\n"
                     "  }\n"
                     "}")
-                .set_examples(
-                    "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"");
+                .set_examples("\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"")
+                .set_examples("12800");
         throw runtime_error(help_sections.combine_sections());
     }
 
