@@ -759,23 +759,25 @@ UniValue getblock(const UniValue& params, bool fHelp)
 
 UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description(
+                    "Returns statistics about the unspent transaction output set.\n"
+                    "Note this call may take some time.\n")
+                .set_result(
+                    "{\n"
+                    "  \"height\":n,     (numeric) The current block height (index)\n"
+                    "  \"bestblock\": \"hex\",   (string) the best block hash hex\n"
+                    "  \"transactions\": n,      (numeric) The number of transactions\n"
+                    "  \"txouts\": n,            (numeric) The number of output transactions\n"
+                    "  \"bytes_serialized\": n,  (numeric) The serialized size\n"
+                    "  \"hash_serialized\": \"hash\",   (string) The serialized hash\n"
+                    "  \"total_amount\": x.xxx          (numeric) The total amount\n"
+                    "}");
         throw runtime_error(
-            "gettxoutsetinfo\n"
-            "\nReturns statistics about the unspent transaction output set.\n"
-            "Note this call may take some time.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"height\":n,     (numeric) The current block height (index)\n"
-            "  \"bestblock\": \"hex\",   (string) the best block hash hex\n"
-            "  \"transactions\": n,      (numeric) The number of transactions\n"
-            "  \"txouts\": n,            (numeric) The number of output transactions\n"
-            "  \"bytes_serialized\": n,  (numeric) The serialized size\n"
-            "  \"hash_serialized\": \"hash\",   (string) The serialized hash\n"
-            "  \"total_amount\": x.xxx          (numeric) The total amount\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("gettxoutsetinfo", "") + HelpExampleRpc("gettxoutsetinfo", ""));
+            help_sections.combine_sections());
+    }
 
     UniValue ret(UniValue::VOBJ);
 
