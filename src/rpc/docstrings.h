@@ -32,14 +32,8 @@ public:
         string argstring = "";
         if (!this->arguments.empty())
             argstring += "\n\nArguments:\n" + this->arguments;
-        examples =
-            "> zcash-cli " + this->name + " " + this->examples +
-            "\n> curl --user myusername --data-binary "
-            "'{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-            "\"method\": \"" +
-            this->name +
-            "\", \"params\": [" + this->examples +
-            "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n\n";
+        if (this->examples.empty())
+            this->set_examples("");
         return "Usage:\n" + this->name + " " + usage + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
 
@@ -66,7 +60,12 @@ public:
     }
     HelpSections& set_examples(string args)
     {
-        this->examples = args;
+        this->examples +=
+            "> zcash-cli " + this->name + " " + args +
+            "\n> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
+            "\"method\": \"" +
+            this->name + "\", \"params\": [" + args +
+            "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n\n";
         return *this;
     }
 };
@@ -95,55 +94,58 @@ const std::string RAWTRANSACTION_DESCRIPTION =
     "  \"vout\" : [              (array of json objects)\n"
     "     {\n"
     "       \"value\" : x.xxx,            (numeric) The value in " +
-    CURRENCY_UNIT + "\n"
-                    "       \"n\" : n,                    (numeric) index\n"
-                    "       \"scriptPubKey\" : {          (json object)\n"
-                    "         \"asm\" : \"asm\",          (string) the asm\n"
-                    "         \"hex\" : \"hex\",          (string) the hex\n"
-                    "         \"reqSigs\" : n,            (numeric) The required sigs\n"
-                    "         \"type\" : \"pubkeyhash\",  (string) The type, eg 'pubkeyhash'\n"
-                    "         \"addresses\" : [           (json array of string)\n"
-                    "           \"zcashaddress\"          (string) Zcash address\n"
-                    "           ,...\n"
-                    "         ]\n"
-                    "       }\n"
-                    "     }\n"
-                    "     ,...\n"
-                    "  ],\n"
-                    "  \"vjoinsplit\" : [        (array of json objects, only for version >= 2)\n"
-                    "     {\n"
-                    "       \"vpub_old\" : x.xxx,         (numeric) public input value in " +
-    CURRENCY_UNIT + "\n"
-                    "       \"vpub_new\" : x.xxx,         (numeric) public output value in " +
-    CURRENCY_UNIT + "\n"
-                    "       \"anchor\" : \"hex\",         (string) the anchor\n"
-                    "       \"nullifiers\" : [            (json array of string)\n"
-                    "         \"hex\"                     (string) input note nullifier\n"
-                    "         ,...\n"
-                    "       ],\n"
-                    "       \"commitments\" : [           (json array of string)\n"
-                    "         \"hex\"                     (string) output note commitment\n"
-                    "         ,...\n"
-                    "       ],\n"
-                    "       \"onetimePubKey\" : \"hex\",  (string) the onetime public key used to encrypt the ciphertexts\n"
-                    "       \"randomSeed\" : \"hex\",     (string) the random seed\n"
-                    "       \"macs\" : [                  (json array of string)\n"
-                    "         \"hex\"                     (string) input note MAC\n"
-                    "         ,...\n"
-                    "       ],\n"
-                    "       \"proof\" : \"hex\",          (string) the zero-knowledge proof\n"
-                    "       \"ciphertexts\" : [           (json array of string)\n"
-                    "         \"hex\"                     (string) output note ciphertext\n"
-                    "         ,...\n"
-                    "       ]\n"
-                    "     }\n"
-                    "     ,...\n"
-                    "  ],\n"
-                    "  \"blockhash\" : \"hash\",   (string) the block hash\n"
-                    "  \"confirmations\" : n,      (numeric) The confirmations\n"
-                    "  \"time\" : ttt,             (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT)\n"
-                    "  \"blocktime\" : ttt         (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-                    "}\n";
+    CURRENCY_UNIT +
+    "\n"
+    "       \"n\" : n,                    (numeric) index\n"
+    "       \"scriptPubKey\" : {          (json object)\n"
+    "         \"asm\" : \"asm\",          (string) the asm\n"
+    "         \"hex\" : \"hex\",          (string) the hex\n"
+    "         \"reqSigs\" : n,            (numeric) The required sigs\n"
+    "         \"type\" : \"pubkeyhash\",  (string) The type, eg 'pubkeyhash'\n"
+    "         \"addresses\" : [           (json array of string)\n"
+    "           \"zcashaddress\"          (string) Zcash address\n"
+    "           ,...\n"
+    "         ]\n"
+    "       }\n"
+    "     }\n"
+    "     ,...\n"
+    "  ],\n"
+    "  \"vjoinsplit\" : [        (array of json objects, only for version >= 2)\n"
+    "     {\n"
+    "       \"vpub_old\" : x.xxx,         (numeric) public input value in " +
+    CURRENCY_UNIT +
+    "\n"
+    "       \"vpub_new\" : x.xxx,         (numeric) public output value in " +
+    CURRENCY_UNIT +
+    "\n"
+    "       \"anchor\" : \"hex\",         (string) the anchor\n"
+    "       \"nullifiers\" : [            (json array of string)\n"
+    "         \"hex\"                     (string) input note nullifier\n"
+    "         ,...\n"
+    "       ],\n"
+    "       \"commitments\" : [           (json array of string)\n"
+    "         \"hex\"                     (string) output note commitment\n"
+    "         ,...\n"
+    "       ],\n"
+    "       \"onetimePubKey\" : \"hex\",  (string) the onetime public key used to encrypt the ciphertexts\n"
+    "       \"randomSeed\" : \"hex\",     (string) the random seed\n"
+    "       \"macs\" : [                  (json array of string)\n"
+    "         \"hex\"                     (string) input note MAC\n"
+    "         ,...\n"
+    "       ],\n"
+    "       \"proof\" : \"hex\",          (string) the zero-knowledge proof\n"
+    "       \"ciphertexts\" : [           (json array of string)\n"
+    "         \"hex\"                     (string) output note ciphertext\n"
+    "         ,...\n"
+    "       ]\n"
+    "     }\n"
+    "     ,...\n"
+    "  ],\n"
+    "  \"blockhash\" : \"hash\",   (string) the block hash\n"
+    "  \"confirmations\" : n,      (numeric) The confirmations\n"
+    "  \"time\" : ttt,             (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT)\n"
+    "  \"blocktime\" : ttt         (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+    "}\n";
 
 const std::string GETRAWTRANSACTION_HELP =
     "getrawtransaction \"txid\" ( verbose \"blockhash\" )\n"
