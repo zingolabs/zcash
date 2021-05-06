@@ -591,7 +591,7 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
         HelpSections help_sections =
             HelpSections(__func__)
                 .set_usage("index")
-                .set_description("Returns hash of block in best-block-chain at index provided.")
+                .set_description("Returns hash of block in best-block-chain at index provided.\n")
                 .set_arguments("1. index         (numeric, required) The block index. If negative then -1 is the last known valid block")
                 .set_result("\"hash\"         (string) The block hash")
                 .set_examples("1000");
