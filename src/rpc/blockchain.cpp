@@ -687,7 +687,6 @@ UniValue getblock(const UniValue& params, bool fHelp)
                                                              "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
 
     const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
-    const std::string EXAMPLES_ENUM = HelpExampleCli("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleRpc("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleCli("getblock", "12800") + HelpExampleRpc("getblock", "12800");
     if (fHelp || params.size() < 1 || params.size() > 2) {
         HelpSections help_sections =
             HelpSections(__func__)
@@ -710,7 +709,8 @@ UniValue getblock(const UniValue& params, bool fHelp)
                             "  ],\n" +
                             VERBOSITY_ONE_DESCRIPTION_PART_THREE +
                             "}")
-                .set_examples(EXAMPLES_ENUM);
+                .set_examples("\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"")
+                .set_examples("12800");
         throw runtime_error(
             help_sections.combine_sections());
     }
