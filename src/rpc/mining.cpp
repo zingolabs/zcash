@@ -26,6 +26,7 @@
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
+#include "rpc/docstrings.h"
 
 #include <stdint.h>
 #include <variant>
@@ -908,32 +909,33 @@ UniValue estimatepriority(const UniValue& params, bool fHelp)
 
 UniValue getblocksubsidy(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("height")
+                .set_description("Returns block subsidy reward, taking into account the mining slow start and the founders reward, of block at index provided.")
+                .set_arguments("1. height         (numeric, optional) The block height.  If not provided, defaults to the current height of the chain.")
+                .set_result("{\n"
+                            "  \"miner\" : x.xxx,              (numeric) The mining reward amount in " +
+                            CURRENCY_UNIT + ".\n"
+                                            "  \"founders\" : x.xxx,           (numeric) The founders' reward amount in " +
+                            CURRENCY_UNIT + ".\n"
+                                            "  \"fundingstreams\" : [          (array) An array of funding stream descriptions (present only when Canopy has activated).\n"
+                                            "    {\n"
+                                            "      \"recipient\" : \"...\",        (string) A description of the funding stream recipient.\n"
+                                            "      \"specification\" : \"url\",    (string) A URL for the specification of this funding stream.\n"
+                                            "      \"value\" : x.xxx             (numeric) The funding stream amount in " +
+                            CURRENCY_UNIT + ".\n"
+                                            "      \"valueZat\" : xxxx           (numeric) The funding stream amount in " +
+                            MINOR_CURRENCY_UNIT + ".\n"
+                                                  "      \"address\" :                 (string) The transparent or Sapling address of the funding stream recipient.\n"
+                                                  "    }, ...\n"
+                                                  "  ]\n"
+                                                  "}")
+                .set_examples("1000");
         throw runtime_error(
-            "getblocksubsidy height\n"
-            "\nReturns block subsidy reward, taking into account the mining slow start and the founders reward, of block at index provided.\n"
-            "\nArguments:\n"
-            "1. height         (numeric, optional) The block height.  If not provided, defaults to the current height of the chain.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"miner\" : x.xxx,              (numeric) The mining reward amount in " +
-            CURRENCY_UNIT + ".\n"
-                            "  \"founders\" : x.xxx,           (numeric) The founders' reward amount in " +
-            CURRENCY_UNIT + ".\n"
-                            "  \"fundingstreams\" : [          (array) An array of funding stream descriptions (present only when Canopy has activated).\n"
-                            "    {\n"
-                            "      \"recipient\" : \"...\",        (string) A description of the funding stream recipient.\n"
-                            "      \"specification\" : \"url\",    (string) A URL for the specification of this funding stream.\n"
-                            "      \"value\" : x.xxx             (numeric) The funding stream amount in " +
-            CURRENCY_UNIT + ".\n"
-                            "      \"valueZat\" : xxxx           (numeric) The funding stream amount in " +
-            MINOR_CURRENCY_UNIT + ".\n"
-                                  "      \"address\" :                 (string) The transparent or Sapling address of the funding stream recipient.\n"
-                                  "    }, ...\n"
-                                  "  ]\n"
-                                  "}\n"
-                                  "\nExamples:\n" +
-            HelpExampleCli("getblocksubsidy", "1000") + HelpExampleRpc("getblocksubsidy", "1000"));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
     int nHeight = (params.size() == 1) ? params[0].get_int() : chainActive.Height();
