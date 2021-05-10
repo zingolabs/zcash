@@ -45,33 +45,33 @@ using namespace std;
  **/
 UniValue getinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getinfo\n"
-            "Returns an object containing various state info.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"version\": xxxxx,           (numeric) the server version\n"
-            "  \"protocolversion\": xxxxx,   (numeric) the protocol version\n"
-            "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
-            "  \"balance\": xxxxxxx,         (numeric) the total Zcash balance of the wallet\n"
-            "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
-            "  \"timeoffset\": xxxxx,        (numeric) the time offset (deprecated; always 0)\n"
-            "  \"connections\": xxxxx,       (numeric) the number of connections\n"
-            "  \"proxy\": \"host:port\",     (string, optional) the proxy used by the server\n"
-            "  \"difficulty\": xxxxxx,       (numeric) the current difficulty\n"
-            "  \"testnet\": true|false,      (boolean) if the server is using testnet or not\n"
-            "  \"keypoololdest\": xxxxxx,    (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
-            "  \"keypoolsize\": xxxx,        (numeric) how many new keys are pre-generated\n"
-            "  \"unlocked_until\": ttt,      (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
-            "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee set in " +
-            CURRENCY_UNIT + "/kB\n"
-                            "  \"relayfee\": x.xxxx,         (numeric) minimum relay fee for non-free transactions in " +
-            CURRENCY_UNIT + "/kB\n"
-                            "  \"errors\": \"...\"           (string) any error messages\n"
-                            "}\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("getinfo", "") + HelpExampleRpc("getinfo", ""));
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns an object containing various state info.")
+                .set_result(
+                    "{\n"
+                    "  \"version\": xxxxx,           (numeric) the server version\n"
+                    "  \"protocolversion\": xxxxx,   (numeric) the protocol version\n"
+                    "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
+                    "  \"balance\": xxxxxxx,         (numeric) the total Zcash balance of the wallet\n"
+                    "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
+                    "  \"timeoffset\": xxxxx,        (numeric) the time offset (deprecated; always 0)\n"
+                    "  \"connections\": xxxxx,       (numeric) the number of connections\n"
+                    "  \"proxy\": \"host:port\",       (string, optional) the proxy used by the server\n"
+                    "  \"difficulty\": xxxxxx,       (numeric) the current difficulty\n"
+                    "  \"testnet\": true|false,      (boolean) if the server is using testnet or not\n"
+                    "  \"keypoololdest\": xxxxxx,    (numeric) the timestamp (seconds since GMT epoch) of the oldest pre-generated key in the key pool\n"
+                    "  \"keypoolsize\": xxxx,        (numeric) how many new keys are pre-generated\n"
+                    "  \"unlocked_until\": ttt,      (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
+                    "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee set in " +
+                    CURRENCY_UNIT + "/kB\n"
+                                    "  \"relayfee\": x.xxxx,         (numeric) minimum relay fee for non-free transactions in " +
+                    CURRENCY_UNIT + "/kB\n"
+                                    "  \"errors\": \"...\"             (string) any error messages\n"
+                                    "}");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
 #ifdef ENABLE_WALLET
     LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
