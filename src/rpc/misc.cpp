@@ -490,17 +490,18 @@ UniValue setmocktime(const UniValue& params, bool fHelp)
 
 UniValue getexperimentalfeatures(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns enabled experimental features.")
+                .set_result(
+                    "[\n"
+                    "  \"experimentalfeature\"     (string) The enabled experimental feature\n"
+                    "  , ...\n"
+                    "]");
         throw runtime_error(
-            "getexperimentalfeatures\n"
-            "\nReturns enabled experimental features.\n"
-            "\nResult:\n"
-            "[\n"
-            "  \"experimentalfeature\"     (string) The enabled experimental feature\n"
-            "  , ...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getexperimentalfeatures", "") + HelpExampleRpc("getexperimentalfeatures", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
     UniValue experimentalfeatures(UniValue::VARR);
