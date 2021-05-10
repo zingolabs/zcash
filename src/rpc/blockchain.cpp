@@ -657,6 +657,7 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
 
     return blockheaderToJSON(pblockindex);
 }
+
 const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
                                                        "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
                                                        "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
@@ -695,6 +696,7 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "\nArguments:\n"
             "1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n"
             "2. verbosity              (numeric, optional, default=1) 0 for hex encoded data, 1 for a json object, and 2 for json object with transaction data\n"
+            //set_result()
             "\nResult (for verbosity = 0):\n"
             "\"data\"             (string) A string that is serialized, hex-encoded data for the block.\n"
             "\nResult (for verbosity = 1):\n"
@@ -1025,8 +1027,7 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
                     "     \"chaintip\": \"xxxxxxxx\",                (string) branch ID used to validate the current chain tip\n"
                     "     \"nextblock\": \"xxxxxxxx\"                (string) branch ID that the next block will be validated under\n"
                     "  }\n"
-                    "}")
-                .set_examples("");
+                    "}");
         throw runtime_error(
             help_sections.combine_sections());
     }
