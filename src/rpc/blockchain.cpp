@@ -684,9 +684,9 @@ const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
                                                          "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
                                                          "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
 
-const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
 UniValue getblock(const UniValue& params, bool fHelp)
 {
+    const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
             "getblock \"hash|height\" ( verbosity )\n"
