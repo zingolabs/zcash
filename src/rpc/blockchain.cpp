@@ -649,57 +649,59 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
     return blockheaderToJSON(pblockindex);
 }
 
-const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
-                                                       "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
-                                                       "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
-                                                       "  \"size\" : n,            (numeric) The block size\n"
-                                                       "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
-                                                       "  \"version\" : n,         (numeric) The block version\n"
-                                                       "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-                                                       "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n";
-
-const std::string VERBOSITY_ONE_DESCRIPTION_PART_TWO = ""
-                                                       "  \"tx\" : [               (array of string) The transaction ids\n"
-                                                       "     \"transactionid\"     (string) The transaction id\n"
-                                                       "     ,...\n"
-                                                       "  ],\n";
-
-const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
-                                                         "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-                                                         "  \"nonce\" : n,           (numeric) The nonce\n"
-                                                         "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
-                                                         "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
-                                                         "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-                                                         "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
-
 UniValue getblock(const UniValue& params, bool fHelp)
 {
+    const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
+                                                           "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
+                                                           "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+                                                           "  \"size\" : n,            (numeric) The block size\n"
+                                                           "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
+                                                           "  \"version\" : n,         (numeric) The block version\n"
+                                                           "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
+                                                           "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n";
+
+    const std::string VERBOSITY_ONE_DESCRIPTION_PART_TWO = ""
+                                                           "  \"tx\" : [               (array of string) The transaction ids\n"
+                                                           "     \"transactionid\"     (string) The transaction id\n"
+                                                           "     ,...\n"
+                                                           "  ],\n";
+
+    const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
+                                                             "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+                                                             "  \"nonce\" : n,           (numeric) The nonce\n"
+                                                             "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
+                                                             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+                                                             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
+                                                             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
+
     const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    const std::string EXAMPLES_ENUM = HelpExampleCli("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleRpc("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleCli("getblock", "12800") + HelpExampleRpc("getblock", "12800");
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hash|height\" ( verbosity)")
+                .set_description("If verbosity is 0, returns a string that is serialized, hex-encoded data for the block.\n"
+                                 "If verbosity is 1, returns an Object with information about the block.\n"
+                                 "If verbosity is 2, returns an Object with information about the block and information about each transaction.")
+                .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n"
+                               "2. verbosity              (numeric, optional, default=1) 0 for hex encoded data, 1 for a json object, and 2 for json object with transaction data\"")
+                .set_result("for verbosity = 0:\n"
+                            "\"data\"             (string) A string that is serialized, hex-encoded data for the block.\n"
+                            "\nResult (for verbosity = 1):\n"
+                            "{\n" +
+                            VERBOSITY_ONE_DESCRIPTION + "}\n"
+                                                        "\nResult (for verbosity = 2):\n"
+                                                        "{\n" +
+                            VERBOSITY_ONE_DESCRIPTION_PART_ONE +
+                            "  \"tx\" : [               (array of Objects) The transactions in the format of the getrawtransaction RPC. Different from verbosity = 1 \"tx\" result.\n" + RAWTRANSACTION_DESCRIPTION +
+                            "         ,...\n"
+                            "  ],\n" +
+                            VERBOSITY_ONE_DESCRIPTION_PART_THREE +
+                            "}")
+                .set_examples(EXAMPLES_ENUM);
         throw runtime_error(
-            "getblock \"hash|height\" ( verbosity )\n"
-            "\nIf verbosity is 0, returns a string that is serialized, hex-encoded data for the block.\n"
-            "If verbosity is 1, returns an Object with information about the block.\n"
-            "If verbosity is 2, returns an Object with information about the block and information about each transaction. \n"
-            "\nArguments:\n"
-            "1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n"
-            "2. verbosity              (numeric, optional, default=1) 0 for hex encoded data, 1 for a json object, and 2 for json object with transaction data\n"
-            //set_result()
-            "\nResult (for verbosity = 0):\n"
-            "\"data\"             (string) A string that is serialized, hex-encoded data for the block.\n"
-            "\nResult (for verbosity = 1):\n"
-            "{\n" +
-            VERBOSITY_ONE_DESCRIPTION + "}\n"
-                                        "\nResult (for verbosity = 2):\n"
-                                        "{\n" +
-            VERBOSITY_ONE_DESCRIPTION_PART_ONE +
-            "  \"tx\" : [               (array of Objects) The transactions in the format of the getrawtransaction RPC. Different from verbosity = 1 \"tx\" result.\n" + RAWTRANSACTION_DESCRIPTION +
-            "         ,...\n"
-            "  ],\n" +
-            VERBOSITY_ONE_DESCRIPTION_PART_THREE +
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleRpc("getblock", "\"00000000febc373a1da2bd9f887b105ad79ddc26ac26c2b28652d64e5207c5b5\"") + HelpExampleCli("getblock", "12800") + HelpExampleRpc("getblock", "12800"));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
