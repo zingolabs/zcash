@@ -455,13 +455,18 @@ UniValue verifymessage(const UniValue& params, bool fHelp)
 
 UniValue setmocktime(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("timestamp")
+                .set_description("Set the local time to given timestamp (-regtest only)")
+                .set_arguments(
+                    "1. timestamp  (integer, required) Unix seconds-since-epoch timestamp,"
+                    " or 0 to go back to using the system time.")
+                .set_examples("1577836800");
         throw runtime_error(
-            "setmocktime timestamp\n"
-            "\nSet the local time to given timestamp (-regtest only)\n"
-            "\nArguments:\n"
-            "1. timestamp  (integer, required) Unix seconds-since-epoch timestamp\n"
-            "   Pass 0 to go back to using the system time.");
+            help_sections.combine_sections());
+    }
 
     if (!Params().MineBlocksOnDemand())
         throw runtime_error("setmocktime for regression testing (-regtest mode) only");
