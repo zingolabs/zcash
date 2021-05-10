@@ -1160,23 +1160,25 @@ UniValue getmemoryinfo(const UniValue& params, bool fHelp)
     /* Please, avoid using the word "pool" here in the RPC interface or help,
      * as users will undoubtedly confuse it with the other "memory pool"
      */
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns an object containing information about memory usage.")
+                .set_result(
+                    "{\n"
+                    "  \"locked\": {               (json object) Information about locked memory manager\n"
+                    "    \"used\": xxxxx,          (numeric) Number of bytes used\n"
+                    "    \"free\": xxxxx,          (numeric) Number of bytes available in current arenas\n"
+                    "    \"total\": xxxxxxx,       (numeric) Total number of bytes managed\n"
+                    "    \"locked\": xxxxxx,       (numeric) Amount of bytes that succeeded locking. If this number is smaller than total, locking pages failed at some point and key data could be swapped to disk.\n"
+                    "    \"chunks_used\": xxxxx,   (numeric) Number allocated chunks\n"
+                    "    \"chunks_free\": xxxxx,   (numeric) Number unused chunks\n"
+                    "  }\n"
+                    "}");
         throw runtime_error(
-            "getmemoryinfo\n"
-            "Returns an object containing information about memory usage.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"locked\": {               (json object) Information about locked memory manager\n"
-            "    \"used\": xxxxx,          (numeric) Number of bytes used\n"
-            "    \"free\": xxxxx,          (numeric) Number of bytes available in current arenas\n"
-            "    \"total\": xxxxxxx,       (numeric) Total number of bytes managed\n"
-            "    \"locked\": xxxxxx,       (numeric) Amount of bytes that succeeded locking. If this number is smaller than total, locking pages failed at some point and key data could be swapped to disk.\n"
-            "    \"chunks_used\": xxxxx,   (numeric) Number allocated chunks\n"
-            "    \"chunks_free\": xxxxx,   (numeric) Number unused chunks\n"
-            "  }\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getmemoryinfo", "") + HelpExampleRpc("getmemoryinfo", ""));
+            help_sections.combine_sections());
+    }
+
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("locked", RPCLockedMemoryInfo());
     return obj;
