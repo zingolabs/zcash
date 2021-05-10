@@ -880,7 +880,7 @@ UniValue verifychain(const UniValue& params, bool fHelp)
                 .set_arguments("1. checklevel   (numeric, optional, 0-4, default=" +
                                strprintf("%d", nCheckLevel) + ") How thorough the block verification is.\n"
                                                               "2. numblocks    (numeric, optional, default=" +
-                               strprintf("%d", nCheckDepth) + ", 0=all) The number of blocks to check.\n")
+                               strprintf("%d", nCheckDepth) + ", 0=all) The number of blocks to check.")
                 .set_result("true|false       (boolean) Verified or not");
         throw runtime_error(
             help_sections.combine_sections());
