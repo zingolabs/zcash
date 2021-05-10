@@ -884,19 +884,19 @@ UniValue verifychain(const UniValue& params, bool fHelp)
 {
     int nCheckLevel = GetArg("-checklevel", DEFAULT_CHECKLEVEL);
     int nCheckDepth = GetArg("-checkblocks", DEFAULT_CHECKBLOCKS);
-    if (fHelp || params.size() > 2)
+    if (fHelp || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("verifychain ( checklevel numblocks )")
+                .set_description("Verifies blockchain database.\n")
+                .set_arguments("1. checklevel   (numeric, optional, 0-4, default=" +
+                               strprintf("%d", nCheckLevel) + ") How thorough the block verification is.\n"
+                                                              "2. numblocks    (numeric, optional, default=" +
+                               strprintf("%d", nCheckDepth) + ", 0=all) The number of blocks to check.\n")
+                .set_result("true|false       (boolean) Verified or not");
         throw runtime_error(
-            "verifychain ( checklevel numblocks )\n"
-            "\nVerifies blockchain database.\n"
-            "\nArguments:\n"
-            "1. checklevel   (numeric, optional, 0-4, default=" +
-            strprintf("%d", nCheckLevel) + ") How thorough the block verification is.\n"
-                                           "2. numblocks    (numeric, optional, default=" +
-            strprintf("%d", nCheckDepth) + ", 0=all) The number of blocks to check.\n"
-                                           "\nResult:\n"
-                                           "true|false       (boolean) Verified or not\n"
-                                           "\nExamples:\n" +
-            HelpExampleCli("verifychain", "") + HelpExampleRpc("verifychain", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
