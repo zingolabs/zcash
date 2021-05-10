@@ -404,22 +404,20 @@ UniValue createmultisig(const UniValue& params, bool fHelp)
 
 UniValue verifymessage(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 3)
+    if (fHelp || params.size() != 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zcashaddress\" \"signature\" \"message\"")
+                .set_description("Verify a signed message")
+                .set_arguments(
+                    "1. \"zcashaddress\"    (string, required) The Zcash address to use for the signature.\n"
+                    "2. \"signature\"       (string, required) The signature provided by the signer in base 64 encoding (see signmessage).\n"
+                    "3. \"message\"         (string, required) The message that was signed.")
+                .set_result("true|false   (boolean) If the signature is verified or not.")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"");
         throw runtime_error(
-            "verifymessage \"zcashaddress\" \"signature\" \"message\"\n"
-            "\nVerify a signed message\n"
-            "\nArguments:\n"
-            "1. \"zcashaddress\"    (string, required) The Zcash address to use for the signature.\n"
-            "2. \"signature\"       (string, required) The signature provided by the signer in base 64 encoding (see signmessage).\n"
-            "3. \"message\"         (string, required) The message that was signed.\n"
-            "\nResult:\n"
-            "true|false   (boolean) If the signature is verified or not.\n"
-            "\nExamples:\n"
-            "\nUnlock the wallet for 30 seconds\n" +
-            HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
-            "\nCreate the signature\n" + HelpExampleCli("signmessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"") +
-            "\nVerify the signature\n" + HelpExampleCli("verifymessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"") +
-            "\nAs json rpc\n" + HelpExampleRpc("verifymessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\", \"signature\", \"my message\""));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
