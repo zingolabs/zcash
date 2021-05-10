@@ -887,7 +887,7 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 2) {
         HelpSections help_sections =
             HelpSections(__func__)
-                .set_usage("verifychain ( checklevel numblocks )")
+                .set_usage("( checklevel numblocks )")
                 .set_description("Verifies blockchain database.\n")
                 .set_arguments("1. checklevel   (numeric, optional, 0-4, default=" +
                                strprintf("%d", nCheckLevel) + ") How thorough the block verification is.\n"
