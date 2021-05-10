@@ -365,30 +365,30 @@ CScript _createmultisig_redeemScript(const UniValue& params)
 UniValue createmultisig(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 2) {
-        string msg = "createmultisig nrequired [\"key\",...]\n"
-                     "\nCreates a multi-signature address with n signature of m keys required.\n"
-                     "It returns a json object with the address and redeemScript.\n"
-
-                     "\nArguments:\n"
-                     "1. nrequired      (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-                     "2. \"keys\"       (string, required) A json array of keys which are Zcash addresses or hex-encoded public keys\n"
-                     "     [\n"
-                     "       \"key\"    (string) Zcash address or hex-encoded public key\n"
-                     "       ,...\n"
-                     "     ]\n"
-
-                     "\nResult:\n"
-                     "{\n"
-                     "  \"address\":\"multisigaddress\",  (string) The value of the new multisig address.\n"
-                     "  \"redeemScript\":\"script\"       (string) The string value of the hex-encoded redemption script.\n"
-                     "}\n"
-
-                     "\nExamples:\n"
-                     "\nCreate a multisig address from 2 addresses\n" +
-                     HelpExampleCli("createmultisig", "2 \"[\\\"t16sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"t171sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"") +
-                     "\nAs a json rpc call\n" + HelpExampleRpc("createmultisig", "2, \"[\\\"t16sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"t171sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"");
-        throw runtime_error(msg);
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("nrequired [\"key\",...]\n")
+                .set_description(
+                    "Creates a multi-signature address with n signature of m keys required.\n"
+                    "It returns a json object with the address and redeemScript.")
+                .set_arguments(
+                    "1. nrequired      (numeric, required) The number of required signatures out of the n keys or addresses.\n"
+                    "2. \"keys\"       (string, required) A json array of keys which are Zcash addresses or hex-encoded public keys\n"
+                    "     [\n"
+                    "       \"key\"    (string) Zcash address or hex-encoded public key\n"
+                    "       ,...\n"
+                    "     ]")
+                .set_result(
+                    "{\n"
+                    "  \"address\":\"multisigaddress\",  (string) The value of the new multisig address.\n"
+                    "  \"redeemScript\":\"script\"       (string) The string value of the hex-encoded redemption script.\n"
+                    "}")
+                .set_examples("2 \"[\\\"t16sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"t171sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"");
+        throw runtime_error(
+            help_sections.combine_sections());
     }
+    // String now missing from examples: "Create a multisig address from 2 addresses:"
+
 
     // Construct using pay-to-script-hash:
     CScript inner = _createmultisig_redeemScript(params);
