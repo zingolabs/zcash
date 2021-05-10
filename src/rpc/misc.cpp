@@ -253,26 +253,28 @@ public:
 
 UniValue z_validateaddress(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "z_validateaddress \"zaddr\"\n"
-            "\nReturn information about the given z address.\n"
-            "\nArguments:\n"
-            "1. \"zaddr\"     (string, required) The z address to validate\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"isvalid\" : true|false,      (boolean) If the address is valid or not. If not, this is the only property returned.\n"
-            "  \"address\" : \"zaddr\",         (string) The z address validated\n"
-            "  \"type\" : \"xxxx\",             (string) \"sprout\" or \"sapling\"\n"
-            "  \"ismine\" : true|false,       (boolean) If the address is yours or not\n"
-            "  \"payingkey\" : \"hex\",         (string) <sprout> The hex value of the paying key, a_pk\n"
-            "  \"transmissionkey\" : \"hex\",   (string) <sprout> The hex value of the transmission key, pk_enc\n"
-            "  \"diversifier\" : \"hex\",       (string) <sapling> The hex value of the diversifier, d\n"
-            "  \"diversifiedtransmissionkey\" : \"hex\", (string) <sapling> The hex value of pk_d\n"
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zaddr\"")
+                .set_description("Return information about the given z address.")
+                .set_arguments("1. \"zaddr\"     (string, required) The z address to validate")
+                .set_result(
+                    "{\n"
+                    "  \"isvalid\" : true|false,      (boolean) If the address is valid or not. If not, this is the only property returned.\n"
+                    "  \"address\" : \"zaddr\",         (string) The z address validated\n"
+                    "  \"type\" : \"xxxx\",             (string) \"sprout\" or \"sapling\"\n"
+                    "  \"ismine\" : true|false,       (boolean) If the address is yours or not\n"
+                    "  \"payingkey\" : \"hex\",         (string) <sprout> The hex value of the paying key, a_pk\n"
+                    "  \"transmissionkey\" : \"hex\",   (string) <sprout> The hex value of the transmission key, pk_enc\n"
+                    "  \"diversifier\" : \"hex\",       (string) <sapling> The hex value of the diversifier, d\n"
+                    "  \"diversifiedtransmissionkey\" : \"hex\", (string) <sapling> The hex value of pk_d\n"
 
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("z_validateaddress", "\"zcWsmqT4X2V4jgxbgiCzyrAfRT1vi1F4sn7M5Pkh66izzw8Uk7LBGAH3DtcSMJeUb2pi3W4SQF8LMKkU2cUuVP68yAGcomL\"") + HelpExampleRpc("z_validateaddress", "\"zcWsmqT4X2V4jgxbgiCzyrAfRT1vi1F4sn7M5Pkh66izzw8Uk7LBGAH3DtcSMJeUb2pi3W4SQF8LMKkU2cUuVP68yAGcomL\""));
+                    "}")
+                .set_examples("\"zcWsmqT4X2V4jgxbgiCzyrAfRT1vi1F4sn7M5Pkh66izzw8Uk7LBGAH3DtcSMJeUb2pi3W4SQF8LMKkU2cUuVP68yAGcomL\"");
+        throw runtime_error(
+            help_sections.combine_sections());
+    }
 
 
 #ifdef ENABLE_WALLET
