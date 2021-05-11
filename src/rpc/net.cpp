@@ -39,14 +39,15 @@ UniValue getconnectioncount(const UniValue& params, bool fHelp)
 
 UniValue ping(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Requests that a ping be sent to all other nodes, to measure ping time.\n"
+                                 "Results provided in getpeerinfo, pingtime and pingwait fields are decimal seconds.\n"
+                                 "Ping command is handled in queue with all other commands, so it measures processing backlog, not just network ping.");
         throw runtime_error(
-            "ping\n"
-            "\nRequests that a ping be sent to all other nodes, to measure ping time.\n"
-            "Results provided in getpeerinfo, pingtime and pingwait fields are decimal seconds.\n"
-            "Ping command is handled in queue with all other commands, so it measures processing backlog, not just network ping.\n"
-            "\nExamples:\n" +
-            HelpExampleCli("ping", "") + HelpExampleRpc("ping", ""));
+            help_sections.combine_sections());
+    }
 
     // Request that each node send a ping during next message processing pass
     LOCK2(cs_main, cs_vNodes);
