@@ -405,18 +405,18 @@ static UniValue GetNetworksInfo()
 UniValue getdeprecationinfo(const UniValue& params, bool fHelp)
 {
     const CChainParams& chainparams = Params();
-    if (fHelp || params.size() != 0 || chainparams.NetworkIDString() != "main")
+    if (fHelp || params.size() != 0 || chainparams.NetworkIDString() != "main") {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns an object containing current version and deprecation block height. Applicable only on mainnet.")
+                .set_result("{\n"
+                            "  \"version\": xxxxx,                      (numeric) the server version\n"
+                            "  \"subversion\": \"/MagicBean:x.y.z[-v]/\",     (string) the server subversion string\n"
+                            "  \"deprecationheight\": xxxxx,            (numeric) the block height at which this version will deprecate and shut down\n"
+                            "}");
         throw runtime_error(
-            "getdeprecationinfo\n"
-            "Returns an object containing current version and deprecation block height. Applicable only on mainnet.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"version\": xxxxx,                      (numeric) the server version\n"
-            "  \"subversion\": \"/MagicBean:x.y.z[-v]/\",     (string) the server subversion string\n"
-            "  \"deprecationheight\": xxxxx,            (numeric) the block height at which this version will deprecate and shut down\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getdeprecationinfo", "") + HelpExampleRpc("getdeprecationinfo", ""));
+            help_sections.combine_sections());
+    }
 
     UniValue obj(UniValue::VOBJ);
     obj.pushKV("version", CLIENT_VERSION);
