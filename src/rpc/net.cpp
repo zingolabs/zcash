@@ -6,6 +6,7 @@
 
 #include "clientversion.h"
 #include "deprecation.h"
+#include "docstrings.h"
 #include "main.h"
 #include "net.h"
 #include "netbase.h"
@@ -165,16 +166,18 @@ UniValue addnode(const UniValue& params, bool fHelp)
     if (params.size() == 2)
         strCommand = params[1].get_str();
     if (fHelp || params.size() != 2 ||
-        (strCommand != "onetry" && strCommand != "add" && strCommand != "remove"))
+        (strCommand != "onetry" && strCommand != "add" && strCommand != "remove")) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"node\" \"add|remove|onetry\"")
+                .set_description("Attempts to add or remove a node from the addnode list.\n"
+                                 "Or try a connection to a node once.")
+                .set_arguments("1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
+                               "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once")
+                .set_examples("\"192.168.0.6:8233\" \"onetry\"");
         throw runtime_error(
-            "addnode \"node\" \"add|remove|onetry\"\n"
-            "\nAttempts to add or remove a node from the addnode list.\n"
-            "Or try a connection to a node once.\n"
-            "\nArguments:\n"
-            "1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
-            "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once\n"
-            "\nExamples:\n" +
-            HelpExampleCli("addnode", "\"192.168.0.6:8233\" \"onetry\"") + HelpExampleRpc("addnode", "\"192.168.0.6:8233\", \"onetry\""));
+            help_sections.combine_sections());
+    }
 
     string strNode = params[0].get_str();
 
