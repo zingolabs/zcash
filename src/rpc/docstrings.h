@@ -21,7 +21,7 @@ public:
           usage(""),
           description(""),
           arguments(""),
-          result("This RPC does not return a result by default.\n"),
+          result("This RPC does not return a result by default."),
           examples("")
     {
     }
