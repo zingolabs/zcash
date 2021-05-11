@@ -15,6 +15,7 @@
 #include "netbase.h"
 #include "primitives/transaction.h"
 #include "proof_verifier.h"
+#include "rpc/docstrings.h"
 #include "rpc/server.h"
 #include "script/interpreter.h"
 #include "timedata.h"
@@ -141,16 +142,17 @@ UniValue getnewaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( \"account\" )")
+                .set_description("Returns a new Zcash address for receiving payments.")
+                .set_arguments("1. \"account\"        (string, optional) DEPRECATED. If provided, it MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.")
+                .set_result("\"zcashaddress\"    (string) The new Zcash address");
         throw runtime_error(
-            "getnewaddress ( \"account\" )\n"
-            "\nReturns a new Zcash address for receiving payments.\n"
-            "\nArguments:\n"
-            "1. \"account\"        (string, optional) DEPRECATED. If provided, it MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
-            "\nResult:\n"
-            "\"zcashaddress\"    (string) The new Zcash address\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getnewaddress", "") + HelpExampleRpc("getnewaddress", ""));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
