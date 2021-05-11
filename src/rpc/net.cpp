@@ -23,14 +23,14 @@ using namespace std;
 
 UniValue getconnectioncount(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the number of connections to other nodes.")
+                .set_result("n          (numeric) The connection count");
         throw runtime_error(
-            "getconnectioncount\n"
-            "\nReturns the number of connections to other nodes.\n"
-            "\nbResult:\n"
-            "n          (numeric) The connection count\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getconnectioncount", "") + HelpExampleRpc("getconnectioncount", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, cs_vNodes);
 
