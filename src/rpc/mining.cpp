@@ -83,16 +83,15 @@ int64_t GetNetworkHashPS(int lookup, int height)
 
 UniValue getlocalsolps(const UniValue& params, bool fHelp)
 {
-    if (fHelp)
+    if (fHelp) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the average local solutions per second since this node was started.\n"
+                                 "This is the same information shown on the metrics screen (if enabled).")
+                .set_result("xxx.xxxxx     (numeric) Solutions per second average");
         throw runtime_error(
-            "getlocalsolps\n"
-            "\nReturns the average local solutions per second since this node was started.\n"
-            "This is the same information shown on the metrics screen (if enabled).\n"
-            "\nResult:\n"
-            "xxx.xxxxx     (numeric) Solutions per second average\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getlocalsolps", "") + HelpExampleRpc("getlocalsolps", ""));
-
+            help_sections.combine_sections());
+    }
     LOCK(cs_main);
     return GetLocalSolPS();
 }
