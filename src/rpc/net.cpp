@@ -208,14 +208,16 @@ UniValue addnode(const UniValue& params, bool fHelp)
 
 UniValue disconnectnode(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"node\"")
+                .set_description("Immediately disconnects from the specified node.")
+                .set_arguments("1. \"node\"     (string, required) The node (see getpeerinfo for nodes)")
+                .set_examples("\"192.168.0.6:8233\"");
         throw runtime_error(
-            "disconnectnode \"node\" \n"
-            "\nImmediately disconnects from the specified node.\n"
-            "\nArguments:\n"
-            "1. \"node\"     (string, required) The node (see getpeerinfo for nodes)\n"
-            "\nExamples:\n" +
-            HelpExampleCli("disconnectnode", "\"192.168.0.6:8233\"") + HelpExampleRpc("disconnectnode", "\"192.168.0.6:8233\""));
+            help_sections.combine_sections());
+    }
 
     CNode* pNode = FindNode(params[0].get_str());
     if (pNode == NULL)
