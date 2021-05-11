@@ -72,42 +72,41 @@ static void CopyNodeStats(std::vector<CNodeStats>& vstats)
 
 UniValue getpeerinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getpeerinfo\n"
-            "\nReturns data about each connected network node as a json array of objects.\n"
-            "\nbResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"id\": n,                   (numeric) Peer index\n"
-            "    \"addr\":\"host:port\",      (string) The IP address and port of the peer\n"
-            "    \"addrlocal\":\"ip:port\",   (string) local address\n"
-            "    \"services\":\"xxxxxxxxxxxxxxxx\",   (string) The services offered\n"
-            "    \"relaytxes\":true|false,    (boolean) Whether peer has asked us to relay transactions to it\n"
-            "    \"lastsend\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last send\n"
-            "    \"lastrecv\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last receive\n"
-            "    \"bytessent\": n,            (numeric) The total bytes sent\n"
-            "    \"bytesrecv\": n,            (numeric) The total bytes received\n"
-            "    \"conntime\": ttt,           (numeric) The connection time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "    \"timeoffset\": ttt,         (numeric) The time offset in seconds\n"
-            "    \"pingtime\": n,             (numeric) ping time\n"
-            "    \"pingwait\": n,             (numeric) ping wait\n"
-            "    \"version\": v,              (numeric) The peer version, such as 170002\n"
-            "    \"subver\": \"/MagicBean:x.y.z[-v]/\",  (string) The string version\n"
-            "    \"inbound\": true|false,     (boolean) Inbound (true) or Outbound (false)\n"
-            "    \"startingheight\": n,       (numeric) The starting height (block) of the peer\n"
-            "    \"banscore\": n,             (numeric) The ban score\n"
-            "    \"synced_headers\": n,       (numeric) The last header we have in common with this peer\n"
-            "    \"synced_blocks\": n,        (numeric) The last block we have in common with this peer\n"
-            "    \"inflight\": [\n"
-            "       n,                        (numeric) The heights of blocks we're currently asking from this peer\n"
-            "       ...\n"
-            "    ]\n"
-            "  }\n"
-            "  ,...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getpeerinfo", "") + HelpExampleRpc("getpeerinfo", ""));
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns data about each connected network node as a json array of objects.")
+                .set_result("[\n"
+                            "  {\n"
+                            "    \"id\": n,                   (numeric) Peer index\n"
+                            "    \"addr\":\"host:port\",      (string) The IP address and port of the peer\n"
+                            "    \"addrlocal\":\"ip:port\",   (string) local address\n"
+                            "    \"services\":\"xxxxxxxxxxxxxxxx\",   (string) The services offered\n"
+                            "    \"relaytxes\":true|false,    (boolean) Whether peer has asked us to relay transactions to it\n"
+                            "    \"lastsend\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last send\n"
+                            "    \"lastrecv\": ttt,           (numeric) The time in seconds since epoch (Jan 1 1970 GMT) of the last receive\n"
+                            "    \"bytessent\": n,            (numeric) The total bytes sent\n"
+                            "    \"bytesrecv\": n,            (numeric) The total bytes received\n"
+                            "    \"conntime\": ttt,           (numeric) The connection time in seconds since epoch (Jan 1 1970 GMT)\n"
+                            "    \"timeoffset\": ttt,         (numeric) The time offset in seconds\n"
+                            "    \"pingtime\": n,             (numeric) ping time\n"
+                            "    \"pingwait\": n,             (numeric) ping wait\n"
+                            "    \"version\": v,              (numeric) The peer version, such as 170002\n"
+                            "    \"subver\": \"/MagicBean:x.y.z[-v]/\",  (string) The string version\n"
+                            "    \"inbound\": true|false,     (boolean) Inbound (true) or Outbound (false)\n"
+                            "    \"startingheight\": n,       (numeric) The starting height (block) of the peer\n"
+                            "    \"banscore\": n,             (numeric) The ban score\n"
+                            "    \"synced_headers\": n,       (numeric) The last header we have in common with this peer\n"
+                            "    \"synced_blocks\": n,        (numeric) The last block we have in common with this peer\n"
+                            "    \"inflight\": [\n"
+                            "       n,                        (numeric) The heights of blocks we're currently asking from this peer\n"
+                            "       ...\n"
+                            "    ]\n"
+                            "  }\n"
+                            "  ,...\n"
+                            "]");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
