@@ -230,33 +230,35 @@ UniValue disconnectnode(const UniValue& params, bool fHelp)
 
 UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("dns ( \"node\" )")
+                .set_description("Returns information about the given added node, or all added nodes\n"
+                                 "(note that onetry addnodes are not listed here)\n"
+                                 "If dns is false, only a list of added nodes will be provided,\n"
+                                 "otherwise connected information will also be available.")
+                .set_arguments("1. dns        (boolean, required) If false, only a list of added nodes will be provided, otherwise connected information will also be available.\n"
+                               "2. \"node\"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.")
+                .set_result("[\n"
+                            "  {\n"
+                            "    \"addednode\" : \"192.168.0.201\",   (string) The node IP address\n"
+                            "    \"connected\" : true|false,          (boolean) If connected\n"
+                            "    \"addresses\" : [\n"
+                            "       {\n"
+                            "         \"address\" : \"192.168.0.201:8233\",  (string) The Zcash server host and port\n"
+                            "         \"connected\" : \"outbound\"           (string) connection, inbound or outbound\n"
+                            "       }\n"
+                            "       ,...\n"
+                            "     ]\n"
+                            "  }\n"
+                            "  ,...\n"
+                            "]")
+                .set_examples("true")
+                .set_examples("true \"192.168.0.201\"");
         throw runtime_error(
-            "getaddednodeinfo dns ( \"node\" )\n"
-            "\nReturns information about the given added node, or all added nodes\n"
-            "(note that onetry addnodes are not listed here)\n"
-            "If dns is false, only a list of added nodes will be provided,\n"
-            "otherwise connected information will also be available.\n"
-            "\nArguments:\n"
-            "1. dns        (boolean, required) If false, only a list of added nodes will be provided, otherwise connected information will also be available.\n"
-            "2. \"node\"   (string, optional) If provided, return information about this specific node, otherwise all nodes are returned.\n"
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"addednode\" : \"192.168.0.201\",   (string) The node IP address\n"
-            "    \"connected\" : true|false,          (boolean) If connected\n"
-            "    \"addresses\" : [\n"
-            "       {\n"
-            "         \"address\" : \"192.168.0.201:8233\",  (string) The Zcash server host and port\n"
-            "         \"connected\" : \"outbound\"           (string) connection, inbound or outbound\n"
-            "       }\n"
-            "       ,...\n"
-            "     ]\n"
-            "  }\n"
-            "  ,...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaddednodeinfo", "true") + HelpExampleCli("getaddednodeinfo", "true \"192.168.0.201\"") + HelpExampleRpc("getaddednodeinfo", "true, \"192.168.0.201\""));
+            help_sections.combine_sections());
+    }
 
     bool fDns = params[0].get_bool();
 
