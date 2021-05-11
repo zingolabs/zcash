@@ -353,22 +353,23 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 UniValue prioritisetransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 3)
+    if (fHelp || params.size() != 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("<txid> <priority delta> <fee delta>")
+                .set_description("Accepts the transaction into mined blocks at a higher (or lower) priority")
+                .set_arguments("1. \"txid\"       (string, required) The transaction id.\n"
+                               "2. priority delta (numeric, required) The priority to add or subtract.\n"
+                               "                  The transaction selection algorithm considers the tx as it would have a higher priority.\n"
+                               "                  (priority of a transaction is calculated: coinage * value_in_satoshis / txsize) \n"
+                               "3. fee delta      (numeric, required) The fee value (in satoshis) to add (or subtract, if negative).\n"
+                               "                  The fee is not actually paid, only the algorithm for selecting transactions into a block\n"
+                               "                  considers the transaction as it would have paid a higher (or lower) fee.")
+                .set_result("true              (boolean) Returns true")
+                .set_examples("\"txid\" 0.0 10000");
         throw runtime_error(
-            "prioritisetransaction <txid> <priority delta> <fee delta>\n"
-            "Accepts the transaction into mined blocks at a higher (or lower) priority\n"
-            "\nArguments:\n"
-            "1. \"txid\"       (string, required) The transaction id.\n"
-            "2. priority delta (numeric, required) The priority to add or subtract.\n"
-            "                  The transaction selection algorithm considers the tx as it would have a higher priority.\n"
-            "                  (priority of a transaction is calculated: coinage * value_in_satoshis / txsize) \n"
-            "3. fee delta      (numeric, required) The fee value (in satoshis) to add (or subtract, if negative).\n"
-            "                  The fee is not actually paid, only the algorithm for selecting transactions into a block\n"
-            "                  considers the transaction as it would have paid a higher (or lower) fee.\n"
-            "\nResult\n"
-            "true              (boolean) Returns true\n"
-            "\nExamples:\n" +
-            HelpExampleCli("prioritisetransaction", "\"txid\" 0.0 10000") + HelpExampleRpc("prioritisetransaction", "\"txid\", 0.0, 10000"));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
