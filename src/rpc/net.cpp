@@ -429,41 +429,41 @@ UniValue getdeprecationinfo(const UniValue& params, bool fHelp)
 
 UniValue getnetworkinfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getnetworkinfo\n"
-            "Returns an object containing various state info regarding P2P networking.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"version\": xxxxx,                      (numeric) the server version\n"
-            "  \"subversion\": \"/MagicBean:x.y.z[-v]/\",     (string) the server subversion string\n"
-            "  \"protocolversion\": xxxxx,              (numeric) the protocol version\n"
-            "  \"localservices\": \"xxxxxxxxxxxxxxxx\", (string) the services we offer to the network\n"
-            "  \"timeoffset\": xxxxx,                   (numeric) the time offset (deprecated; always 0)\n"
-            "  \"connections\": xxxxx,                  (numeric) the number of connections\n"
-            "  \"networks\": [                          (array) information per network\n"
-            "  {\n"
-            "    \"name\": \"xxx\",                     (string) network (ipv4, ipv6 or onion)\n"
-            "    \"limited\": true|false,               (boolean) is the network limited using -onlynet?\n"
-            "    \"reachable\": true|false,             (boolean) is the network reachable?\n"
-            "    \"proxy\": \"host:port\"               (string) the proxy that is used for this network, or empty if none\n"
-            "  }\n"
-            "  ,...\n"
-            "  ],\n"
-            "  \"relayfee\": x.xxxxxxxx,                (numeric) minimum relay fee for non-free transactions in " +
-            CURRENCY_UNIT + "/kB\n"
-                            "  \"localaddresses\": [                    (array) list of local addresses\n"
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns an object containing various state info regarding P2P networking.")
+                .set_result("{\n"
+                            "  \"version\": xxxxx,                      (numeric) the server version\n"
+                            "  \"subversion\": \"/MagicBean:x.y.z[-v]/\",     (string) the server subversion string\n"
+                            "  \"protocolversion\": xxxxx,              (numeric) the protocol version\n"
+                            "  \"localservices\": \"xxxxxxxxxxxxxxxx\", (string) the services we offer to the network\n"
+                            "  \"timeoffset\": xxxxx,                   (numeric) the time offset (deprecated; always 0)\n"
+                            "  \"connections\": xxxxx,                  (numeric) the number of connections\n"
+                            "  \"networks\": [                          (array) information per network\n"
                             "  {\n"
-                            "    \"address\": \"xxxx\",                 (string) network address\n"
-                            "    \"port\": xxx,                         (numeric) network port\n"
-                            "    \"score\": xxx                         (numeric) relative score\n"
+                            "    \"name\": \"xxx\",                     (string) network (ipv4, ipv6 or onion)\n"
+                            "    \"limited\": true|false,               (boolean) is the network limited using -onlynet?\n"
+                            "    \"reachable\": true|false,             (boolean) is the network reachable?\n"
+                            "    \"proxy\": \"host:port\"               (string) the proxy that is used for this network, or empty if none\n"
                             "  }\n"
                             "  ,...\n"
-                            "  ]\n"
-                            "  \"warnings\": \"...\"                    (string) any network warnings (such as alert messages) \n"
-                            "}\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("getnetworkinfo", "") + HelpExampleRpc("getnetworkinfo", ""));
+                            "  ],\n"
+                            "  \"relayfee\": x.xxxxxxxx,                (numeric) minimum relay fee for non-free transactions in " +
+                            CURRENCY_UNIT + "/kB\n"
+                                            "  \"localaddresses\": [                    (array) list of local addresses\n"
+                                            "  {\n"
+                                            "    \"address\": \"xxxx\",                 (string) network address\n"
+                                            "    \"port\": xxx,                         (numeric) network port\n"
+                                            "    \"score\": xxx                         (numeric) relative score\n"
+                                            "  }\n"
+                                            "  ,...\n"
+                                            "  ]\n"
+                                            "  \"warnings\": \"...\"                    (string) any network warnings (such as alert messages) \n"
+                                            "}");
+        throw runtime_error(
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
