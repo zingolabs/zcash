@@ -782,28 +782,28 @@ protected:
 
 UniValue submitblock(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hexdata\" ( \"jsonparametersobject\" )")
+                .set_description("Attempts to submit new block to network.\n"
+                                 "The 'jsonparametersobject' parameter is currently ignored.\n"
+                                 "See https://en.bitcoin.it/wiki/BIP_0022 for full specification."
+                                 "\nFor more information on submitblock parameters and results, see: https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki#block-submission")
+                .set_arguments("1. \"hexdata\"    (string, required) the hex-encoded block data to submit\n"
+                               "2. \"jsonparametersobject\"     (string, optional) object of optional parameters\n"
+                               "    {\n"
+                               "      \"workid\" : \"id\"    (string, optional) if the server provided a workid, it MUST be included with submissions\n"
+                               "    }")
+                .set_result("\"duplicate\" - node already has valid copy of block\n"
+                            "\"duplicate-invalid\" - node already has block, but it is invalid\n"
+                            "\"duplicate-inconclusive\" - node already has block but has not validated it\n"
+                            "\"inconclusive\" - node has not validated the block, it may not be on the node's current best chain\n"
+                            "\"rejected\" - block was rejected as invalid")
+                .set_examples("\"mydata\"");
         throw runtime_error(
-            "submitblock \"hexdata\" ( \"jsonparametersobject\" )\n"
-            "\nAttempts to submit new block to network.\n"
-            "The 'jsonparametersobject' parameter is currently ignored.\n"
-            "See https://en.bitcoin.it/wiki/BIP_0022 for full specification.\n"
-
-            "\nArguments\n"
-            "1. \"hexdata\"    (string, required) the hex-encoded block data to submit\n"
-            "2. \"jsonparametersobject\"     (string, optional) object of optional parameters\n"
-            "    {\n"
-            "      \"workid\" : \"id\"    (string, optional) if the server provided a workid, it MUST be included with submissions\n"
-            "    }\n"
-            "\nResult:\n"
-            "\"duplicate\" - node already has valid copy of block\n"
-            "\"duplicate-invalid\" - node already has block, but it is invalid\n"
-            "\"duplicate-inconclusive\" - node already has block but has not validated it\n"
-            "\"inconclusive\" - node has not validated the block, it may not be on the node's current best chain\n"
-            "\"rejected\" - block was rejected as invalid\n"
-            "For more information on submitblock parameters and results, see: https://github.com/bitcoin/bips/blob/master/bip-0022.mediawiki#block-submission\n"
-            "\nExamples:\n" +
-            HelpExampleCli("submitblock", "\"mydata\"") + HelpExampleRpc("submitblock", "\"mydata\""));
+            help_sections.combine_sections());
+    }
 
     CBlock block;
     if (!DecodeHexBlk(block, params[0].get_str()))
