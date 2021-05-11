@@ -337,28 +337,28 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
 
 UniValue getnettotals(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 0)
+    if (fHelp || params.size() > 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns information about network traffic, including bytes in, bytes out,\n"
+                                 "and current time.")
+                .set_result("{\n"
+                            "  \"totalbytesrecv\": n,   (numeric) Total bytes received\n"
+                            "  \"totalbytessent\": n,   (numeric) Total bytes sent\n"
+                            "  \"timemillis\": t,       (numeric) Total cpu time\n"
+                            "  \"uploadtarget\":\n"
+                            "  {\n"
+                            "    \"timeframe\": n,                         (numeric) Length of the measuring timeframe in seconds\n"
+                            "    \"target\": n,                            (numeric) Target in bytes\n"
+                            "    \"target_reached\": true|false,           (boolean) True if target is reached\n"
+                            "    \"serve_historical_blocks\": true|false,  (boolean) True if serving historical blocks\n"
+                            "    \"bytes_left_in_cycle\": t,               (numeric) Bytes left in current time cycle\n"
+                            "    \"time_left_in_cycle\": t                 (numeric) Seconds left in current time cycle\n"
+                            "  }\n"
+                            "}");
         throw runtime_error(
-            "getnettotals\n"
-            "\nReturns information about network traffic, including bytes in, bytes out,\n"
-            "and current time.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"totalbytesrecv\": n,   (numeric) Total bytes received\n"
-            "  \"totalbytessent\": n,   (numeric) Total bytes sent\n"
-            "  \"timemillis\": t,       (numeric) Total cpu time\n"
-            "  \"uploadtarget\":\n"
-            "  {\n"
-            "    \"timeframe\": n,                         (numeric) Length of the measuring timeframe in seconds\n"
-            "    \"target\": n,                            (numeric) Target in bytes\n"
-            "    \"target_reached\": true|false,           (boolean) True if target is reached\n"
-            "    \"serve_historical_blocks\": true|false,  (boolean) True if serving historical blocks\n"
-            "    \"bytes_left_in_cycle\": t,               (numeric) Bytes left in current time cycle\n"
-            "    \"time_left_in_cycle\": t                 (numeric) Seconds left in current time cycle\n"
-            "  }\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getnettotals", "") + HelpExampleRpc("getnettotals", ""));
+            help_sections.combine_sections());
+    }
 
     uint64_t targetSpacing;
     {
