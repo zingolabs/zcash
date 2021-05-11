@@ -246,15 +246,17 @@ UniValue getrawchangeaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description(
+                    "Returns a new Zcash address, for receiving change.\n"
+                    "This is for use with raw transactions, NOT normal use.")
+                .set_result("\"address\"    (string) The address");
         throw runtime_error(
-            "getrawchangeaddress\n"
-            "\nReturns a new Zcash address, for receiving change.\n"
-            "This is for use with raw transactions, NOT normal use.\n"
-            "\nResult:\n"
-            "\"address\"    (string) The address\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getrawchangeaddress", "") + HelpExampleRpc("getrawchangeaddress", ""));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
