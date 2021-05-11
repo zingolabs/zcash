@@ -572,12 +572,13 @@ UniValue listbanned(const UniValue& params, bool fHelp)
 
 UniValue clearbanned(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Clear all banned IPs.");
         throw runtime_error(
-            "clearbanned\n"
-            "\nClear all banned IPs.\n"
-            "\nExamples:\n" +
-            HelpExampleCli("clearbanned", "") + HelpExampleRpc("clearbanned", ""));
+            help_sections.combine_sections());
+    }
 
     CNode::ClearBanned();
 
