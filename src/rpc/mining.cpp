@@ -304,28 +304,27 @@ UniValue setgenerate(const UniValue& params, bool fHelp)
 
 UniValue getmininginfo(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns a json object containing mining-related information.")
+                .set_result("{\n"
+                            "  \"blocks\": nnn,             (numeric) The current block\n"
+                            "  \"currentblocksize\": nnn,   (numeric) The last block size\n"
+                            "  \"currentblocktx\": nnn,     (numeric) The last block transaction\n"
+                            "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty\n"
+                            "  \"errors\": \"...\"          (string) Current errors\n"
+                            "  \"generate\": true|false     (boolean) If the generation is on or off (see getgenerate or setgenerate calls)\n"
+                            "  \"genproclimit\": n          (numeric) The processor limit for generation. -1 if no generation. (see getgenerate or setgenerate calls)\n"
+                            "  \"localsolps\": xxx.xxxxx    (numeric) The average local solution rate in Sol/s since this node was started\n"
+                            "  \"networksolps\": x          (numeric) The estimated network solution rate in Sol/s\n"
+                            "  \"pooledtx\": n              (numeric) The size of the mem pool\n"
+                            "  \"testnet\": true|false      (boolean) If using testnet or not\n"
+                            "  \"chain\": \"xxxx\",         (string) current network name as defined in BIP70 (main, test, regtest)\n"
+                            "}");
         throw runtime_error(
-            "getmininginfo\n"
-            "\nReturns a json object containing mining-related information."
-            "\nResult:\n"
-            "{\n"
-            "  \"blocks\": nnn,             (numeric) The current block\n"
-            "  \"currentblocksize\": nnn,   (numeric) The last block size\n"
-            "  \"currentblocktx\": nnn,     (numeric) The last block transaction\n"
-            "  \"difficulty\": xxx.xxxxx    (numeric) The current difficulty\n"
-            "  \"errors\": \"...\"          (string) Current errors\n"
-            "  \"generate\": true|false     (boolean) If the generation is on or off (see getgenerate or setgenerate calls)\n"
-            "  \"genproclimit\": n          (numeric) The processor limit for generation. -1 if no generation. (see getgenerate or setgenerate calls)\n"
-            "  \"localsolps\": xxx.xxxxx    (numeric) The average local solution rate in Sol/s since this node was started\n"
-            "  \"networksolps\": x          (numeric) The estimated network solution rate in Sol/s\n"
-            "  \"pooledtx\": n              (numeric) The size of the mem pool\n"
-            "  \"testnet\": true|false      (boolean) If using testnet or not\n"
-            "  \"chain\": \"xxxx\",         (string) current network name as defined in BIP70 (main, test, regtest)\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getmininginfo", "") + HelpExampleRpc("getmininginfo", ""));
-
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
 
