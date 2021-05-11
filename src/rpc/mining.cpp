@@ -98,19 +98,19 @@ UniValue getlocalsolps(const UniValue& params, bool fHelp)
 
 UniValue getnetworksolps(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 2)
+    if (fHelp || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( blocks height )")
+                .set_description("Returns the estimated network solutions per second based on the last n blocks.\n"
+                                 "Pass in [blocks] to override # of blocks, -1 specifies over difficulty averaging window.\n"
+                                 "Pass in [height] to estimate the network speed at the time when a certain block was found.")
+                .set_arguments("1. blocks     (numeric, optional, default=120) The number of blocks, or -1 for blocks over difficulty averaging window.\n"
+                               "2. height     (numeric, optional, default=-1) To estimate at the time of the given height.")
+                .set_result("x             (numeric) Solutions per second estimated");
         throw runtime_error(
-            "getnetworksolps ( blocks height )\n"
-            "\nReturns the estimated network solutions per second based on the last n blocks.\n"
-            "Pass in [blocks] to override # of blocks, -1 specifies over difficulty averaging window.\n"
-            "Pass in [height] to estimate the network speed at the time when a certain block was found.\n"
-            "\nArguments:\n"
-            "1. blocks     (numeric, optional, default=120) The number of blocks, or -1 for blocks over difficulty averaging window.\n"
-            "2. height     (numeric, optional, default=-1) To estimate at the time of the given height.\n"
-            "\nResult:\n"
-            "x             (numeric) Solutions per second estimated\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getnetworksolps", "") + HelpExampleRpc("getnetworksolps", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
     return GetNetworkHashPS(params.size() > 0 ? params[0].get_int() : 120, params.size() > 1 ? params[1].get_int() : -1);
