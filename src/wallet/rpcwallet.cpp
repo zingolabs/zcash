@@ -330,16 +330,18 @@ UniValue getaccount(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zcashaddress\"")
+                .set_description("DEPRECATED. Returns the account associated with the given address.")
+                .set_arguments("1. \"zcashaddress\"  (string, required) The Zcash address for account lookup.")
+                .set_result("\"accountname\"        (string) the account address")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"");
         throw runtime_error(
-            "getaccount \"zcashaddress\"\n"
-            "\nDEPRECATED. Returns the account associated with the given address.\n"
-            "\nArguments:\n"
-            "1. \"zcashaddress\"  (string, required) The Zcash address for account lookup.\n"
-            "\nResult:\n"
-            "\"accountname\"        (string) the account address\n"
-            "\nExamples:\n" +
-            HelpExampleCli("getaccount", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"") + HelpExampleRpc("getaccount", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\""));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
