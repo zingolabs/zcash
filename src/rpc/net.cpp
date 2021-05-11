@@ -548,12 +548,13 @@ UniValue setban(const UniValue& params, bool fHelp)
 
 UniValue listbanned(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("List all banned IPs/Subnets.");
         throw runtime_error(
-            "listbanned\n"
-            "\nList all banned IPs/Subnets.\n"
-            "\nExamples:\n" +
-            HelpExampleCli("listbanned", "") + HelpExampleRpc("listbanned", ""));
+            help_sections.combine_sections());
+    }
 
     banmap_t banMap;
     CNode::GetBanned(banMap);
