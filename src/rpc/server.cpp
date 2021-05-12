@@ -190,9 +190,15 @@ std::string CRPCTable::help(const std::string& strCommand) const
             // Help text is returned in an exception
             string strHelp = string(e.what());
             if (strCommand == "") {
-                if (strHelp.find('\n') != string::npos)
-                    strHelp = strHelp.substr(0, strHelp.find('\n'));
-
+                if (strHelp.find('\n') != string::npos) {
+                    int strHelpFstNewline = strHelp.find('\n');
+                    if (strHelp.substr(0, strHelpFstNewline) == "Usage:") {
+                        strHelp = strHelp.substr(strHelpFstNewline);
+                        strHelp = strHelp.substr(1, (strHelp.find('\n', 1) - 1));
+                    } else {
+                        strHelp = strHelp.substr(0, strHelpFstNewline);
+                    }
+                }
                 if (category != pcmd->category) {
                     if (!category.empty())
                         strRet += "\n";
