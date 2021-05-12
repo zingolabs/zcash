@@ -194,8 +194,8 @@ std::string CRPCTable::help(const std::string& strCommand) const
                 if (strHelp.find('\n') != string::npos) {
                     int strHelpFstNewline = strHelp.find('\n');
                     if (strHelp.substr(0, strHelpFstNewline) == "Usage:") {
-                        strHelp = strHelp.substr(strHelpFstNewline);
-                        strHelp = strHelp.substr(1, (strHelp.find('\n', 1) - 1));
+                        strHelp = strHelp.substr(strHelpFstNewline + 1);
+                        strHelp = strHelp.substr(0, strHelp.find('\n'));
                     } else {
                         strHelp = strHelp.substr(0, strHelpFstNewline);
                     }
