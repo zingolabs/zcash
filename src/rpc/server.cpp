@@ -4,6 +4,7 @@
 // file COPYING or https://www.opensource.org/licenses/mit-license.php .
 
 #include "rpc/server.h"
+#include "rpc/docstrings.h"
 
 #include "asyncrpcqueue.h"
 #include "fs.h"
@@ -219,15 +220,15 @@ std::string CRPCTable::help(const std::string& strCommand) const
 
 UniValue help(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() > 1)
-        throw runtime_error(
-            "help ( \"command\" )\n"
-            "\nList all commands, or get help for a specified command.\n"
-            "\nArguments:\n"
-            "1. \"command\"     (string, optional) The command to get help on\n"
-            "\nResult:\n"
-            "\"text\"     (string) The help text\n");
-
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( \"command\" )")
+                .set_description("List all commands, or get help for a specified command.")
+                .set_arguments("1. \"command\"     (string, optional) The command to get help on")
+                .set_result("\"text\"     (string) The help text");
+        throw runtime_error(help_sections.combine_sections());
+    }
     string strCommand;
     if (params.size() > 0)
         strCommand = params[0].get_str();
