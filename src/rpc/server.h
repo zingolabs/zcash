@@ -12,9 +12,9 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <stdint.h>
 #include <string>
-#include <memory>
 
 #include <univalue.h>
 
@@ -23,11 +23,11 @@ class CRPCCommand;
 
 namespace RPCServer
 {
-    void OnStarted(std::function<void ()> slot);
-    void OnStopped(std::function<void ()> slot);
-    void OnPreCommand(std::function<void (const CRPCCommand&)> slot);
-    void OnPostCommand(std::function<void (const CRPCCommand&)> slot);
-}
+void OnStarted(std::function<void()> slot);
+void OnStopped(std::function<void()> slot);
+void OnPreCommand(std::function<void(const CRPCCommand&)> slot);
+void OnPostCommand(std::function<void(const CRPCCommand&)> slot);
+} // namespace RPCServer
 
 class CBlockIndex;
 class CNetAddr;
@@ -59,7 +59,7 @@ void SetRPCWarmupStatus(const std::string& newStatus);
 void SetRPCWarmupFinished();
 
 /* returns the current warmup state.  */
-bool RPCIsInWarmup(std::string *statusOut);
+bool RPCIsInWarmup(std::string* statusOut);
 
 /**
  * Type-check arguments; throws JSONRPCError if wrong type given. Does not check that
@@ -67,14 +67,16 @@ bool RPCIsInWarmup(std::string *statusOut);
  * Use like:  RPCTypeCheck(params, boost::assign::list_of(str_type)(int_type)(obj_type));
  */
 void RPCTypeCheck(const UniValue& params,
-                  const std::list<UniValue::VType>& typesExpected, bool fAllowNull=false);
+                  const std::list<UniValue::VType>& typesExpected,
+                  bool fAllowNull = false);
 
 /*
   Check for expected keys/value types in an Object.
   Use like: RPCTypeCheckObj(object, boost::assign::map_list_of("name", str_type)("value", int_type));
 */
 void RPCTypeCheckObj(const UniValue& o,
-                  const std::map<std::string, UniValue::VType>& typesExpected, bool fAllowNull=false);
+                     const std::map<std::string, UniValue::VType>& typesExpected,
+                     bool fAllowNull = false);
 
 /** Opaque base class for timers returned by NewTimerFunc.
  * This provides no methods at the moment, but makes sure that delete
@@ -94,7 +96,7 @@ class RPCTimerInterface
 public:
     virtual ~RPCTimerInterface() {}
     /** Implementation name */
-    virtual const char *Name() = 0;
+    virtual const char* Name() = 0;
     /** Factory function for timers.
      * RPC will call the function to create a timer that will call func in *millis* milliseconds.
      * @note As the RPC mechanism is backend-neutral, it can use different implementations of timers.
@@ -105,9 +107,9 @@ public:
 };
 
 /** Register factory function for timers */
-void RPCRegisterTimerInterface(RPCTimerInterface *iface);
+void RPCRegisterTimerInterface(RPCTimerInterface* iface);
 /** Unregister factory function for timers */
-void RPCUnregisterTimerInterface(RPCTimerInterface *iface);
+void RPCUnregisterTimerInterface(RPCTimerInterface* iface);
 
 /**
  * Run func nSeconds from now.
@@ -115,7 +117,7 @@ void RPCUnregisterTimerInterface(RPCTimerInterface *iface);
  */
 void RPCRunLater(const std::string& name, std::function<void(void)> func, int64_t nSeconds);
 
-typedef UniValue(*rpcfn_type)(const UniValue& params, bool fHelp);
+typedef UniValue (*rpcfn_type)(const UniValue& params, bool fHelp);
 
 class CRPCCommand
 {
@@ -133,6 +135,7 @@ class CRPCTable
 {
 private:
     std::map<std::string, const CRPCCommand*> mapCommands;
+
 public:
     CRPCTable();
     const CRPCCommand* operator[](const std::string& name) const;
@@ -145,7 +148,7 @@ public:
      * @returns Result of the call.
      * @throws an exception (UniValue) when an error happens.
      */
-    UniValue execute(const std::string &method, const UniValue &params) const;
+    UniValue execute(const std::string& method, const UniValue& params) const;
 
     /**
     * Returns a list of registered commands
