@@ -449,39 +449,38 @@ UniValue verifytxoutproof(const UniValue& params, bool fHelp)
 
 UniValue createrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() < 2 || params.size() > 4) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("[{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,...} ( locktime ) ( expiryheight )")
+                .set_description("Create a transaction spending the given inputs and sending to the given addresses.\n"
+                                 "Returns hex-encoded raw transaction.\n"
+                                 "Note that the transaction's inputs are not signed, and\n"
+                                 "it is not stored in the wallet or transmitted to the network.")
+                .set_arguments("1. \"transactions\"        (string, required) A json array of json objects\n"
+                               "     [\n"
+                               "       {\n"
+                               "         \"txid\":\"id\",    (string, required) The transaction id\n"
+                               "         \"vout\":n        (numeric, required) The output number\n"
+                               "         \"sequence\":n    (numeric, optional) The sequence number\n"
+                               "       }\n"
+                               "       ,...\n"
+                               "     ]\n"
+                               "2. \"addresses\"           (string, required) a json object with addresses as keys and amounts as values\n"
+                               "    {\n"
+                               "      \"address\": x.xxx   (numeric, required) The key is the Zcash address, the value is the " +
+                               CURRENCY_UNIT + " amount\n"
+                                               "      ,...\n"
+                                               "    }\n"
+                                               "3. locktime              (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
+                                               "4. expiryheight          (numeric, optional, default=" +
+                               strprintf("nextblockheight+%d (pre-Blossom) or nextblockheight+%d (post-Blossom)", DEFAULT_PRE_BLOSSOM_TX_EXPIRY_DELTA, DEFAULT_POST_BLOSSOM_TX_EXPIRY_DELTA) + ") "
+                                                                                                                                                                                               "Expiry height of transaction (if Overwinter is active)")
+                .set_result("\"transaction\"            (string) hex string of the transaction")
+                .set_examples("\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"");
         throw runtime_error(
-            "createrawtransaction [{\"txid\":\"id\",\"vout\":n},...] {\"address\":amount,...} ( locktime ) ( expiryheight )\n"
-            "\nCreate a transaction spending the given inputs and sending to the given addresses.\n"
-            "Returns hex-encoded raw transaction.\n"
-            "Note that the transaction's inputs are not signed, and\n"
-            "it is not stored in the wallet or transmitted to the network.\n"
-
-            "\nArguments:\n"
-            "1. \"transactions\"        (string, required) A json array of json objects\n"
-            "     [\n"
-            "       {\n"
-            "         \"txid\":\"id\",    (string, required) The transaction id\n"
-            "         \"vout\":n        (numeric, required) The output number\n"
-            "         \"sequence\":n    (numeric, optional) The sequence number\n"
-            "       }\n"
-            "       ,...\n"
-            "     ]\n"
-            "2. \"addresses\"           (string, required) a json object with addresses as keys and amounts as values\n"
-            "    {\n"
-            "      \"address\": x.xxx   (numeric, required) The key is the Zcash address, the value is the " +
-            CURRENCY_UNIT + " amount\n"
-                            "      ,...\n"
-                            "    }\n"
-                            "3. locktime              (numeric, optional, default=0) Raw locktime. Non-0 value also locktime-activates inputs\n"
-                            "4. expiryheight          (numeric, optional, default=" +
-            strprintf("nextblockheight+%d (pre-Blossom) or nextblockheight+%d (post-Blossom)", DEFAULT_PRE_BLOSSOM_TX_EXPIRY_DELTA, DEFAULT_POST_BLOSSOM_TX_EXPIRY_DELTA) + ") "
-                                                                                                                                                                            "Expiry height of transaction (if Overwinter is active)\n"
-                                                                                                                                                                            "\nResult:\n"
-                                                                                                                                                                            "\"transaction\"            (string) hex string of the transaction\n"
-
-                                                                                                                                                                            "\nExamples\n" +
-            HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\" \"{\\\"address\\\":0.01}\"") + HelpExampleRpc("createrawtransaction", "\"[{\\\"txid\\\":\\\"myid\\\",\\\"vout\\\":0}]\", \"{\\\"address\\\":0.01}\""));
+            help_sections.combine_sections());
+    }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VARR)(UniValue::VOBJ)(UniValue::VNUM)(UniValue::VNUM), true);
     if (params[0].isNull() || params[1].isNull())
