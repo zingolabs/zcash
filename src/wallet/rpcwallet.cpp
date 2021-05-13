@@ -761,24 +761,25 @@ UniValue getbalance(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 4)
+    if (fHelp || params.size() > 4) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( \"account\" minconf includeWatchonly inZat )")
+                .set_description("Returns the server's total available balance.")
+                .set_arguments(
+                    "1. \"account\"      (string, optional) DEPRECATED. If provided, it MUST be set to the empty string \"\" or to the string \"*\", either of which will give the total available balance. Passing any other string will result in an error.\n"
+                    "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
+                    "3. includeWatchonly (boolean, optional, default=false) Also include balance in watchonly addresses (see 'importaddress')\n"
+                    "4. inZat            (boolean, optional, default=false) Get the result amount in " +
+                    MINOR_CURRENCY_UNIT + " (as an integer).")
+                .set_result(
+                    "amount              (numeric) The total amount in " +
+                    CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received.")
+                .set_examples("")
+                .set_examples("\"*\" 6");
         throw runtime_error(
-            "getbalance ( \"account\" minconf includeWatchonly inZat )\n"
-            "\nReturns the server's total available balance.\n"
-            "\nArguments:\n"
-            "1. \"account\"      (string, optional) DEPRECATED. If provided, it MUST be set to the empty string \"\" or to the string \"*\", either of which will give the total available balance. Passing any other string will result in an error.\n"
-            "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
-            "3. includeWatchonly (boolean, optional, default=false) Also include balance in watchonly addresses (see 'importaddress')\n"
-            "4. inZat            (boolean, optional, default=false) Get the result amount in " +
-            MINOR_CURRENCY_UNIT + " (as an integer).\n"
-                                  "\nResult:\n"
-                                  "amount              (numeric) The total amount in " +
-            CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received.\n"
-                                                           "\nExamples:\n"
-                                                           "\nThe total amount in the wallet\n" +
-            HelpExampleCli("getbalance", "") +
-            "\nThe total amount in the wallet at least 5 blocks confirmed\n" + HelpExampleCli("getbalance", "\"*\" 6") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("getbalance", "\"*\", 6"));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
