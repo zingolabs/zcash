@@ -603,24 +603,26 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (fHelp || params.size() < 1 || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zcashaddress\" ( minconf ) ( inZat )")
+                .set_description("Returns the total amount received by the given Zcash address in transactions with at least minconf confirmations.")
+                .set_arguments(
+                    "1. \"zcashaddress\"  (string, required) The Zcash address for transactions.\n"
+                    "2. minconf         (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
+                    "3. inZat           (boolean, optional, default=false) Get the result amount in " +
+                    MINOR_CURRENCY_UNIT +
+                    " (as an integer).")
+                .set_result(
+                    "amount   (numeric) The total amount in " +
+                    CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received at this address.")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 0")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 6");
         throw runtime_error(
-            "getreceivedbyaddress \"zcashaddress\" ( minconf ) ( inZat )\n"
-            "\nReturns the total amount received by the given Zcash address in transactions with at least minconf confirmations.\n"
-            "\nArguments:\n"
-            "1. \"zcashaddress\"  (string, required) The Zcash address for transactions.\n"
-            "2. minconf         (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
-            "3. inZat           (boolean, optional, default=false) Get the result amount in " +
-            MINOR_CURRENCY_UNIT + " (as an integer).\n"
-                                  "\nResult:\n"
-                                  "amount   (numeric) The total amount in " +
-            CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received at this address.\n"
-                                                           "\nExamples:\n"
-                                                           "\nThe amount from transactions with at least 1 confirmation\n" +
-            HelpExampleCli("getreceivedbyaddress", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"") +
-            "\nThe amount including unconfirmed transactions, zero confirmations\n" + HelpExampleCli("getreceivedbyaddress", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 0") +
-            "\nThe amount with at least 6 confirmations, very safe\n" + HelpExampleCli("getreceivedbyaddress", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 6") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("getreceivedbyaddress", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\", 6"));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
