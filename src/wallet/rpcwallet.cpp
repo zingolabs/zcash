@@ -434,26 +434,31 @@ UniValue sendtoaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2 || params.size() > 5)
+    if (fHelp || params.size() < 2 || params.size() > 5) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zcashaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )")
+                .set_description("Send an amount to a given address. The amount is a real and is rounded to the nearest 0.00000001" + HelpRequiringPassphrase())
+                .set_arguments(
+                    "1. \"zcashaddress\"  (string, required) The Zcash address to send to.\n"
+                    "2. \"amount\"      (numeric, required) The amount in " +
+                    CURRENCY_UNIT +
+                    " to send. eg 0.1\n"
+                    "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
+                    "                             This is not part of the transaction, just kept in your wallet.\n"
+                    "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
+                    "                             to which you're sending the transaction. This is not part of the \n"
+                    "                             transaction, just kept in your wallet.\n"
+                    "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+                    "                             The recipient will receive less Zcash than you enter in the amount field.")
+                .set_result("\"transactionid\"  (string) The transaction id.")
+                .set_examples("\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1")
+                .set_examples("\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"")
+                .set_examples("\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true");
         throw runtime_error(
-            "sendtoaddress \"zcashaddress\" amount ( \"comment\" \"comment-to\" subtractfeefromamount )\n"
-            "\nSend an amount to a given address. The amount is a real and is rounded to the nearest 0.00000001\n" +
-            HelpRequiringPassphrase() +
-            "\nArguments:\n"
-            "1. \"zcashaddress\"  (string, required) The Zcash address to send to.\n"
-            "2. \"amount\"      (numeric, required) The amount in " +
-            CURRENCY_UNIT + " to send. eg 0.1\n"
-                            "3. \"comment\"     (string, optional) A comment used to store what the transaction is for. \n"
-                            "                             This is not part of the transaction, just kept in your wallet.\n"
-                            "4. \"comment-to\"  (string, optional) A comment to store the name of the person or organization \n"
-                            "                             to which you're sending the transaction. This is not part of the \n"
-                            "                             transaction, just kept in your wallet.\n"
-                            "5. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
-                            "                             The recipient will receive less Zcash than you enter in the amount field.\n"
-                            "\nResult:\n"
-                            "\"transactionid\"  (string) The transaction id.\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("sendtoaddress", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1") + HelpExampleCli("sendtoaddress", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"donation\" \"seans outpost\"") + HelpExampleCli("sendtoaddress", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" 0.1 \"\" \"\" true") + HelpExampleRpc("sendtoaddress", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\""));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
