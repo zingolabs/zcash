@@ -1377,17 +1377,16 @@ UniValue invalidateblock(const UniValue& params, bool fHelp)
 
 UniValue reconsiderblock(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "reconsiderblock \"hash\"\n"
-            "\nRemoves invalidity status of a block and its descendants, reconsider them for activation.\n"
-            "This can be used to undo the effects of invalidateblock.\n"
-            "\nArguments:\n"
-            "1. hash   (string, required) the hash of the block to reconsider\n"
-            "\nResult:\n"
-            "\nExamples:\n" +
-            HelpExampleCli("reconsiderblock", "\"blockhash\"") + HelpExampleRpc("reconsiderblock", "\"blockhash\""));
-
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hash\"")
+                .set_description("Removes invalidity status of a block and its descendants, reconsider them for activation.\n"
+                                 "This can be used to undo the effects of invalidateblock.")
+                .set_arguments("1. hash   (string, required) the hash of the block to reconsider")
+                .set_examples("\"blockhash\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
     std::string strHash = params[0].get_str();
     uint256 hash(uint256S(strHash));
     CValidationState state;
