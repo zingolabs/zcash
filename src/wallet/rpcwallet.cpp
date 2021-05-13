@@ -2716,21 +2716,19 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
     }
 
     if (fHelp || params.size() < 2) {
+        HelpSections help_sections =
+            HelpSections("zcbenchmark")
+                .set_usage("benchmarktype samplecount")
+                .set_description("Runs a benchmark of the selected type samplecount times,\n"
+                                 "returning the running times of each sample.")
+                .set_result("[\n"
+                            "  {\n"
+                            "    \"runningtime\": (numeric)"
+                            "  }\n"
+                            ", ..."
+                            "]\n");
         throw runtime_error(
-            "zcbenchmark benchmarktype samplecount\n"
-            "\n"
-            "Runs a benchmark of the selected type samplecount times,\n"
-            "returning the running times of each sample.\n"
-            "\n"
-            "Output: [\n"
-            "  {\n"
-            "    \"runningtime\": runningtime\n"
-            "  },\n"
-            "  {\n"
-            "    \"runningtime\": runningtime\n"
-            "  }\n"
-            "  ...\n"
-            "]\n");
+            help_sections.combine_sections());
     }
 
     LOCK(cs_main);
