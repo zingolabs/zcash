@@ -2682,10 +2682,11 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 UniValue zc_sample_joinsplit(const UniValue& params, bool fHelp)
 {
     if (fHelp) {
+        HelpSections help_sections =
+            HelpSections("zcsamplejoinsplit")
+                .set_description("Perform a joinsplit and return the JSDescription.");
         throw runtime_error(
-            "zcsamplejoinsplit\n"
-            "\n"
-            "Perform a joinsplit and return the JSDescription.\n");
+            help_sections.combine_sections());
     }
 
     LOCK(cs_main);
