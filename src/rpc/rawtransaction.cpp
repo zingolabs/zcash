@@ -667,26 +667,27 @@ UniValue decoderawtransaction(const UniValue& params, bool fHelp)
 
 UniValue decodescript(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hex\"")
+                .set_description("Decode a hex-encoded script.")
+                .set_arguments("1. \"hex\"     (string) the hex encoded script")
+                .set_result("{\n"
+                            "  \"asm\":\"asm\",   (string) Script public key\n"
+                            "  \"hex\":\"hex\",   (string) hex encoded public key\n"
+                            "  \"type\":\"type\", (string) The output type\n"
+                            "  \"reqSigs\": n,    (numeric) The required signatures\n"
+                            "  \"addresses\": [   (json array of string)\n"
+                            "     \"address\"     (string) Zcash address\n"
+                            "     ,...\n"
+                            "  ],\n"
+                            "  \"p2sh\",\"address\" (string) script address\n"
+                            "}")
+                .set_examples("\"hexstring\"");
         throw runtime_error(
-            "decodescript \"hex\"\n"
-            "\nDecode a hex-encoded script.\n"
-            "\nArguments:\n"
-            "1. \"hex\"     (string) the hex encoded script\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"asm\":\"asm\",   (string) Script public key\n"
-            "  \"hex\":\"hex\",   (string) hex encoded public key\n"
-            "  \"type\":\"type\", (string) The output type\n"
-            "  \"reqSigs\": n,    (numeric) The required signatures\n"
-            "  \"addresses\": [   (json array of string)\n"
-            "     \"address\"     (string) Zcash address\n"
-            "     ,...\n"
-            "  ],\n"
-            "  \"p2sh\",\"address\" (string) script address\n"
-            "}\n"
-            "\nExamples:\n" +
-            HelpExampleCli("decodescript", "\"hexstring\"") + HelpExampleRpc("decodescript", "\"hexstring\""));
+            help_sections.combine_sections());
+    }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR));
 
