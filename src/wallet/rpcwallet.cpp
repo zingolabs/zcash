@@ -3136,16 +3136,16 @@ UniValue zc_raw_keygen(const UniValue& params, bool fHelp)
     }
 
     if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections("zcrawkeygen")
+                .set_description("DEPRECATED. Generate a zcaddr which can send and receive confidential values.")
+                .set_result("{\n"
+                            "  \"zcaddress\": (string) zcaddr,\n"
+                            "  \"zcsecretkey\": (string) zcsecretkey,\n"
+                            "  \"zcviewingkey\": (string) zcviewingkey,\n"
+                            "}");
         throw runtime_error(
-            "zcrawkeygen\n"
-            "\n"
-            "DEPRECATED. Generate a zcaddr which can send and receive confidential values.\n"
-            "\n"
-            "Output: {\n"
-            "  \"zcaddress\": zcaddr,\n"
-            "  \"zcsecretkey\": zcsecretkey,\n"
-            "  \"zcviewingkey\": zcviewingkey,\n"
-            "}\n");
+            help_sections.combine_sections());
     }
 
     auto k = SproutSpendingKey::random();
