@@ -34,7 +34,7 @@ public:
             argstring += "\n\nArguments:\n" + this->arguments;
         if (this->examples.empty())
             this->set_examples("");
-        return "Usage:\n" + this->name + " " + usage + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
+        return "Usage:\n" + this->name + " " + this->usage + "\n\nDescription:\n" + this->description + argstring + "\n\nResult:\n" + this->result + "\n\nExamples:\n" + this->examples;
     }
 
     // setter methods below.
