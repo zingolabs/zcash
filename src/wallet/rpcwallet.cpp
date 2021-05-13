@@ -842,10 +842,15 @@ UniValue getunconfirmedbalance(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 0)
+    if (fHelp || params.size() > 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the server's total unconfirmed balance")
+                .set_result("balance        (numeric) The unconfirmed balance");
         throw runtime_error(
-            "getunconfirmedbalance\n"
-            "Returns the server's total unconfirmed balance\n");
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
