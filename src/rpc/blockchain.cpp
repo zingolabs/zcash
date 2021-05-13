@@ -1325,16 +1325,15 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
 
 UniValue invalidateblock(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "invalidateblock \"hash\"\n"
-            "\nPermanently marks a block as invalid, as if it violated a consensus rule.\n"
-            "\nArguments:\n"
-            "1. hash   (string, required) the hash of the block to mark as invalid\n"
-            "\nResult:\n"
-            "\nExamples:\n" +
-            HelpExampleCli("invalidateblock", "\"blockhash\"") + HelpExampleRpc("invalidateblock", "\"blockhash\""));
-
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hash\"")
+                .set_description("Permanently marks a block as invalid, as if it violated a consensus rule.")
+                .set_arguments("1. hash   (string, required) the hash of the block to mark as invalid")
+                .set_examples("\"blockhash\"");
+        throw runtime_error(help_sections.combine_sections());
+    }
     std::string strHash = params[0].get_str();
     uint256 hash(uint256S(strHash));
     CValidationState state;
