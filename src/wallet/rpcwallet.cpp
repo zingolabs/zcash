@@ -496,27 +496,30 @@ UniValue listaddressgroupings(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp)
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description(
+                    "Lists groups of addresses which have had their common ownership\n"
+                    "made public by common use as inputs or as the resulting change\n"
+                    "in past transactions")
+                .set_result(
+                    "[\n"
+                    "  [\n"
+                    "    [\n"
+                    "      \"zcashaddress\",     (string) The zcash address\n"
+                    "      amount,                 (numeric) The amount in " +
+                    CURRENCY_UNIT +
+                    "\n"
+                    "      \"account\"             (string, optional) The account (DEPRECATED)\n"
+                    "    ]\n"
+                    "    ,...\n"
+                    "  ]\n"
+                    "  ,...\n"
+                    "]");
         throw runtime_error(
-            "listaddressgroupings\n"
-            "\nLists groups of addresses which have had their common ownership\n"
-            "made public by common use as inputs or as the resulting change\n"
-            "in past transactions\n"
-            "\nResult:\n"
-            "[\n"
-            "  [\n"
-            "    [\n"
-            "      \"zcashaddress\",     (string) The zcash address\n"
-            "      amount,                 (numeric) The amount in " +
-            CURRENCY_UNIT + "\n"
-                            "      \"account\"             (string, optional) The account (DEPRECATED)\n"
-                            "    ]\n"
-                            "    ,...\n"
-                            "  ]\n"
-                            "  ,...\n"
-                            "]\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("listaddressgroupings", "") + HelpExampleRpc("listaddressgroupings", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
