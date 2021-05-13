@@ -651,31 +651,31 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
 
 UniValue getblock(const UniValue& params, bool fHelp)
 {
-    const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
-                                                           "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
-                                                           "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
-                                                           "  \"size\" : n,            (numeric) The block size\n"
-                                                           "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
-                                                           "  \"version\" : n,         (numeric) The block version\n"
-                                                           "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-                                                           "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n";
-
-    const std::string VERBOSITY_ONE_DESCRIPTION_PART_TWO = ""
-                                                           "  \"tx\" : [               (array of string) The transaction ids\n"
-                                                           "     \"transactionid\"     (string) The transaction id\n"
-                                                           "     ,...\n"
-                                                           "  ],\n";
-
-    const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
-                                                             "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-                                                             "  \"nonce\" : n,           (numeric) The nonce\n"
-                                                             "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
-                                                             "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
-                                                             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-                                                             "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
-
-    const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
     if (fHelp || params.size() < 1 || params.size() > 2) {
+        const std::string VERBOSITY_ONE_DESCRIPTION_PART_ONE = ""
+                                                               "  \"hash\" : \"hash\",       (string) the block hash (same as provided hash)\n"
+                                                               "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+                                                               "  \"size\" : n,            (numeric) The block size\n"
+                                                               "  \"height\" : n,          (numeric) The block height or index (same as provided height)\n"
+                                                               "  \"version\" : n,         (numeric) The block version\n"
+                                                               "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
+                                                               "  \"finalsaplingroot\" : \"xxxx\", (string) The root of the Sapling commitment tree after applying this block\n";
+
+        const std::string VERBOSITY_ONE_DESCRIPTION_PART_TWO = ""
+                                                               "  \"tx\" : [               (array of string) The transaction ids\n"
+                                                               "     \"transactionid\"     (string) The transaction id\n"
+                                                               "     ,...\n"
+                                                               "  ],\n";
+
+        const std::string VERBOSITY_ONE_DESCRIPTION_PART_THREE = ""
+                                                                 "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+                                                                 "  \"nonce\" : n,           (numeric) The nonce\n"
+                                                                 "  \"bits\" : \"1d00ffff\",   (string) The bits\n"
+                                                                 "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+                                                                 "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
+                                                                 "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n";
+
+        const std::string VERBOSITY_ONE_DESCRIPTION = VERBOSITY_ONE_DESCRIPTION_PART_ONE + VERBOSITY_ONE_DESCRIPTION_PART_TWO + VERBOSITY_ONE_DESCRIPTION_PART_THREE;
         HelpSections help_sections =
             HelpSections(__func__)
                 .set_usage("\"hash|height\" ( verbosity)")
