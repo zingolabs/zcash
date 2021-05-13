@@ -4348,21 +4348,25 @@ UniValue z_setmigration(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("enabled")
+                .set_description("When enabled the Sprout to Sapling migration will attempt to migrate all funds from this wallet’s\n"
+                                 "Sprout addresses to either the address for Sapling account 0 or the address specified by the parameter\n"
+                                 "'-migrationdestaddress'.\n"
+                                 "\n"
+                                 "This migration is designed to minimize information leakage. As a result for wallets with a significant\n"
+                                 "Sprout balance, this process may take several weeks. The migration works by sending, up to 5, as many\n"
+                                 "transactions as possible whenever the blockchain reaches a height equal to 499 modulo 500. The transaction\n"
+                                 "amounts are picked according to the random distribution specified in ZIP 308. The migration will end once\n"
+                                 "the wallet’s Sprout balance is below " +
+                                 strprintf("%s %s", FormatMoney(CENT), CURRENCY_UNIT) + ".")
+                .set_arguments("1. enabled  (boolean, required) 'true' or 'false' to enable or disable respectively.");
         throw runtime_error(
-            "z_setmigration enabled\n"
-            "When enabled the Sprout to Sapling migration will attempt to migrate all funds from this wallet’s\n"
-            "Sprout addresses to either the address for Sapling account 0 or the address specified by the parameter\n"
-            "'-migrationdestaddress'.\n"
-            "\n"
-            "This migration is designed to minimize information leakage. As a result for wallets with a significant\n"
-            "Sprout balance, this process may take several weeks. The migration works by sending, up to 5, as many\n"
-            "transactions as possible whenever the blockchain reaches a height equal to 499 modulo 500. The transaction\n"
-            "amounts are picked according to the random distribution specified in ZIP 308. The migration will end once\n"
-            "the wallet’s Sprout balance is below " +
-            strprintf("%s %s", FormatMoney(CENT), CURRENCY_UNIT) + ".\n"
-                                                                   "\nArguments:\n"
-                                                                   "1. enabled  (boolean, required) 'true' or 'false' to enable or disable respectively.\n");
+            help_sections.combine_sections());
+    }
+
     LOCK(pwalletMain->cs_wallet);
     pwalletMain->fSaplingMigrationEnabled = params[0].get_bool();
     return NullUniValue;
