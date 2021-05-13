@@ -140,17 +140,16 @@ UniValue getnetworkhashps(const UniValue& params, bool fHelp)
 #ifdef ENABLE_MINING
 UniValue getgenerate(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "getgenerate\n"
-            "\nReturn if the server is set to generate coins or not. The default is false.\n"
-            "It is set with the command line argument -gen (or " +
-            std::string(BITCOIN_CONF_FILENAME) + " setting gen)\n"
-                                                 "It can also be set with the setgenerate call.\n"
-                                                 "\nResult\n"
-                                                 "true|false      (boolean) If the server is set to generate coins or not\n"
-                                                 "\nExamples:\n" +
-            HelpExampleCli("getgenerate", "") + HelpExampleRpc("getgenerate", ""));
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Return if the server is set to generate coins or not. The default is false.\n"
+                                 "It is set with the command line argument -gen (or " +
+                                 std::string(BITCOIN_CONF_FILENAME) + " setting gen)\n"
+                                                                      "It can also be set with the setgenerate call.")
+                .set_result("true|false    (boolean) If the server is set to generate coins or not");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     LOCK(cs_main);
     return GetBoolArg("-gen", DEFAULT_GENERATE);
