@@ -549,22 +549,20 @@ UniValue signmessage(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 2)
+    if (fHelp || params.size() != 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"t-addr\" \"message\"")
+                .set_description("Sign a message with the private key of a t-addr" + HelpRequiringPassphrase())
+                .set_arguments(
+                    "1. \"t-addr\"  (string, required) The transparent address to use for the private key.\n"
+                    "2. \"message\"         (string, required) The message to create a signature of.")
+                .set_result("\"signature\"          (string) The signature of the message encoded in base 64")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"");
         throw runtime_error(
-            "signmessage \"t-addr\" \"message\"\n"
-            "\nSign a message with the private key of a t-addr" +
-            HelpRequiringPassphrase() + "\n"
-                                        "\nArguments:\n"
-                                        "1. \"t-addr\"  (string, required) The transparent address to use for the private key.\n"
-                                        "2. \"message\"         (string, required) The message to create a signature of.\n"
-                                        "\nResult:\n"
-                                        "\"signature\"          (string) The signature of the message encoded in base 64\n"
-                                        "\nExamples:\n"
-                                        "\nUnlock the wallet for 30 seconds\n" +
-            HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
-            "\nCreate the signature\n" + HelpExampleCli("signmessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"") +
-            "\nVerify the signature\n" + HelpExampleCli("verifymessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"") +
-            "\nAs json rpc\n" + HelpExampleRpc("signmessage", "\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\", \"my message\""));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
