@@ -863,24 +863,24 @@ UniValue movecmd(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 3 || params.size() > 5)
+    if (fHelp || params.size() < 3 || params.size() > 5) {
+        HelpSections help_sections =
+            HelpSections("move")
+                .set_usage("\"fromaccount\" \"toaccount\" amount ( minconf \"comment\" )")
+                .set_description("DEPRECATED. Move a specified amount from one account in your wallet to another.")
+                .set_arguments(
+                    "1. \"fromaccount\"   (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
+                    "2. \"toaccount\"     (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
+                    "3. amount            (numeric) Quantity of " +
+                    CURRENCY_UNIT + " to move between accounts.\n"
+                                    "4. minconf           (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
+                                    "5. \"comment\"       (string, optional) An optional comment, stored in the wallet only.")
+                .set_result("true|false           (boolean) true if successful.")
+                .set_examples("\"\" \"tabby\" 0.01")
+                .set_examples("\"timotei\" \"akiko\" 0.01 6 \"happy birthday!\"");
         throw runtime_error(
-            "move \"fromaccount\" \"toaccount\" amount ( minconf \"comment\" )\n"
-            "\nDEPRECATED. Move a specified amount from one account in your wallet to another.\n"
-            "\nArguments:\n"
-            "1. \"fromaccount\"   (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
-            "2. \"toaccount\"     (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
-            "3. amount            (numeric) Quantity of " +
-            CURRENCY_UNIT + " to move between accounts.\n"
-                            "4. minconf           (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
-                            "5. \"comment\"       (string, optional) An optional comment, stored in the wallet only.\n"
-                            "\nResult:\n"
-                            "true|false           (boolean) true if successful.\n"
-                            "\nExamples:\n"
-                            "\nMove 0.01 " +
-            CURRENCY_UNIT + " from the default account to the account named tabby\n" + HelpExampleCli("move", "\"\" \"tabby\" 0.01") +
-            "\nMove 0.01 " + CURRENCY_UNIT + " timotei to akiko with a comment and funds have 6 confirmations\n" + HelpExampleCli("move", "\"timotei\" \"akiko\" 0.01 6 \"happy birthday!\"") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("move", "\"timotei\", \"akiko\", 0.01, 6, \"happy birthday!\""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
