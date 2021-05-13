@@ -2602,33 +2602,38 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hexstring\" includeWatching")
+                .set_description("Add inputs to a transaction until it has enough in value to meet its out value.\n"
+                                 "This will not modify existing inputs, and will add one change output to the outputs.\n"
+                                 "Note that inputs which were signed may need to be resigned after completion since in/outputs have been added.\n"
+                                 "The inputs added will not be signed, use signrawtransaction for that.\n"
+                                 "Note that all existing inputs must have their previous output transaction be in the wallet.\n"
+                                 "Note that all inputs selected must be of standard form and P2SH scripts must be"
+                                 "in the wallet using importaddress or addmultisigaddress (to calculate fees).\n"
+                                 "Only pay-to-pubkey, multisig, and P2SH versions thereof are currently supported for watch-only\n"
+                                 "\nThe examples given below follow these patterns, in this order:"
+                                 "\nCreate a transaction with no inputs\n"
+                                 "\nAdd sufficient unsigned inputs to meet the output value\n"
+                                 "\nSign the transaction\n"
+                                 "\nSend the transaction\n")
+                .set_arguments("1. \"hexstring\"     (string, required) The hex string of the raw transaction\n"
+                               "2. includeWatching (boolean, optional, default false) Also select inputs which are watch only")
+                .set_result("{\n"
+                            "  \"hex\":       \"value\", (string)  The resulting raw transaction (hex-encoded string)\n"
+                            "  \"fee\":       n,         (numeric) The fee added to the transaction\n"
+                            "  \"changepos\": n          (numeric) The position of the added change output, or -1\n"
+                            "}\n"
+                            "\"hex\"             ")
+                .set_examples("\"[]\" \"{\\\"myaddress\\\":0.01}\"")
+                .set_examples("\"rawtransactionhex\"")
+                .set_examples("\"fundedtransactionhex\"")
+                .set_examples("\"signedtransactionhex\"");
         throw runtime_error(
-            "fundrawtransaction \"hexstring\" includeWatching\n"
-            "\nAdd inputs to a transaction until it has enough in value to meet its out value.\n"
-            "This will not modify existing inputs, and will add one change output to the outputs.\n"
-            "Note that inputs which were signed may need to be resigned after completion since in/outputs have been added.\n"
-            "The inputs added will not be signed, use signrawtransaction for that.\n"
-            "Note that all existing inputs must have their previous output transaction be in the wallet.\n"
-            "Note that all inputs selected must be of standard form and P2SH scripts must be"
-            "in the wallet using importaddress or addmultisigaddress (to calculate fees).\n"
-            "Only pay-to-pubkey, multisig, and P2SH versions thereof are currently supported for watch-only\n"
-            "\nArguments:\n"
-            "1. \"hexstring\"     (string, required) The hex string of the raw transaction\n"
-            "2. includeWatching (boolean, optional, default false) Also select inputs which are watch only\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"hex\":       \"value\", (string)  The resulting raw transaction (hex-encoded string)\n"
-            "  \"fee\":       n,         (numeric) The fee added to the transaction\n"
-            "  \"changepos\": n          (numeric) The position of the added change output, or -1\n"
-            "}\n"
-            "\"hex\"             \n"
-            "\nExamples:\n"
-            "\nCreate a transaction with no inputs\n" +
-            HelpExampleCli("createrawtransaction", "\"[]\" \"{\\\"myaddress\\\":0.01}\"") +
-            "\nAdd sufficient unsigned inputs to meet the output value\n" + HelpExampleCli("fundrawtransaction", "\"rawtransactionhex\"") +
-            "\nSign the transaction\n" + HelpExampleCli("signrawtransaction", "\"fundedtransactionhex\"") +
-            "\nSend the transaction\n" + HelpExampleCli("sendrawtransaction", "\"signedtransactionhex\""));
+            help_sections.combine_sections());
+    }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VBOOL));
 
