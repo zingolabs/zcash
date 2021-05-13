@@ -669,24 +669,26 @@ UniValue getreceivedbyaccount(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
+    if (fHelp || params.size() < 1 || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"account\" ( minconf ) ( inZat )")
+                .set_description("DEPRECATED. Returns the total amount received by addresses with <account> in transactions with at least [minconf] confirmations.")
+                .set_arguments(
+                    "1. \"account\"      (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
+                    "2. minconf        (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
+                    "3. inZat           (boolean, optional, default=false) Get the result amount in " +
+                    MINOR_CURRENCY_UNIT + " (as an integer).")
+                .set_result(
+                    "amount              (numeric) The total amount in " +
+                    CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received for this account.")
+                .set_examples("\"\"")
+                .set_examples("\"tabby\" 0")
+                .set_examples("\"tabby\" 6");
         throw runtime_error(
-            "getreceivedbyaccount \"account\" ( minconf ) ( inZat )\n"
-            "\nDEPRECATED. Returns the total amount received by addresses with <account> in transactions with at least [minconf] confirmations.\n"
-            "\nArguments:\n"
-            "1. \"account\"      (string, required) MUST be set to the empty string \"\" to represent the default account. Passing any other string will result in an error.\n"
-            "2. minconf        (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
-            "3. inZat           (boolean, optional, default=false) Get the result amount in " +
-            MINOR_CURRENCY_UNIT + " (as an integer).\n"
-                                  "\nResult:\n"
-                                  "amount              (numeric) The total amount in " +
-            CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received for this account.\n"
-                                                           "\nExamples:\n"
-                                                           "\nAmount received by the default account with at least 1 confirmation\n" +
-            HelpExampleCli("getreceivedbyaccount", "\"\"") +
-            "\nAmount received at the tabby account including unconfirmed amounts with zero confirmations\n" + HelpExampleCli("getreceivedbyaccount", "\"tabby\" 0") +
-            "\nThe amount with at least 6 confirmation, very safe\n" + HelpExampleCli("getreceivedbyaccount", "\"tabby\" 6") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("getreceivedbyaccount", "\"tabby\", 6"));
+            help_sections.combine_sections());
+    }
+
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
