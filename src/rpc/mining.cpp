@@ -874,21 +874,20 @@ UniValue estimatefee(const UniValue& params, bool fHelp)
 
 UniValue estimatepriority(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "estimatepriority nblocks\n"
-            "\nEstimates the approximate priority\n"
-            "a zero-fee transaction needs to begin confirmation\n"
-            "within nblocks blocks.\n"
-            "\nArguments:\n"
-            "1. nblocks     (numeric)\n"
-            "\nResult:\n"
-            "n :    (numeric) estimated priority\n"
-            "\n"
-            "-1.0 is returned if not enough transactions and\n"
-            "blocks have been observed to make an estimate.\n"
-            "\nExample:\n" +
-            HelpExampleCli("estimatepriority", "6"));
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("nblocks")
+                .set_description("Estimates the approximate priority\n"
+                                 "a zero-fee transaction needs to begin confirmation\n"
+                                 "within nblocks blocks. \n"
+                                 "-1.0 is returned if not enough transactions and\n"
+                                 "blocks have been observed to make an estimate.")
+                .set_arguments("1. nblocks     (numeric)")
+                .set_result("n :    (numeric) estimated priority")
+                .set_examples("6");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VNUM));
 
