@@ -86,22 +86,20 @@ UniValue importprivkey(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 3)
-        throw runtime_error(
-            "importprivkey \"zcashprivkey\" ( \"label\" rescan )\n"
-            "\nAdds a private key (as returned by dumpprivkey) to your wallet.\n"
-            "\nArguments:\n"
-            "1. \"zcashprivkey\"   (string, required) The private key (see dumpprivkey)\n"
-            "2. \"label\"            (string, optional, default=\"\") An optional label\n"
-            "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
-            "\nNote: This call can take minutes to complete if rescan is true.\n"
-            "\nExamples:\n"
-            "\nDump a private key\n" +
-            HelpExampleCli("dumpprivkey", "\"myaddress\"") +
-            "\nImport the private key with rescan\n" + HelpExampleCli("importprivkey", "\"mykey\"") +
-            "\nImport using a label and without rescan\n" + HelpExampleCli("importprivkey", "\"mykey\" \"testing\" false") +
-            "\nAs a JSON-RPC call\n" + HelpExampleRpc("importprivkey", "\"mykey\", \"testing\", false"));
-
+    if (fHelp || params.size() < 1 || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"zcashprivkey\" ( \"label\" rescan )")
+                .set_description("Adds a private key (as returned by dumpprivkey) to your wallet.\n"
+                                 "Note: This call can take minutes to complete if rescan is true.")
+                .set_arguments("1. \"zcashprivkey\"   (string, required) The private key (see dumpprivkey)\n"
+                               "2. \"label\"          (string, optional, default=\"\") An optional label\n"
+                               "3. rescan           (boolean, optional, default=true) Rescan the wallet for transactions")
+                .set_examples("\"myaddress\"", "Dump a private key", "dumpprivkey")
+                .set_examples("\"mykey\"", "Import the private key with rescan")
+                .set_examples("\"mykey\" \"testing\" false", "Import using a label and without rescan");
+        throw runtime_error(help_sections.combine_sections());
+    }
     if (fPruneMode)
         throw JSONRPCError(RPC_WALLET_ERROR, "Importing keys is disabled in pruned mode");
 
