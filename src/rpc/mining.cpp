@@ -263,21 +263,20 @@ UniValue generate(const UniValue& params, bool fHelp)
 
 UniValue setgenerate(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
-        throw runtime_error(
-            "setgenerate generate ( genproclimit )\n"
-            "\nSet 'generate' true or false to turn generation on or off.\n"
-            "Generation is limited to 'genproclimit' processors, -1 is unlimited.\n"
-            "See the getgenerate call for the current setting.\n"
-            "\nArguments:\n"
-            "1. generate         (boolean, required) Set to true to turn on generation, off to turn off.\n"
-            "2. genproclimit     (numeric, optional) Set the processor limit for when generation is on. Can be -1 for unlimited.\n"
-            "\nExamples:\n"
-            "\nSet the generation on with a limit of one processor\n" +
-            HelpExampleCli("setgenerate", "true 1") +
-            "\nCheck the setting\n" + HelpExampleCli("getgenerate", "") +
-            "\nTurn off generation\n" + HelpExampleCli("setgenerate", "false") +
-            "\nUsing json rpc\n" + HelpExampleRpc("setgenerate", "true, 1"));
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("generate ( genproclimit )")
+                .set_description("Set 'generate' true or false to turn generation on or off.\n"
+                                 "Generation is limited to 'genproclimit' processors, -1 is unlimited.\n"
+                                 "See the getgenerate call for the current setting.")
+                .set_arguments("1. generate         (boolean, required) Set to true to turn on generation, off to turn off.\n"
+                               "2. genproclimit     (numeric, optional) Set the processor limit for when generation is on. Can be -1 for unlimited.")
+                .set_examples("true 1", "Set the generation on with a limit of one processor")
+                .set_examples("", "Check the setting")
+                .set_examples("false", "Turn off generation");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     if (Params().MineBlocksOnDemand())
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, "Use the generate method instead of setgenerate on this network");
