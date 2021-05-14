@@ -24,10 +24,22 @@ public:
           arguments("This RPC does not take arguments."),
           result("This RPC does not return a result."),
           examples(""),
-          example_core_template("\t=%s=\n> zcash-cli %s %s\n> curl --user myusername "
-                                "--data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\","
-                                " \"method\": \"%s\", \"params\": [%s] }' -H 'content-type: "
-                                "text/plain;' http://127.0.0.1:8232/\n")
+          // clang-format off
+          example_core_template(
+              "   =%s=\n"
+              "> zcash-cli %s %s\n"
+              "> curl"
+                " --user myusername"
+                " --data-binary "
+                    "'{"
+                        "\"jsonrpc\": \"1.0\","
+                        "\"id\":\"curltest\","
+                        "\"method\": \"%s\","
+                        "\"params\": [%s]"
+                    "}'"
+                " -H 'content-type: text/plain;' "
+                "http://127.0.0.1:8232/\n")
+    // clang-format on
     {
     }
     // begin method section
