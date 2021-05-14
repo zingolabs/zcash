@@ -2631,12 +2631,7 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                                  "Note that all existing inputs must have their previous output transaction be in the wallet.\n"
                                  "Note that all inputs selected must be of standard form and P2SH scripts must be"
                                  "in the wallet using importaddress or addmultisigaddress (to calculate fees).\n"
-                                 "Only pay-to-pubkey, multisig, and P2SH versions thereof are currently supported for watch-only\n"
-                                 "\nThe examples given below follow these patterns, in this order:"
-                                 "\nCreate a transaction with no inputs\n"
-                                 "\nAdd sufficient unsigned inputs to meet the output value\n"
-                                 "\nSign the transaction\n"
-                                 "\nSend the transaction\n")
+                                 "Only pay-to-pubkey, multisig, and P2SH versions thereof are currently supported for watch-only")
                 .set_arguments("1. \"hexstring\"     (string, required) The hex string of the raw transaction\n"
                                "2. includeWatching (boolean, optional, default false) Also select inputs which are watch only")
                 .set_result("{\n"
@@ -2645,10 +2640,10 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                             "  \"changepos\": n          (numeric) The position of the added change output, or -1\n"
                             "}\n"
                             "\"hex\"             ")
-                .set_examples("\"[]\" \"{\\\"myaddress\\\":0.01}\"")
-                .set_examples("\"rawtransactionhex\"")
-                .set_examples("\"fundedtransactionhex\"")
-                .set_examples("\"signedtransactionhex\"");
+                .set_examples("\"[]\" \"{\\\"myaddress\\\":0.01}\"", "Create a transaction with no inputs")
+                .set_examples("\"rawtransactionhex\"", "Add sufficient unsigned inputs to meet the output value")
+                .set_examples("\"fundedtransactionhex\"", "Sign the transaction")
+                .set_examples("\"signedtransactionhex\"", "Send the transaction");
         throw runtime_error(
             help_sections.combine_sections());
     }
