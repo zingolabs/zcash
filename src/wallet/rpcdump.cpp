@@ -199,14 +199,13 @@ UniValue importaddress(const UniValue& params, bool fHelp)
                 .set_description("Adds a script (in hex) or address that can be watched as if it were in your wallet but cannot be used to spend.\n"
                                  "\nNote: This call can take minutes to complete if rescan is true.\n"
                                  "If you have the full public key, you should call importpubkey instead of this.\n"
-                                 "\nNote: If you import a non-standard raw script in hex form, outputs sending to it will be treated\n"
-                                 "as change, and not show up in many RPCs.")
+                                 "\nNote: If you import a non-standard raw script in hex form, outputs sending to it will be treated as change, and not show up in many RPCs.")
                 .set_arguments("1. \"script\"\t(string, required) The hex-encoded script (or address)\n"
                                "2. \"label\"\t(string, optional, default=\"\") An optional label\n"
                                "3. rescan\t(boolean, optional, default=true) Rescan the wallet for transactions\n"
                                "4. p2sh  \t(boolean, optional, default=false) Add the P2SH version of the script as well")
-                .set_examples("\"myscript\"")                    //"\nImport a script with rescan\n" +
-                .set_examples("\"myscript\" \"testing\" false"); //"\nImport using a label without rescan\n"
+                .set_examples("\"myscript\"", "Import a script with rescan")
+                .set_examples("\"myscript\" \"testing\" false", "Import using a label without rescan");
         throw runtime_error(help_sections.combine_sections());
     }
 
