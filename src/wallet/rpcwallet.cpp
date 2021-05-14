@@ -2832,24 +2832,24 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
     return results;
 }
 
-UniValue zc_raw_receive(const UniValue& params, bool fHelp)
+UniValue zcrawreceive(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp)) {
         return NullUniValue;
     }
 
     if (fHelp || params.size() != 2) {
-        throw runtime_error(
-            "zcrawreceive zcsecretkey encryptednote\n"
-            "\n"
-            "DEPRECATED. Decrypts encryptednote and checks if the coin commitments\n"
-            "are in the blockchain as indicated by the \"exists\" result.\n"
-            "\n"
-            "Output: {\n"
-            "  \"amount\": value,\n"
-            "  \"note\": noteplaintext,\n"
-            "  \"exists\": exists\n"
-            "}\n");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("zcsecretkey encryptednote")
+                .set_description("DEPRECATED. Decrypts encryptednote and checks if the coin commitments\n"
+                                 "are in the blockchain as indicated by the \"exists\" result.")
+                .set_result("{\n"
+                            "  \"amount\": (numeric) value,\n"
+                            "  \"note\":   (string)  noteplaintext,\n"
+                            "  \"exists\": (boolean) exists\n"
+                            "}");
+        throw runtime_error(help_sections.combine_sections());
     }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VSTR));
@@ -5270,7 +5270,7 @@ static const CRPCCommand commands[] =
         {"wallet", "zcbenchmark", &zc_benchmark, true},
         {"wallet", "zcrawkeygen", &zc_raw_keygen, true},
         {"wallet", "zcrawjoinsplit", &zc_raw_joinsplit, true},
-        {"wallet", "zcrawreceive", &zc_raw_receive, true},
+        {"wallet", "zcrawreceive", &zcrawreceive, true},
         {"wallet", "zcsamplejoinsplit", &zc_sample_joinsplit, true},
         {"wallet", "z_listreceivedbyaddress", &z_listreceivedbyaddress, false},
         {"wallet", "z_listunspent", &z_listunspent, false},
