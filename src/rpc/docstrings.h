@@ -70,8 +70,8 @@ public:
     }
     HelpSections& set_examples(string example_invocation_args, string example_metadata)
     {
-        this->examples += "=" + example_metadata + "=\n"
-                                                   "> zcash-cli " +
+        this->examples += "\t=" + example_metadata + "=\n"
+                                                     "> zcash-cli " +
                           this->name + " " + example_invocation_args +
                           "\n> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
                           "\"method\": \"" +

@@ -255,20 +255,20 @@ UniValue importpubkey(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 4)
-        throw runtime_error(
-            "importpubkey \"pubkey\" ( \"label\" rescan )\n"
-            "\nAdds a public key (in hex) that can be watched as if it were in your wallet but cannot be used to spend.\n"
-            "\nArguments:\n"
-            "1. \"pubkey\"           (string, required) The hex-encoded public key\n"
-            "2. \"label\"            (string, optional, default=\"\") An optional label\n"
-            "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
-            "\nNote: This call can take minutes to complete if rescan is true.\n"
-            "\nExamples:\n"
-            "\nImport a public key with rescan\n" +
-            HelpExampleCli("importpubkey", "\"mypubkey\"") +
-            "\nImport using a label without rescan\n" + HelpExampleCli("importpubkey", "\"mypubkey\" \"testing\" false") +
-            "\nAs a JSON-RPC call\n" + HelpExampleRpc("importpubkey", "\"mypubkey\", \"testing\", false"));
+    if (fHelp || params.size() < 1 || params.size() > 4) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"pubkey\" ( \"label\" rescan )")
+                .set_description("Adds a public key (in hex) that can be watched as if it were in your wallet but cannot be used to spend.\nNote: This call can take minutes to complete if rescan is true.")
+                .set_arguments("1. \"pubkey\"           (string, required) The hex-encoded public key\n"
+                               "2. \"label\"            (string, optional, default=\"\") An optional label\n"
+                               "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions")
+                .set_examples("\"mypubkey\"",
+                              "Import a public key with rescan")
+                .set_examples("\"mypubkey\" \"testing\" false",
+                              "Import using a label without rescan");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     if (fPruneMode)
         throw JSONRPCError(RPC_WALLET_ERROR, "Importing public keys is disabled in pruned mode");
