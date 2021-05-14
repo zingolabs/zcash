@@ -322,17 +322,16 @@ UniValue importwallet(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "importwallet \"filename\"\n"
-            "\nImports taddr keys from a wallet dump file (see dumpwallet).\n"
-            "\nArguments:\n"
-            "1. \"filename\"    (string, required) The wallet file\n"
-            "\nExamples:\n"
-            "\nDump the wallet\n" +
-            HelpExampleCli("dumpwallet", "\"nameofbackup\"") +
-            "\nImport the wallet\n" + HelpExampleCli("importwallet", "\"path/to/exportdir/nameofbackup\"") +
-            "\nImport using the json rpc call\n" + HelpExampleRpc("importwallet", "\"path/to/exportdir/nameofbackup\""));
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"filename\"")
+                .set_description("Imports taddr keys from a wallet dump file (see dumpwallet).")
+                .set_arguments("1. \"filename\"    (string, required) The wallet file")
+                .set_examples("\"nameofbackup\"", "Dump the wallet")
+                .set_examples("\"path/to/exportdir/nameofbackup\"", "Import the wallet");
+        throw runtime_error(help_sections.combine_sections());
+    }
 
     return importwallet_impl(params, false);
 }
