@@ -876,8 +876,8 @@ UniValue movecmd(const UniValue& params, bool fHelp)
                                     "4. minconf           (numeric, optional, default=1) Only use funds with at least this many confirmations.\n"
                                     "5. \"comment\"       (string, optional) An optional comment, stored in the wallet only.")
                 .set_result("true|false           (boolean) true if successful.")
-                .set_examples("\"\" \"tabby\" 0.01")
-                .set_examples("\"timotei\" \"akiko\" 0.01 6 \"happy birthday!\"");
+                .set_examples("\"\" \"tabby\" 0.01", "Move 0.01 ZEC from the default account to the account named tabby")
+                .set_examples("\"timotei\" \"akiko\" 0.01 6 \"happy birthday!\"", "Move 0.01 ZEC timotei to akiko with a comment, only using funds with at least 6 confirmations");
         throw runtime_error(
             help_sections.combine_sections());
     }
