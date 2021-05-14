@@ -617,9 +617,9 @@ UniValue getreceivedbyaddress(const UniValue& params, bool fHelp)
                 .set_result(
                     "amount   (numeric) The total amount in " +
                     CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received at this address.")
-                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"")
-                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 0")
-                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 6");
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\"", "The amount from transactions with at least 1 confirmation")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 0", "The amount including unconfirmed transactions, zero confirmations")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" 6", "The amount with at least 6 confirmations, very safe");
         throw runtime_error(
             help_sections.combine_sections());
     }
