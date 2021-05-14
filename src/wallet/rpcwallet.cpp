@@ -2238,17 +2238,18 @@ UniValue settxfee(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 1 || params.size() > 1)
+    if (fHelp || params.size() < 1 || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("amount")
+                .set_description("Set the transaction fee per kB. Overwrites the paytxfee parameter.")
+                .set_arguments("1. amount         (numeric, required) The transaction fee in " +
+                               CURRENCY_UNIT + "/kB rounded to the nearest 0.00000001")
+                .set_result("true|false        (boolean) Returns true if successful")
+                .set_examples("0.00001");
         throw runtime_error(
-            "settxfee amount\n"
-            "\nSet the transaction fee per kB. Overwrites the paytxfee parameter.\n"
-            "\nArguments:\n"
-            "1. amount         (numeric, required) The transaction fee in " +
-            CURRENCY_UNIT + "/kB rounded to the nearest 0.00000001\n"
-                            "\nResult\n"
-                            "true|false        (boolean) Returns true if successful\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("settxfee", "0.00001") + HelpExampleRpc("settxfee", "0.00001"));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
