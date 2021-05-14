@@ -284,10 +284,13 @@ UniValue setlogfilter(const UniValue& params, bool fHelp)
 UniValue stop(const UniValue& params, bool fHelp)
 {
     // Accept the deprecated and ignored 'detach' boolean argument
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Stop Zcash server.");
         throw runtime_error(
-            "stop\n"
-            "\nStop Zcash server.");
+            help_sections.combine_sections());
+    }
     // Event loop will exit after current HTTP requests have been handled, so
     // this reply will get back to the client.
     StartShutdown();
