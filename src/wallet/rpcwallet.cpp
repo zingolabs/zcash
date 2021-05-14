@@ -2915,33 +2915,34 @@ UniValue zcrawreceive(const UniValue& params, bool fHelp)
 }
 
 
-UniValue zc_raw_joinsplit(const UniValue& params, bool fHelp)
+UniValue zcrawjoinsplit(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp)) {
         return NullUniValue;
     }
 
     if (fHelp || params.size() != 5) {
-        throw runtime_error(
-            "zcrawjoinsplit rawtx inputs outputs vpub_old vpub_new\n"
-            "  inputs: a JSON object mapping {note: zcsecretkey, ...}\n"
-            "  outputs: a JSON object mapping {zcaddr: value, ...}\n"
-            "\n"
-            "DEPRECATED. Splices a joinsplit into rawtx. Inputs are unilaterally confidential.\n"
-            "Outputs are confidential between sender/receiver. The vpub_old and\n"
-            "vpub_new values are globally public and move transparent value into\n"
-            "or out of the confidential value store, respectively.\n"
-            "\n"
-            "Note: The caller is responsible for delivering the output enc1 and\n"
-            "enc2 to the appropriate recipients, as well as signing rawtxout and\n"
-            "ensuring it is mined. (A future RPC call will deliver the confidential\n"
-            "payments in-band on the blockchain.)\n"
-            "\n"
-            "Output: {\n"
-            "  \"encryptednote1\": enc1,\n"
-            "  \"encryptednote2\": enc2,\n"
-            "  \"rawtxn\": rawtxout\n"
-            "}\n");
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("rawtx inputs outputs vpub_old vpub_new")
+                .set_description("  inputs: a JSON object mapping {note: zcsecretkey, ...}\n"
+                                 "  outputs: a JSON object mapping {zcaddr: value, ...}\n"
+                                 "\n"
+                                 "DEPRECATED. Splices a joinsplit into rawtx. Inputs are unilaterally confidential.\n"
+                                 "Outputs are confidential between sender/receiver. The vpub_old and\n"
+                                 "vpub_new values are globally public and move transparent value into\n"
+                                 "or out of the confidential value store, respectively.\n"
+                                 "\n"
+                                 "Note: The caller is responsible for delivering the output enc1 and\n"
+                                 "enc2 to the appropriate recipients, as well as signing rawtxout and\n"
+                                 "ensuring it is mined. (A future RPC call will deliver the confidential\n"
+                                 "payments in-band on the blockchain.)")
+                .set_result("{\n"
+                            "  \"encryptednote1\":  (string) enc1,\n"
+                            "  \"encryptednote2\":  (string) enc2,\n"
+                            "  \"rawtxn\":          (string) rawtxout\n"
+                            "}");
+        throw runtime_error(help_sections.combine_sections());
     }
 
     LOCK(cs_main);
@@ -5269,7 +5270,7 @@ static const CRPCCommand commands[] =
         {"wallet", "walletpassphrase", &walletpassphrase, true},
         {"wallet", "zcbenchmark", &zc_benchmark, true},
         {"wallet", "zcrawkeygen", &zc_raw_keygen, true},
-        {"wallet", "zcrawjoinsplit", &zc_raw_joinsplit, true},
+        {"wallet", "zcrawjoinsplit", &zcrawjoinsplit, true},
         {"wallet", "zcrawreceive", &zcrawreceive, true},
         {"wallet", "zcsamplejoinsplit", &zc_sample_joinsplit, true},
         {"wallet", "z_listreceivedbyaddress", &z_listreceivedbyaddress, false},
