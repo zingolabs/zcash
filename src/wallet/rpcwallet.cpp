@@ -1877,15 +1877,16 @@ UniValue keypoolrefill(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( newsize )")
+                .set_description("Fills the keypool." +
+                                 HelpRequiringPassphrase())
+                .set_arguments("1. newsize     (numeric, optional, default=100) The new keypool size");
         throw runtime_error(
-            "keypoolrefill ( newsize )\n"
-            "\nFills the keypool." +
-            HelpRequiringPassphrase() + "\n"
-                                        "\nArguments\n"
-                                        "1. newsize     (numeric, optional, default=100) The new keypool size\n"
-                                        "\nExamples:\n" +
-            HelpExampleCli("keypoolrefill", "") + HelpExampleRpc("keypoolrefill", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
