@@ -21,14 +21,13 @@ public:
         : name(rpc_name),
           usage(""),
           description(""),
-          arguments(""),
-          result("This RPC does not return a result by default."),
+          arguments("This RPC does not take arguments."),
+          result("This RPC does not return a result."),
           examples(""),
           example_core_template("\t=%s=\n> zcash-cli %s %s\n> curl --user myusername "
                                 "--data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\","
                                 " \"method\": \"%s\", \"params\": [%s] }' -H 'content-type: "
                                 "text/plain;' http://127.0.0.1:8232/\n")
-
     {
     }
     // begin method section
@@ -36,16 +35,13 @@ public:
     {
         // formats data section members into help message
         string argstring = "";
-        if (!this->arguments.empty())
-            argstring += "\n\nArguments:\n" + this->arguments;
         if (this->examples.empty())
             this->set_examples("");
-        return "Usage:\n" +
-               this->name + " " + this->usage +
-               "\n\nDescription:\n" + this->description +
-               argstring +
-               "\n\nResult:\n" + this->result +
-               "\n\nExamples:\n" + this->examples;
+        return "Usage:\n" + this->name + " " + this->usage + "\n\n" +
+               "Description:\n" + this->description + "\n\n" +
+               "Arguments:\n" + this->arguments + "\n\n" +
+               "Result:\n" + this->result + "\n\n" +
+               "Examples:\n" + this->examples;
     }
 
     // setter methods below.
