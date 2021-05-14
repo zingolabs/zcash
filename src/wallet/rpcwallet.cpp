@@ -682,9 +682,9 @@ UniValue getreceivedbyaccount(const UniValue& params, bool fHelp)
                 .set_result(
                     "amount              (numeric) The total amount in " +
                     CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received for this account.")
-                .set_examples("\"\"")
-                .set_examples("\"tabby\" 0")
-                .set_examples("\"tabby\" 6");
+                .set_examples("\"\"", "Amount received by the default account with at least 1 confirmation")
+                .set_examples("\"tabby\" 0", "Amount received at the tabby account including unconfirmed amounts with zero confirmations")
+                .set_examples("\"tabby\" 6", "The amount with at least 6 confirmation, very safe");
         throw runtime_error(
             help_sections.combine_sections());
     }
