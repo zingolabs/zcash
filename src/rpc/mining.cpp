@@ -841,22 +841,22 @@ UniValue submitblock(const UniValue& params, bool fHelp)
 
 UniValue estimatefee(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "estimatefee nblocks\n"
-            "\nEstimates the approximate fee per kilobyte\n"
-            "needed for a transaction to begin confirmation\n"
-            "within nblocks blocks.\n"
-            "\nArguments:\n"
-            "1. nblocks     (numeric)\n"
-            "\nResult:\n"
-            "n :    (numeric) estimated fee-per-kilobyte\n"
-            "\n"
-            "-1.0 is returned if not enough transactions and\n"
-            "blocks have been observed to make an estimate.\n"
-            "\nExample:\n" +
-            HelpExampleCli("estimatefee", "6"));
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("nblocks")
+                .set_description("Estimates the approximate fee per kilobyte\n"
+                                 "needed for a transaction to begin confirmation\n"
+                                 "within nblocks blocks.")
+                .set_arguments("1. nblocks     (numeric)")
+                .set_result("n :    (numeric) estimated fee-per-kilobyte\n"
+                            "\n"
+                            "-1.0 is returned if not enough transactions and\n"
+                            "blocks have been observed to make an estimate.")
+                .set_examples("6");
 
+        throw runtime_error(help_sections.combine_sections());
+    }
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VNUM));
 
     int nBlocks = params[0].get_int();
