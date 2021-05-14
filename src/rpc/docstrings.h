@@ -1,6 +1,7 @@
 #ifndef RPC_DOCSTRINGS_H
 #define RPC_DOCSTRINGS_H
 
+#include "tinyformat.h"
 using namespace std;
 
 class HelpSections
@@ -13,7 +14,7 @@ private:
     string arguments;
     string result;
     string examples;
-
+    string example_core_template;
 
 public:
     HelpSections(string rpc_name) // constructor: includes defaults
@@ -22,7 +23,12 @@ public:
           description(""),
           arguments(""),
           result("This RPC does not return a result by default."),
-          examples("")
+          examples(""),
+          example_core_template("\t=%s=\n> zcash-cli %s %s\n> curl --user myusername "
+                                "--data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\","
+                                " \"method\": \"%s\", \"params\": [%s] }' -H 'content-type: "
+                                "text/plain;' http://127.0.0.1:8232/\n")
+
     {
     }
     // begin method section
@@ -60,23 +66,23 @@ public:
     }
     HelpSections& set_examples(string example_invocation_args)
     {
-        this->examples +=
-            "> zcash-cli " + this->name + " " + example_invocation_args +
-            "\n> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-            "\"method\": \"" +
-            this->name + "\", \"params\": [" + example_invocation_args +
-            "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
+        this->examples += tfm::format(this->example_core_template,
+                                      "=",
+                                      this->name,
+                                      example_invocation_args,
+                                      this->name,
+                                      example_invocation_args);
         return *this;
     }
     HelpSections& set_examples(string example_invocation_args, string example_metadata)
     {
-        this->examples += "\t=" + example_metadata + "=\n"
-                                                     "> zcash-cli " +
-                          this->name + " " + example_invocation_args +
-                          "\n> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-                          "\"method\": \"" +
-                          this->name + "\", \"params\": [" + example_invocation_args +
-                          "] }' -H 'content-type: text/plain;' http://127.0.0.1:8232/\n";
+        this->examples += tfm::format(this->example_core_template,
+                                      example_metadata,
+                                      this->name,
+                                      example_invocation_args,
+                                      this->name,
+                                      example_invocation_args);
+
         return *this;
     }
 };
