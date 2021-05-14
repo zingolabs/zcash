@@ -13,8 +13,9 @@ private:
     string description;
     string arguments;
     string result;
+    string result_template;
     string examples;
-    string example_core_template;
+    string example_template;
 
 public:
     HelpSections(string rpc_name) // constructor: includes defaults
@@ -23,8 +24,15 @@ public:
           description(""),
           arguments("This RPC does not take arguments."),
           result("This RPC does not return a result."),
+          result_template(
+              //clang-format off
+              "\n<if %s>\n"
+              "%s\n"
+              "======"
+              //clang-format on
+              ),
           examples(""),
-          example_core_template(
+          example_template(
               // clang-format off
               "   =%s=\n"
               "> zcash-cli %s %s\n"
@@ -77,10 +85,18 @@ public:
         this->result = result_message;
         return *this;
     }
+    HelpSections& set_result(string result_message, string result_metadata)
+    {
+        this->result = tfm::format(
+            this->result_template,
+            result_metadata,
+            result_message);
+        return *this;
+    }
     HelpSections& set_examples(string example_invocation_args)
     {
         this->examples += tfm::format(
-            this->example_core_template,
+            this->example_template,
             "=",
             this->name,
             example_invocation_args,
@@ -91,7 +107,7 @@ public:
     HelpSections& set_examples(string example_invocation_args, string example_metadata)
     {
         this->examples += tfm::format(
-            this->example_core_template,
+            this->example_template,
             example_metadata,
             this->name,
             example_invocation_args,
@@ -103,7 +119,7 @@ public:
     HelpSections& set_examples(string example_invocation_args, string example_metadata, string foreign_rpc)
     {
         this->examples += tfm::format(
-            this->example_core_template,
+            this->example_template,
             example_metadata,
             foreign_rpc,
             example_invocation_args,
