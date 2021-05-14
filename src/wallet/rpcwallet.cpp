@@ -775,8 +775,8 @@ UniValue getbalance(const UniValue& params, bool fHelp)
                 .set_result(
                     "amount              (numeric) The total amount in " +
                     CURRENCY_UNIT + "(or " + MINOR_CURRENCY_UNIT + " if inZat is true) received.")
-                .set_examples("")
-                .set_examples("\"*\" 6");
+                .set_examples("", "The total amount in the wallet")
+                .set_examples("\"*\" 6", "The amount in the wallet that has at least 6 confirmations");
         throw runtime_error(
             help_sections.combine_sections());
     }
