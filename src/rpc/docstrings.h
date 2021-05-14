@@ -34,7 +34,6 @@ public:
     string combine_sections()
     {
         // formats data section members into help message
-        string argstring = "";
         if (this->examples.empty())
             this->set_examples("");
         return "Usage:\n" + this->name + " " + this->usage + "\n\n" +
