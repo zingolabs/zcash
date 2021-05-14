@@ -2055,30 +2055,29 @@ UniValue encryptwallet(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    std::string disabledMsg = "";
-    if (!fExperimentalDeveloperEncryptWallet) {
-        disabledMsg = experimentalDisabledHelpMsg("encryptwallet", {"developerencryptwallet"});
+
+    if (!pwalletMain->IsCrypted() && (fHelp || params.size() != 1)) {
+        std::string disabledMsg = "";
+        if (!fExperimentalDeveloperEncryptWallet) {
+            disabledMsg = experimentalDisabledHelpMsg("encryptwallet", {"developerencryptwallet"});
+        }
+
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"passphrase\"")
+                .set_description(disabledMsg + "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
+                                               "After this, any calls that interact with private keys such as sending or signing \n"
+                                               "will require the passphrase to be set prior the making these calls.\n"
+                                               "Use the walletpassphrase call for this, and then walletlock call.\n"
+                                               "If the wallet is already encrypted, use the walletpassphrasechange call.\n"
+                                               "Note that this will shutdown the server.")
+                .set_arguments("1. \"passphrase\"    (string) The pass phrase to encrypt the wallet with. It must be at least 1 character, but should be long.")
+                .set_examples("\"my pass phrase\"", "Encrypt your wallet")
+                .set_examples("\"my pass phrase\"", "Now set the passphrase to use the wallet, such as for signing or sending Zcash")
+                .set_examples("\"zcashaddress\" \"test message\"", "Now we can so something like sign", "signmessage")
+                .set_examples("", "Now lock the wallet again by removing the passphrase", "walletlock");
+        throw runtime_error(help_sections.combine_sections());
     }
-
-    if (!pwalletMain->IsCrypted() && (fHelp || params.size() != 1))
-        throw runtime_error(
-            "encryptwallet \"passphrase\"\n" + disabledMsg +
-            "\nEncrypts the wallet with 'passphrase'. This is for first time encryption.\n"
-            "After this, any calls that interact with private keys such as sending or signing \n"
-            "will require the passphrase to be set prior the making these calls.\n"
-            "Use the walletpassphrase call for this, and then walletlock call.\n"
-            "If the wallet is already encrypted, use the walletpassphrasechange call.\n"
-            "Note that this will shutdown the server.\n"
-            "\nArguments:\n"
-            "1. \"passphrase\"    (string) The pass phrase to encrypt the wallet with. It must be at least 1 character, but should be long.\n"
-            "\nExamples:\n"
-            "\nEncrypt you wallet\n" +
-            HelpExampleCli("encryptwallet", "\"my pass phrase\"") +
-            "\nNow set the passphrase to use the wallet, such as for signing or sending Zcash\n" + HelpExampleCli("walletpassphrase", "\"my pass phrase\"") +
-            "\nNow we can so something like sign\n" + HelpExampleCli("signmessage", "\"zcashaddress\" \"test message\"") +
-            "\nNow lock the wallet again by removing the passphrase\n" + HelpExampleCli("walletlock", "") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("encryptwallet", "\"my pass phrase\""));
-
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     if (fHelp)
