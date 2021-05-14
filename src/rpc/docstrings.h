@@ -24,8 +24,8 @@ public:
           arguments("This RPC does not take arguments."),
           result("This RPC does not return a result."),
           examples(""),
-          // clang-format off
           example_core_template(
+              // clang-format off
               "   =%s=\n"
               "> zcash-cli %s %s\n"
               "> curl"
@@ -38,8 +38,9 @@ public:
                         "\"params\": [%s]"
                     "}'"
                 " -H 'content-type: text/plain;' "
-                "http://127.0.0.1:8232/\n")
-    // clang-format on
+                "http://127.0.0.1:8232/\n"
+              // clang-format on
+          )
     {
     }
     // begin method section
