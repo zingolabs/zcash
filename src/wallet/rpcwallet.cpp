@@ -558,7 +558,9 @@ UniValue signmessage(const UniValue& params, bool fHelp)
                     "1. \"t-addr\"  (string, required) The transparent address to use for the private key.\n"
                     "2. \"message\"         (string, required) The message to create a signature of.")
                 .set_result("\"signature\"          (string) The signature of the message encoded in base 64")
-                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"");
+                .set_examples("\"mypassphrase\" 30", "Unlock the wallet for 30 seconds", "walletpassphrase")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"", "Create the signature")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"", "Verify the signature", "verifymessage");
         throw runtime_error(
             help_sections.combine_sections());
     }
