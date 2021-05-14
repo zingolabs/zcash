@@ -4370,27 +4370,28 @@ UniValue z_getmigrationstatus(const UniValue& params, bool fHelp)
 {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
-    if (fHelp || params.size() != 0)
-        throw runtime_error(
-            "z_getmigrationstatus\n"
-            "Returns information about the status of the Sprout to Sapling migration.\n"
-            "Note: A transaction is defined as finalized if it has at least ten confirmations.\n"
-            "Also, it is possible that manually created transactions involving this wallet\n"
-            "will be included in the result.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"enabled\": true|false,                    (boolean) Whether or not migration is enabled\n"
-            "  \"destination_address\": \"zaddr\",           (string) The Sapling address that will receive Sprout funds\n"
-            "  \"unmigrated_amount\": nnn.n,               (numeric) The total amount of unmigrated " +
-            CURRENCY_UNIT + " \n"
-                            "  \"unfinalized_migrated_amount\": nnn.n,     (numeric) The total amount of unfinalized " +
-            CURRENCY_UNIT + " \n"
-                            "  \"finalized_migrated_amount\": nnn.n,       (numeric) The total amount of finalized " +
-            CURRENCY_UNIT + " \n"
-                            "  \"finalized_migration_transactions\": nnn,  (numeric) The number of migration transactions involving this wallet\n"
-                            "  \"time_started\": ttt,                      (numeric, optional) The block time of the first migration transaction as a Unix timestamp\n"
-                            "  \"migration_txids\": [txids]                (json array of strings) An array of all migration txids involving this wallet\n"
-                            "}\n");
+    if (fHelp || params.size() != 0) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns information about the status of the Sprout to Sapling migration.\n"
+                                 "Note: A transaction is defined as finalized if it has at least ten confirmations.\n"
+                                 "Also, it is possible that manually created transactions involving this wallet\n"
+                                 "will be included in the result.")
+                .set_result("{\n"
+                            "  \"enabled\": true|false,                    (boolean) Whether or not migration is enabled\n"
+                            "  \"destination_address\": \"zaddr\",           (string) The Sapling address that will receive Sprout funds\n"
+                            "  \"unmigrated_amount\": nnn.n,               (numeric) The total amount of unmigrated " +
+                            CURRENCY_UNIT + " \n"
+                                            "  \"unfinalized_migrated_amount\": nnn.n,     (numeric) The total amount of unfinalized " +
+                            CURRENCY_UNIT + " \n"
+                                            "  \"finalized_migrated_amount\": nnn.n,       (numeric) The total amount of finalized " +
+                            CURRENCY_UNIT + " \n"
+                                            "  \"finalized_migration_transactions\": nnn,  (numeric) The number of migration transactions involving this wallet\n"
+                                            "  \"time_started\": ttt,                      (numeric, optional) The block time of the first migration transaction as a Unix timestamp\n"
+                                            "  \"migration_txids\": [\n \"txids\"  (string) An array of all migration txids involving this wallet\n]"
+                                            "}\n");
+        throw runtime_error(help_sections.combine_sections());
+    }
     LOCK2(cs_main, pwalletMain->cs_wallet);
     UniValue migrationStatus(UniValue::VOBJ);
     migrationStatus.pushKV("enabled", pwalletMain->fSaplingMigrationEnabled);
