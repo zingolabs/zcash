@@ -664,9 +664,10 @@ UniValue z_importkey(const UniValue& params, bool fHelp)
                             "  \"type\" : \"xxxx\",                         (string) \"sprout\" or \"sapling\"\n"
                             "  \"address\" : \"address|DefaultAddress\",    (string) The address corresponding to the spending key (for Sapling, this is the default address).\n"
                             "}")
-                .set_examples("\"mykey\"")
-                .set_examples("\"mykey\" whenkeyisnew 30000")
-                .set_examples("\"mykey\" yes 20000");
+                .set_examples("\"myaddress\"", "Export a zkey", "z_exportkey")
+                .set_examples("\"mykey\"", "Import the key with rescan")
+                .set_examples("\"mykey\" whenkeyisnew 30000", "Import the key with partial rescan")
+                .set_examples("\"mykey\" yes 20000", "Import the key with longer partial rescan");
         throw runtime_error(help_sections.combine_sections());
     }
     if (fPruneMode)
