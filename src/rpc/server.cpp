@@ -240,20 +240,21 @@ UniValue help(const UniValue& params, bool fHelp)
 UniValue setlogfilter(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() > 1) {
-        throw runtime_error(
-            "setlogfilter \"directives\"\n"
-            "\nSets the filter to be used for selecting events to log.\n"
-            "\nA filter is a comma-separated list of directives.\n"
-            "The syntax for each directive is:\n"
-            "\n    target[span{field=value}]=level\n"
-            "\nThe default filter, derived from the -debug=target flags, is:\n" +
-            strprintf("\n    %s", LogConfigFilter()) + "\n"
-                                                       "\nPassing a valid filter here will replace the existing filter.\n"
-                                                       "Passing an empty string will reset the filter to the default.\n"
-                                                       "\nArguments:\n"
-                                                       "1. newFilterDirectives (string, required) The new log filter.\n"
-                                                       "\nExamples:\n" +
-            HelpExampleCli("setlogfilter", "\"main=info,rpc=info\"") + HelpExampleRpc("setlogfilter", "\"main=info,rpc=info\""));
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"directives\"")
+                .set_description("Sets the filter to be used for selecting events to log.\n"
+                                 "\nA filter is a comma-separated list of directives.\n"
+                                 "The syntax for each directive is:\n"
+                                 "\n    target[span{field=value}]=level\n"
+                                 "\nThe default filter, derived from the -debug=target flags, is:\n" +
+                                 strprintf("\n    %s", LogConfigFilter()) + "\n"
+                                                                            "\nPassing a valid filter here will replace the existing filter.\n"
+                                                                            "Passing an empty string will reset the filter to the default.")
+                .set_arguments("1. newFilterDirectives (string, required) The new log filter.")
+                .set_examples("\"main=info,rpc=info\"");
+
+        throw runtime_error(help_sections.combine_sections());
     }
 
     auto newFilter = params[0].getValStr();
