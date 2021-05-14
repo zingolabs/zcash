@@ -66,33 +66,36 @@ public:
     }
     HelpSections& set_examples(string example_invocation_args)
     {
-        this->examples += tfm::format(this->example_core_template,
-                                      "=",
-                                      this->name,
-                                      example_invocation_args,
-                                      this->name,
-                                      example_invocation_args);
+        this->examples += tfm::format(
+            this->example_core_template,
+            "=",
+            this->name,
+            example_invocation_args,
+            this->name,
+            example_invocation_args);
         return *this;
     }
     HelpSections& set_examples(string example_invocation_args, string example_metadata)
     {
-        this->examples += tfm::format(this->example_core_template,
-                                      example_metadata,
-                                      this->name,
-                                      example_invocation_args,
-                                      this->name,
-                                      example_invocation_args);
+        this->examples += tfm::format(
+            this->example_core_template,
+            example_metadata,
+            this->name,
+            example_invocation_args,
+            this->name,
+            example_invocation_args);
 
         return *this;
     }
     HelpSections& set_examples(string example_invocation_args, string example_metadata, string foreign_rpc)
     {
-        this->examples += tfm::format(this->example_core_template,
-                                      example_metadata,
-                                      foreign_rpc,
-                                      example_invocation_args,
-                                      foreign_rpc,
-                                      example_invocation_args);
+        this->examples += tfm::format(
+            this->example_core_template,
+            example_metadata,
+            foreign_rpc,
+            example_invocation_args,
+            foreign_rpc,
+            example_invocation_args);
 
         return *this;
     }
