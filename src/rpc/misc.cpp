@@ -414,7 +414,9 @@ UniValue verifymessage(const UniValue& params, bool fHelp)
                     "2. \"signature\"       (string, required) The signature provided by the signer in base 64 encoding (see signmessage).\n"
                     "3. \"message\"         (string, required) The message that was signed.")
                 .set_result("true|false   (boolean) If the signature is verified or not.")
-                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"");
+                .set_examples("\"mypassphrase\" 30", "Unlock the wallet for 30 seconds", "walletpassphrase")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"my message\"", "Create the signature", "signmessage")
+                .set_examples("\"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1\" \"signature\" \"my message\"", "Verify the signature");
         throw runtime_error(
             help_sections.combine_sections());
     }
