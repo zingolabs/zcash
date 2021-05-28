@@ -1322,30 +1322,31 @@ UniValue listreceivedbyaccount(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 3)
+    if (fHelp || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( minconf includeempty includeWatchonly)")
+                .set_description("DEPRECATED. List balances by account.")
+                .set_arguments("1. minconf      (numeric, optional, default=1) The minimum number of confirmations before payments are included.\n"
+                               "2. includeempty (boolean, optional, default=false) Whether to include accounts that haven't received any payments.\n"
+                               "3. includeWatchonly (boolean, optional, default=false) Whether to include watchonly addresses (see 'importaddress').")
+                .set_result("[\n"
+                            "  {\n"
+                            "    \"involvesWatchonly\" : true,   (boolean) Only returned if imported addresses were involved in transaction\n"
+                            "    \"account\" : \"accountname\",  (string) The account name of the receiving account\n"
+                            "    \"amount\" : x.xxx,             (numeric) The total amount received by addresses with this account\n"
+                            "    \"amountZat\" : xxxx            (numeric) The amount in " +
+                            MINOR_CURRENCY_UNIT + "\n"
+                                                  "    \"confirmations\" : n           (numeric) The number of confirmations of the most recent transaction included\n"
+                                                  "  }\n"
+                                                  "  ,...\n"
+                                                  "]")
+                .set_examples("")
+                .set_examples("6 true")
+                .set_examples("6, true, true");
         throw runtime_error(
-            "listreceivedbyaccount ( minconf includeempty includeWatchonly)\n"
-            "\nDEPRECATED. List balances by account.\n"
-            "\nArguments:\n"
-            "1. minconf      (numeric, optional, default=1) The minimum number of confirmations before payments are included.\n"
-            "2. includeempty (boolean, optional, default=false) Whether to include accounts that haven't received any payments.\n"
-            "3. includeWatchonly (boolean, optional, default=false) Whether to include watchonly addresses (see 'importaddress').\n"
-
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"involvesWatchonly\" : true,   (boolean) Only returned if imported addresses were involved in transaction\n"
-            "    \"account\" : \"accountname\",  (string) The account name of the receiving account\n"
-            "    \"amount\" : x.xxx,             (numeric) The total amount received by addresses with this account\n"
-            "    \"amountZat\" : xxxx            (numeric) The amount in " +
-            MINOR_CURRENCY_UNIT + "\n"
-                                  "    \"confirmations\" : n           (numeric) The number of confirmations of the most recent transaction included\n"
-                                  "  }\n"
-                                  "  ,...\n"
-                                  "]\n"
-
-                                  "\nExamples:\n" +
-            HelpExampleCli("listreceivedbyaccount", "") + HelpExampleCli("listreceivedbyaccount", "6 true") + HelpExampleRpc("listreceivedbyaccount", "6, true, true"));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
