@@ -1285,33 +1285,33 @@ UniValue listreceivedbyaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 3)
+    if (fHelp || params.size() > 3) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( minconf includeempty includeWatchonly)")
+                .set_description("List balances by receiving address.")
+                .set_arguments("1. minconf       (numeric, optional, default=1) The minimum number of confirmations before payments are included.\n"
+                               "2. includeempty  (numeric, optional, default=false) Whether to include addresses that haven't received any payments.\n"
+                               "3. includeWatchonly (boolean, optional, default=false) Whether to include watchonly addresses (see 'importaddress').")
+                .set_result("[\n"
+                            "  {\n"
+                            "    \"involvesWatchonly\" : true,        (boolean) Only returned if imported addresses were involved in transaction\n"
+                            "    \"address\" : \"receivingaddress\",  (string) The receiving address\n"
+                            "    \"account\" : \"accountname\",       (string) DEPRECATED. The account of the receiving address. The default account is \"\".\n"
+                            "    \"amount\" : x.xxx,                  (numeric) The total amount in " +
+                            CURRENCY_UNIT + " received by the address\n"
+                                            "    \"amountZat\" : xxxx                 (numeric) The amount in " +
+                            MINOR_CURRENCY_UNIT + "\n"
+                                                  "    \"confirmations\" : n                (numeric) The number of confirmations of the most recent transaction included\n"
+                                                  "  }\n"
+                                                  "  ,...\n"
+                                                  "]")
+                .set_examples("")
+                .set_examples("6 true")
+                .set_examples("6, true, true");
         throw runtime_error(
-            "listreceivedbyaddress ( minconf includeempty includeWatchonly)\n"
-            "\nList balances by receiving address.\n"
-            "\nArguments:\n"
-            "1. minconf       (numeric, optional, default=1) The minimum number of confirmations before payments are included.\n"
-            "2. includeempty  (numeric, optional, default=false) Whether to include addresses that haven't received any payments.\n"
-            "3. includeWatchonly (boolean, optional, default=false) Whether to include watchonly addresses (see 'importaddress').\n"
-
-            "\nResult:\n"
-            "[\n"
-            "  {\n"
-            "    \"involvesWatchonly\" : true,        (boolean) Only returned if imported addresses were involved in transaction\n"
-            "    \"address\" : \"receivingaddress\",  (string) The receiving address\n"
-            "    \"account\" : \"accountname\",       (string) DEPRECATED. The account of the receiving address. The default account is \"\".\n"
-            "    \"amount\" : x.xxx,                  (numeric) The total amount in " +
-            CURRENCY_UNIT + " received by the address\n"
-                            "    \"amountZat\" : xxxx                 (numeric) The amount in " +
-            MINOR_CURRENCY_UNIT + "\n"
-                                  "    \"confirmations\" : n                (numeric) The number of confirmations of the most recent transaction included\n"
-                                  "  }\n"
-                                  "  ,...\n"
-                                  "]\n"
-
-                                  "\nExamples:\n" +
-            HelpExampleCli("listreceivedbyaddress", "") + HelpExampleCli("listreceivedbyaddress", "6 true") + HelpExampleRpc("listreceivedbyaddress", "6, true, true"));
-
+            help_sections.combine_sections());
+    }
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     return ListReceived(params, false);
