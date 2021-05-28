@@ -1648,44 +1648,46 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp)
+    if (fHelp) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( \"blockhash\" target-confirmations includeWatchonly)")
+                .set_description("Get all transactions in blocks since block [blockhash], or all transactions if omitted")
+                .set_arguments("1. \"blockhash\"   (string, optional) The block hash to list transactions since\n"
+                               "2. target-confirmations    (numeric, optional) The confirmations required, must be 1 or more\n"
+                               "3. includeWatchonly        (boolean, optional, default=false) Include transactions to watchonly addresses (see 'importaddress')")
+                .set_result("{\n"
+                            "  \"transactions\": [\n"
+                            "    \"account\":\"accountname\",       (string) DEPRECATED. The account name associated with the transaction. Will be \"\" for the default account.\n"
+                            "    \"address\":\"zcashaddress\",    (string) The Zcash address of the transaction. Not present for move transactions (category = move).\n"
+                            "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
+                            "    \"status\" : \"mined|waiting|expiringsoon|expired\",    (string) The transaction status, can be 'mined', 'waiting', 'expiringsoon' \n"
+                            "                                                                    or 'expired'. Available for 'send' and 'receive' category of transactions.\n"
+                            "    \"amount\": x.xxx,          (numeric) The amount in " +
+                            CURRENCY_UNIT + ". This is negative for the 'send' category, and for the 'move' category for moves \n"
+                                            "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
+                                            "    \"amountZat\": x.xxx,       (numeric) The amount in " +
+                            MINOR_CURRENCY_UNIT + ". Negative and positive are the same as for the 'amount' field.\n"
+                                                  "    \"vout\" : n,               (numeric) the vout value\n"
+                                                  "    \"fee\": x.xxx,             (numeric) The amount of the fee in " +
+                            CURRENCY_UNIT + ". This is negative and only available for the 'send' category of transactions.\n"
+                                            "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
+                                            "    \"blockhash\": \"hashvalue\",     (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
+                                            "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
+                                            "    \"blocktime\": xxx,         (numeric) The block time in seconds since epoch (1 Jan 1970 GMT).\n"
+                                            "    \"txid\": \"transactionid\",  (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
+                                            "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT).\n"
+                                            "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (Jan 1 1970 GMT). Available for 'send' and 'receive' category of transactions.\n"
+                                            "    \"comment\": \"...\",       (string) If a comment is associated with the transaction.\n"
+                                            "    \"to\": \"...\",            (string) If a comment to is associated with the transaction.\n"
+                                            "  ],\n"
+                                            "  \"lastblock\": \"lastblockhash\"     (string) The hash of the last block\n"
+                                            "}")
+                .set_examples("")
+                .set_examples("\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\" 6");
         throw runtime_error(
-            "listsinceblock ( \"blockhash\" target-confirmations includeWatchonly)\n"
-            "\nGet all transactions in blocks since block [blockhash], or all transactions if omitted\n"
-            "\nArguments:\n"
-            "1. \"blockhash\"   (string, optional) The block hash to list transactions since\n"
-            "2. target-confirmations    (numeric, optional) The confirmations required, must be 1 or more\n"
-            "3. includeWatchonly        (boolean, optional, default=false) Include transactions to watchonly addresses (see 'importaddress')"
-            "\nResult:\n"
-            "{\n"
-            "  \"transactions\": [\n"
-            "    \"account\":\"accountname\",       (string) DEPRECATED. The account name associated with the transaction. Will be \"\" for the default account.\n"
-            "    \"address\":\"zcashaddress\",    (string) The Zcash address of the transaction. Not present for move transactions (category = move).\n"
-            "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
-            "    \"status\" : \"mined|waiting|expiringsoon|expired\",    (string) The transaction status, can be 'mined', 'waiting', 'expiringsoon' \n"
-            "                                                                    or 'expired'. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in " +
-            CURRENCY_UNIT + ". This is negative for the 'send' category, and for the 'move' category for moves \n"
-                            "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
-                            "    \"amountZat\": x.xxx,       (numeric) The amount in " +
-            MINOR_CURRENCY_UNIT + ". Negative and positive are the same as for the 'amount' field.\n"
-                                  "    \"vout\" : n,               (numeric) the vout value\n"
-                                  "    \"fee\": x.xxx,             (numeric) The amount of the fee in " +
-            CURRENCY_UNIT + ". This is negative and only available for the 'send' category of transactions.\n"
-                            "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
-                            "    \"blockhash\": \"hashvalue\",     (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
-                            "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
-                            "    \"blocktime\": xxx,         (numeric) The block time in seconds since epoch (1 Jan 1970 GMT).\n"
-                            "    \"txid\": \"transactionid\",  (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
-                            "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT).\n"
-                            "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (Jan 1 1970 GMT). Available for 'send' and 'receive' category of transactions.\n"
-                            "    \"comment\": \"...\",       (string) If a comment is associated with the transaction.\n"
-                            "    \"to\": \"...\",            (string) If a comment to is associated with the transaction.\n"
-                            "  ],\n"
-                            "  \"lastblock\": \"lastblockhash\"     (string) The hash of the last block\n"
-                            "}\n"
-                            "\nExamples:\n" +
-            HelpExampleCli("listsinceblock", "") + HelpExampleCli("listsinceblock", "\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\" 6") + HelpExampleRpc("listsinceblock", "\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\", 6"));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
