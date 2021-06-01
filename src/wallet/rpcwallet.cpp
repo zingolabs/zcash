@@ -4717,50 +4717,51 @@ UniValue z_mergetoaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2 || params.size() > 6)
+    if (fHelp || params.size() < 2 || params.size() > 6) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("[\"fromaddress\", ... ] \"toaddress\" ( fee ) ( transparent_limit ) ( shielded_limit ) ( memo )")
+                .set_description("Merge multiple UTXOs and notes into a single UTXO or note.  Coinbase UTXOs are ignored; use `z_shieldcoinbase`"
+                                 "\nto combine those into a single note."
+                                 "\n\nThis is an asynchronous operation, and UTXOs selected for merging will be locked.  If there is an error, they"
+                                 "\nare unlocked.  The RPC call `listlockunspent` can be used to return a list of locked UTXOs."
+                                 "\n\nThe number of UTXOs and notes selected for merging can be limited by the caller.  If the transparent limit"
+                                 "\nparameter is set to zero will mean limit the number of UTXOs based on the size of the transaction.  Any limit is"
+                                 "\nconstrained by the consensus rule defining a maximum transaction size of " +
+                                 strprintf("%d bytes before Sapling, and %d", MAX_TX_SIZE_BEFORE_SAPLING, MAX_TX_SIZE_AFTER_SAPLING) + "\nbytes once Sapling activates." + HelpRequiringPassphrase())
+                .set_arguments("1. fromaddresses [ \n"
+                               "      \"address\"          (string) Can be a taddr or a zaddr\n"
+                               "    ]\n"
+                               "                         The following special strings are accepted inside the array:\n"
+                               "                             - \"ANY_TADDR\":   Merge UTXOs from any taddrs belonging to the wallet.\n"
+                               "                             - \"ANY_SPROUT\":  Merge notes from any Sprout zaddrs belonging to the wallet.\n"
+                               "                             - \"ANY_SAPLING\": Merge notes from any Sapling zaddrs belonging to the wallet.\n"
+                               "                         While it is possible to use a variety of different combinations of addresses and the above values,\n"
+                               "                         it is not possible to send funds from both sprout and sapling addresses simultaneously. If a special\n"
+                               "                         string is given, any given addresses of that type will be counted as duplicates and cause an error.\n"
+                               "2. \"toaddress\"           (string, required) The taddr or zaddr to send the funds to.\n"
+                               "3. fee                   (numeric, optional, default=" +
+                               strprintf("%s", FormatMoney(DEFAULT_FEE)) + ") The fee amount to attach to this transaction.\n"
+                                                                           "4. transparent_limit     (numeric, optional, default=" +
+                               strprintf("%d", MERGE_TO_ADDRESS_DEFAULT_TRANSPARENT_LIMIT) + ") Limit on the maximum number of UTXOs to merge.  Set to 0 to use as many as will fit in the transaction.\n"
+                                                                                             "5. shielded_limit        (numeric, optional, default=" +
+                               strprintf("%d Sprout or %d Sapling Notes", MERGE_TO_ADDRESS_DEFAULT_SPROUT_LIMIT, MERGE_TO_ADDRESS_DEFAULT_SAPLING_LIMIT) + ") Limit on the maximum number of notes to merge.  Set to 0 to merge as many as will fit in the transaction.\n"
+                                                                                                                                                           "6. \"memo\"                (string, optional) Encoded as hex. When toaddress is a zaddr, this will be stored in the memo field of the new note.")
+                .set_result("{\n"
+                            "  \"remainingUTXOs\": xxx               (numeric) Number of UTXOs still available for merging.\n"
+                            "  \"remainingTransparentValue\": xxx    (numeric) Value of UTXOs still available for merging.\n"
+                            "  \"remainingNotes\": xxx               (numeric) Number of notes still available for merging.\n"
+                            "  \"remainingShieldedValue\": xxx       (numeric) Value of notes still available for merging.\n"
+                            "  \"mergingUTXOs\": xxx                 (numeric) Number of UTXOs being merged.\n"
+                            "  \"mergingTransparentValue\": xxx      (numeric) Value of UTXOs being merged.\n"
+                            "  \"mergingNotes\": xxx                 (numeric) Number of notes being merged.\n"
+                            "  \"mergingShieldedValue\": xxx         (numeric) Value of notes being merged.\n"
+                            "  \"opid\": xxx                         (string) An operationid to pass to z_getoperationstatus to get the result of the operation.\n"
+                            "}")
+                .set_examples("'[\"ANY_SAPLING\", \"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"]' ztestsapling19rnyu293v44f0kvtmszhx35lpdug574twc0lwyf4s7w0umtkrdq5nfcauxrxcyfmh3m7slemqsj");
         throw runtime_error(
-            "z_mergetoaddress [\"fromaddress\", ... ] \"toaddress\" ( fee ) ( transparent_limit ) ( shielded_limit ) ( memo )\n"
-            "\nMerge multiple UTXOs and notes into a single UTXO or note.  Coinbase UTXOs are ignored; use `z_shieldcoinbase`"
-            "\nto combine those into a single note."
-            "\n\nThis is an asynchronous operation, and UTXOs selected for merging will be locked.  If there is an error, they"
-            "\nare unlocked.  The RPC call `listlockunspent` can be used to return a list of locked UTXOs."
-            "\n\nThe number of UTXOs and notes selected for merging can be limited by the caller.  If the transparent limit"
-            "\nparameter is set to zero will mean limit the number of UTXOs based on the size of the transaction.  Any limit is"
-            "\nconstrained by the consensus rule defining a maximum transaction size of " +
-            strprintf("%d bytes before Sapling, and %d", MAX_TX_SIZE_BEFORE_SAPLING, MAX_TX_SIZE_AFTER_SAPLING) + "\nbytes once Sapling activates." + HelpRequiringPassphrase() + "\n"
-                                                                                                                                                                                  "\nArguments:\n"
-                                                                                                                                                                                  "1. fromaddresses [ \n"
-                                                                                                                                                                                  "      \"address\"          (string) Can be a taddr or a zaddr\n"
-                                                                                                                                                                                  "    ]\n"
-                                                                                                                                                                                  "                         The following special strings are accepted inside the array:\n"
-                                                                                                                                                                                  "                             - \"ANY_TADDR\":   Merge UTXOs from any taddrs belonging to the wallet.\n"
-                                                                                                                                                                                  "                             - \"ANY_SPROUT\":  Merge notes from any Sprout zaddrs belonging to the wallet.\n"
-                                                                                                                                                                                  "                             - \"ANY_SAPLING\": Merge notes from any Sapling zaddrs belonging to the wallet.\n"
-                                                                                                                                                                                  "                         While it is possible to use a variety of different combinations of addresses and the above values,\n"
-                                                                                                                                                                                  "                         it is not possible to send funds from both sprout and sapling addresses simultaneously. If a special\n"
-                                                                                                                                                                                  "                         string is given, any given addresses of that type will be counted as duplicates and cause an error.\n"
-                                                                                                                                                                                  "2. \"toaddress\"           (string, required) The taddr or zaddr to send the funds to.\n"
-                                                                                                                                                                                  "3. fee                   (numeric, optional, default=" +
-            strprintf("%s", FormatMoney(DEFAULT_FEE)) + ") The fee amount to attach to this transaction.\n"
-                                                        "4. transparent_limit     (numeric, optional, default=" +
-            strprintf("%d", MERGE_TO_ADDRESS_DEFAULT_TRANSPARENT_LIMIT) + ") Limit on the maximum number of UTXOs to merge.  Set to 0 to use as many as will fit in the transaction.\n"
-                                                                          "5. shielded_limit        (numeric, optional, default=" +
-            strprintf("%d Sprout or %d Sapling Notes", MERGE_TO_ADDRESS_DEFAULT_SPROUT_LIMIT, MERGE_TO_ADDRESS_DEFAULT_SAPLING_LIMIT) + ") Limit on the maximum number of notes to merge.  Set to 0 to merge as many as will fit in the transaction.\n"
-                                                                                                                                        "6. \"memo\"                (string, optional) Encoded as hex. When toaddress is a zaddr, this will be stored in the memo field of the new note.\n"
-                                                                                                                                        "\nResult:\n"
-                                                                                                                                        "{\n"
-                                                                                                                                        "  \"remainingUTXOs\": xxx               (numeric) Number of UTXOs still available for merging.\n"
-                                                                                                                                        "  \"remainingTransparentValue\": xxx    (numeric) Value of UTXOs still available for merging.\n"
-                                                                                                                                        "  \"remainingNotes\": xxx               (numeric) Number of notes still available for merging.\n"
-                                                                                                                                        "  \"remainingShieldedValue\": xxx       (numeric) Value of notes still available for merging.\n"
-                                                                                                                                        "  \"mergingUTXOs\": xxx                 (numeric) Number of UTXOs being merged.\n"
-                                                                                                                                        "  \"mergingTransparentValue\": xxx      (numeric) Value of UTXOs being merged.\n"
-                                                                                                                                        "  \"mergingNotes\": xxx                 (numeric) Number of notes being merged.\n"
-                                                                                                                                        "  \"mergingShieldedValue\": xxx         (numeric) Value of notes being merged.\n"
-                                                                                                                                        "  \"opid\": xxx                         (string) An operationid to pass to z_getoperationstatus to get the result of the operation.\n"
-                                                                                                                                        "}\n"
-                                                                                                                                        "\nExamples:\n" +
-            HelpExampleCli("z_mergetoaddress", "'[\"ANY_SAPLING\", \"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"]' ztestsapling19rnyu293v44f0kvtmszhx35lpdug574twc0lwyf4s7w0umtkrdq5nfcauxrxcyfmh3m7slemqsj") + HelpExampleRpc("z_mergetoaddress", "[\"ANY_SAPLING\", \"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"], \"ztestsapling19rnyu293v44f0kvtmszhx35lpdug574twc0lwyf4s7w0umtkrdq5nfcauxrxcyfmh3m7slemqsj\""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
