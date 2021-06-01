@@ -1097,7 +1097,7 @@ UniValue getspentinfo(const UniValue& params, bool fHelp)
                     "Returns the txid and index where an output is spent.\n" +
                     disabledMsg)
                 .set_arguments(
-                    "{\n"
+                    "1. {\n"
                     "  \"txid\"   (string) The hex string of the txid\n"
                     "  \"index\"  (numeric) The vout (output) index\n"
                     "}")
