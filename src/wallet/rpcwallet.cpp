@@ -2465,43 +2465,44 @@ UniValue z_listunspent(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 4)
+    if (fHelp || params.size() > 4) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( minconf maxconf includeWatchonly [\"zaddr\",...] )")
+                .set_description("Returns array of unspent shielded notes with between minconf and maxconf (inclusive) confirmations.\n"
+                                 "Optionally filter to only include notes sent to specified addresses.\n"
+                                 "When minconf is 0, unspent notes with zero confirmations are returned, even though they are not immediately spendable.\n"
+                                 "Results are an array of Objects, each of which has:\n"
+                                 "{txid, jsindex, jsoutindex, confirmations, address, amount, memo} (Sprout)\n"
+                                 "{txid, outindex, confirmations, address, amount, memo} (Sapling)")
+                .set_arguments("1. minconf          (numeric, optional, default=1) The minimum confirmations to filter\n"
+                               "2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter\n"
+                               "3. includeWatchonly (boolean, optional, default=false) Also include watchonly addresses (see 'z_importviewingkey')\n"
+                               "4. \"addresses\"      (string) A json array of zaddrs (both Sprout and Sapling) to filter on.  Duplicate addresses not allowed.\n"
+                               "    [\n"
+                               "      \"address\"     (string) zaddr\n"
+                               "      ,...\n"
+                               "    ]")
+                .set_result("[                             (array of json object)\n"
+                            "  {\n"
+                            "    \"txid\" : \"txid\",          (string) the transaction id \n"
+                            "    \"jsindex\": <sprout> n,       (numeric) the joinsplit index\n"
+                            "    \"jsoutindex\": <sprout> n,       (numeric) the output index of the joinsplit\n"
+                            "    \"outindex\": <sapling> n,       (numeric) the output index\n"
+                            "    \"confirmations\" : n,       (numeric) the number of confirmations\n"
+                            "    \"spendable\" : true|false,  (boolean) true if note can be spent by wallet, false if address is watchonly\n"
+                            "    \"address\" : \"address\",    (string) the shielded address\n"
+                            "    \"amount\": xxxxx,          (numeric) the amount of value in the note\n"
+                            "    \"memo\": xxxxx,            (string) hexademical string representation of memo field\n"
+                            "    \"change\": true|false,     (boolean) true if the address that received the note is also one of the sending addresses\n"
+                            "  }\n"
+                            "  ,...\n"
+                            "]")
+                .set_examples("")
+                .set_examples("6 9999999 false \"[\\\"ztbx5DLDxa5ZLFTchHhoPNkKs57QzSyib6UqXpEdy76T1aUdFxJt1w9318Z8DJ73XzbnWHKEZP9Yjg712N5kMmP4QzS9iC9\\\",\\\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\\\"]\"");
         throw runtime_error(
-            "z_listunspent ( minconf maxconf includeWatchonly [\"zaddr\",...] )\n"
-            "\nReturns array of unspent shielded notes with between minconf and maxconf (inclusive) confirmations.\n"
-            "Optionally filter to only include notes sent to specified addresses.\n"
-            "When minconf is 0, unspent notes with zero confirmations are returned, even though they are not immediately spendable.\n"
-            "Results are an array of Objects, each of which has:\n"
-            "{txid, jsindex, jsoutindex, confirmations, address, amount, memo} (Sprout)\n"
-            "{txid, outindex, confirmations, address, amount, memo} (Sapling)\n"
-            "\nArguments:\n"
-            "1. minconf          (numeric, optional, default=1) The minimum confirmations to filter\n"
-            "2. maxconf          (numeric, optional, default=9999999) The maximum confirmations to filter\n"
-            "3. includeWatchonly (boolean, optional, default=false) Also include watchonly addresses (see 'z_importviewingkey')\n"
-            "4. \"addresses\"      (string) A json array of zaddrs (both Sprout and Sapling) to filter on.  Duplicate addresses not allowed.\n"
-            "    [\n"
-            "      \"address\"     (string) zaddr\n"
-            "      ,...\n"
-            "    ]\n"
-            "\nResult\n"
-            "[                             (array of json object)\n"
-            "  {\n"
-            "    \"txid\" : \"txid\",          (string) the transaction id \n"
-            "    \"jsindex\": <sprout> n,       (numeric) the joinsplit index\n"
-            "    \"jsoutindex\": <sprout> n,       (numeric) the output index of the joinsplit\n"
-            "    \"outindex\": <sapling> n,       (numeric) the output index\n"
-            "    \"confirmations\" : n,       (numeric) the number of confirmations\n"
-            "    \"spendable\" : true|false,  (boolean) true if note can be spent by wallet, false if address is watchonly\n"
-            "    \"address\" : \"address\",    (string) the shielded address\n"
-            "    \"amount\": xxxxx,          (numeric) the amount of value in the note\n"
-            "    \"memo\": xxxxx,            (string) hexademical string representation of memo field\n"
-            "    \"change\": true|false,     (boolean) true if the address that received the note is also one of the sending addresses\n"
-            "  }\n"
-            "  ,...\n"
-            "]\n"
-
-            "\nExamples\n" +
-            HelpExampleCli("z_listunspent", "") + HelpExampleCli("z_listunspent", "6 9999999 false \"[\\\"ztbx5DLDxa5ZLFTchHhoPNkKs57QzSyib6UqXpEdy76T1aUdFxJt1w9318Z8DJ73XzbnWHKEZP9Yjg712N5kMmP4QzS9iC9\\\",\\\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\\\"]\"") + HelpExampleRpc("z_listunspent", "6 9999999 false \"[\\\"ztbx5DLDxa5ZLFTchHhoPNkKs57QzSyib6UqXpEdy76T1aUdFxJt1w9318Z8DJ73XzbnWHKEZP9Yjg712N5kMmP4QzS9iC9\\\",\\\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\\\"]\""));
+            help_sections.combine_sections());
+    }
 
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VNUM)(UniValue::VNUM)(UniValue::VBOOL)(UniValue::VARR));
 
