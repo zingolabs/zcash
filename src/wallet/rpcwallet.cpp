@@ -5140,19 +5140,18 @@ UniValue z_listoperationids(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_description("Returns the list of operation ids currently known to the wallet.")
+                .set_arguments("1. \"status\"         (string, optional) Filter result by the operation's state e.g. \"success\".")
+                .set_result("[                     (json array of string)\n"
+                            "  \"operationid\"       (string) an operation id belonging to the wallet\n"
+                            "  ,...\n"
+                            "]");
         throw runtime_error(
-            "z_listoperationids\n"
-            "\nReturns the list of operation ids currently known to the wallet.\n"
-            "\nArguments:\n"
-            "1. \"status\"         (string, optional) Filter result by the operation's state e.g. \"success\".\n"
-            "\nResult:\n"
-            "[                     (json array of string)\n"
-            "  \"operationid\"       (string) an operation id belonging to the wallet\n"
-            "  ,...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("z_listoperationids", "") + HelpExampleRpc("z_listoperationids", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
