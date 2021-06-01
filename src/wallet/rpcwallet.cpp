@@ -3577,52 +3577,52 @@ UniValue z_viewtransaction(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() != 1)
-        throw runtime_error(
-            "z_viewtransaction \"txid\"\n"
-            "\nGet detailed shielded information about in-wallet transaction <txid>\n"
-            "\nArguments:\n"
-            "1. \"txid\"    (string, required) The transaction id\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"txid\" : \"transactionid\",   (string) The transaction id\n"
-            "  \"spends\" : [\n"
-            "    {\n"
-            "      \"type\" : \"sprout|sapling\",      (string) The type of address\n"
-            "      \"js\" : n,                       (numeric, sprout) the index of the JSDescription within vJoinSplit\n"
-            "      \"jsSpend\" : n,                  (numeric, sprout) the index of the spend within the JSDescription\n"
-            "      \"spend\" : n,                    (numeric, sapling) the index of the spend within vShieldedSpend\n"
-            "      \"txidPrev\" : \"transactionid\",   (string) The id for the transaction this note was created in\n"
-            "      \"jsPrev\" : n,                   (numeric, sprout) the index of the JSDescription within vJoinSplit\n"
-            "      \"jsOutputPrev\" : n,             (numeric, sprout) the index of the output within the JSDescription\n"
-            "      \"outputPrev\" : n,               (numeric, sapling) the index of the output within the vShieldedOutput\n"
-            "      \"address\" : \"zcashaddress\",     (string) The Zcash address involved in the transaction\n"
-            "      \"value\" : x.xxx                 (numeric) The amount in " +
-            CURRENCY_UNIT + "\n"
-                            "      \"valueZat\" : xxxx               (numeric) The amount in zatoshis\n"
-                            "    }\n"
-                            "    ,...\n"
-                            "  ],\n"
-                            "  \"outputs\" : [\n"
+    if (fHelp || params.size() != 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage(" \"txid\"")
+                .set_description("Get detailed shielded information about in-wallet transaction <txid>")
+                .set_arguments("1. \"txid\"    (string, required) The transaction id")
+                .set_result("{\n"
+                            "  \"txid\" : \"transactionid\",   (string) The transaction id\n"
+                            "  \"spends\" : [\n"
                             "    {\n"
                             "      \"type\" : \"sprout|sapling\",      (string) The type of address\n"
                             "      \"js\" : n,                       (numeric, sprout) the index of the JSDescription within vJoinSplit\n"
-                            "      \"jsOutput\" : n,                 (numeric, sprout) the index of the output within the JSDescription\n"
-                            "      \"output\" : n,                   (numeric, sapling) the index of the output within the vShieldedOutput\n"
+                            "      \"jsSpend\" : n,                  (numeric, sprout) the index of the spend within the JSDescription\n"
+                            "      \"spend\" : n,                    (numeric, sapling) the index of the spend within vShieldedSpend\n"
+                            "      \"txidPrev\" : \"transactionid\",   (string) The id for the transaction this note was created in\n"
+                            "      \"jsPrev\" : n,                   (numeric, sprout) the index of the JSDescription within vJoinSplit\n"
+                            "      \"jsOutputPrev\" : n,             (numeric, sprout) the index of the output within the JSDescription\n"
+                            "      \"outputPrev\" : n,               (numeric, sapling) the index of the output within the vShieldedOutput\n"
                             "      \"address\" : \"zcashaddress\",     (string) The Zcash address involved in the transaction\n"
-                            "      \"outgoing\" : true|false         (boolean, sapling) True if the output is not for an address in the wallet\n"
                             "      \"value\" : x.xxx                 (numeric) The amount in " +
-            CURRENCY_UNIT + "\n"
-                            "      \"valueZat\" : xxxx               (numeric) The amount in zatoshis\n"
-                            "      \"memo\" : \"hexmemo\",             (string) Hexademical string representation of the memo field\n"
-                            "      \"memoStr\" : \"memo\",             (string) Only returned if memo contains valid UTF-8 text.\n"
-                            "    }\n"
-                            "    ,...\n"
-                            "  ],\n"
-                            "}\n"
-
-                            "\nExamples:\n" +
-            HelpExampleCli("z_viewtransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"") + HelpExampleRpc("z_viewtransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\""));
+                            CURRENCY_UNIT + "\n"
+                                            "      \"valueZat\" : xxxx               (numeric) The amount in zatoshis\n"
+                                            "    }\n"
+                                            "    ,...\n"
+                                            "  ],\n"
+                                            "  \"outputs\" : [\n"
+                                            "    {\n"
+                                            "      \"type\" : \"sprout|sapling\",      (string) The type of address\n"
+                                            "      \"js\" : n,                       (numeric, sprout) the index of the JSDescription within vJoinSplit\n"
+                                            "      \"jsOutput\" : n,                 (numeric, sprout) the index of the output within the JSDescription\n"
+                                            "      \"output\" : n,                   (numeric, sapling) the index of the output within the vShieldedOutput\n"
+                                            "      \"address\" : \"zcashaddress\",     (string) The Zcash address involved in the transaction\n"
+                                            "      \"outgoing\" : true|false         (boolean, sapling) True if the output is not for an address in the wallet\n"
+                                            "      \"value\" : x.xxx                 (numeric) The amount in " +
+                            CURRENCY_UNIT + "\n"
+                                            "      \"valueZat\" : xxxx               (numeric) The amount in zatoshis\n"
+                                            "      \"memo\" : \"hexmemo\",             (string) Hexademical string representation of the memo field\n"
+                                            "      \"memoStr\" : \"memo\",             (string) Only returned if memo contains valid UTF-8 text.\n"
+                                            "    }\n"
+                                            "    ,...\n"
+                                            "  ],\n"
+                                            "}")
+                .set_examples("\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"");
+        throw runtime_error(
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
