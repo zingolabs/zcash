@@ -3343,31 +3343,32 @@ UniValue z_listreceivedbyaddress(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() == 0 || params.size() > 2)
+    if (fHelp || params.size() == 0 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"address\" ( minconf )")
+                .set_description("Return a list of amounts received by a zaddr belonging to the node's wallet.")
+                .set_arguments("1. \"address\"      (string) The private address.\n"
+                               "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.")
+                .set_result("{\n"
+                            "  \"txid\": \"txid\",           (string) the transaction id\n"
+                            "  \"amount\": xxxxx,         (numeric) the amount of value in the note\n"
+                            "  \"amountZat\" : xxxx       (numeric) The amount in " +
+                            MINOR_CURRENCY_UNIT + "\n"
+                                                  "  \"memo\": xxxxx,           (string) hexadecimal string representation of memo field\n"
+                                                  "  \"confirmations\" : n,     (numeric) the number of confirmations\n"
+                                                  "  \"blockheight\": n,         (numeric) The block height containing the transaction\n"
+                                                  "  \"blockindex\": n,         (numeric) The block index containing the transaction.\n"
+                                                  "  \"blocktime\": xxx,              (numeric) The transaction time in seconds since epoch (midnight Jan 1 1970 GMT).\n"
+                                                  "  \"jsindex\": n, <sprout>      (numeric) the joinsplit index\n"
+                                                  "  \"jsoutindex\": n, <sprout>      (numeric) the output index of the joinsplit\n"
+                                                  "  \"outindex\": n, <sapling>      (numeric) the output index\n"
+                                                  "  \"change\": true|false,    (boolean) true if the address that received the note is also one of the sending addresses\n"
+                                                  "}")
+                .set_examples("\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\"");
         throw runtime_error(
-            "z_listreceivedbyaddress \"address\" ( minconf )\n"
-            "\nReturn a list of amounts received by a zaddr belonging to the node's wallet.\n"
-            "\nArguments:\n"
-            "1. \"address\"      (string) The private address.\n"
-            "2. minconf          (numeric, optional, default=1) Only include transactions confirmed at least this many times.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"txid\": \"txid\",           (string) the transaction id\n"
-            "  \"amount\": xxxxx,         (numeric) the amount of value in the note\n"
-            "  \"amountZat\" : xxxx       (numeric) The amount in " +
-            MINOR_CURRENCY_UNIT + "\n"
-                                  "  \"memo\": xxxxx,           (string) hexadecimal string representation of memo field\n"
-                                  "  \"confirmations\" : n,     (numeric) the number of confirmations\n"
-                                  "  \"blockheight\": n,         (numeric) The block height containing the transaction\n"
-                                  "  \"blockindex\": n,         (numeric) The block index containing the transaction.\n"
-                                  "  \"blocktime\": xxx,              (numeric) The transaction time in seconds since epoch (midnight Jan 1 1970 GMT).\n"
-                                  "  \"jsindex\": n, <sprout>      (numeric) the joinsplit index\n"
-                                  "  \"jsoutindex\": n, <sprout>      (numeric) the output index of the joinsplit\n"
-                                  "  \"outindex\": n, <sapling>      (numeric) the output index\n"
-                                  "  \"change\": true|false,    (boolean) true if the address that received the note is also one of the sending addresses\n"
-                                  "}\n"
-                                  "\nExamples:\n" +
-            HelpExampleCli("z_listreceivedbyaddress", "\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\"") + HelpExampleRpc("z_listreceivedbyaddress", "\"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
