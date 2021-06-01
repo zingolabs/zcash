@@ -4501,32 +4501,33 @@ UniValue z_shieldcoinbase(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 2 || params.size() > 4)
+    if (fHelp || params.size() < 2 || params.size() > 4) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"fromaddress\" \"tozaddress\" ( fee ) ( limit )")
+                .set_description("Shield transparent coinbase funds by sending to a shielded zaddr.  This is an asynchronous operation and utxos"
+                                 "\nselected for shielding will be locked.  If there is an error, they are unlocked.  The RPC call `listlockunspent`"
+                                 "\ncan be used to return a list of locked utxos.  The number of coinbase utxos selected for shielding can be limited"
+                                 "\nby the caller. Any limit is constrained by the consensus rule defining a maximum"
+                                 "\ntransaction size of " +
+                                 strprintf("%d bytes before Sapling, and %d bytes once Sapling activates.", MAX_TX_SIZE_BEFORE_SAPLING, MAX_TX_SIZE_AFTER_SAPLING) + HelpRequiringPassphrase())
+                .set_arguments("1. \"fromaddress\"         (string, required) The address is a taddr or \"*\" for all taddrs belonging to the wallet.\n"
+                               "2. \"toaddress\"           (string, required) The address is a zaddr.\n"
+                               "3. fee                   (numeric, optional, default=" +
+                               strprintf("%s", FormatMoney(DEFAULT_FEE)) + ") The fee amount to attach to this transaction.\n"
+                                                                           "4. limit                 (numeric, optional, default=" +
+                               strprintf("%d", SHIELD_COINBASE_DEFAULT_LIMIT) + ") Limit on the maximum number of utxos to shield.  Set to 0 to use as many as will fit in the transaction.")
+                .set_result("{\n"
+                            "  \"remainingUTXOs\": xxx       (numeric) Number of coinbase utxos still available for shielding.\n"
+                            "  \"remainingValue\": xxx       (numeric) Value of coinbase utxos still available for shielding.\n"
+                            "  \"shieldingUTXOs\": xxx        (numeric) Number of coinbase utxos being shielded.\n"
+                            "  \"shieldingValue\": xxx        (numeric) Value of coinbase utxos being shielded.\n"
+                            "  \"opid\": xxx          (string) An operationid to pass to z_getoperationstatus to get the result of the operation.\n"
+                            "}")
+                .set_examples("\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\"");
         throw runtime_error(
-            "z_shieldcoinbase \"fromaddress\" \"tozaddress\" ( fee ) ( limit )\n"
-            "\nShield transparent coinbase funds by sending to a shielded zaddr.  This is an asynchronous operation and utxos"
-            "\nselected for shielding will be locked.  If there is an error, they are unlocked.  The RPC call `listlockunspent`"
-            "\ncan be used to return a list of locked utxos.  The number of coinbase utxos selected for shielding can be limited"
-            "\nby the caller. Any limit is constrained by the consensus rule defining a maximum"
-            "\ntransaction size of " +
-            strprintf("%d bytes before Sapling, and %d bytes once Sapling activates.", MAX_TX_SIZE_BEFORE_SAPLING, MAX_TX_SIZE_AFTER_SAPLING) + HelpRequiringPassphrase() + "\n"
-                                                                                                                                                                            "\nArguments:\n"
-                                                                                                                                                                            "1. \"fromaddress\"         (string, required) The address is a taddr or \"*\" for all taddrs belonging to the wallet.\n"
-                                                                                                                                                                            "2. \"toaddress\"           (string, required) The address is a zaddr.\n"
-                                                                                                                                                                            "3. fee                   (numeric, optional, default=" +
-            strprintf("%s", FormatMoney(DEFAULT_FEE)) + ") The fee amount to attach to this transaction.\n"
-                                                        "4. limit                 (numeric, optional, default=" +
-            strprintf("%d", SHIELD_COINBASE_DEFAULT_LIMIT) + ") Limit on the maximum number of utxos to shield.  Set to 0 to use as many as will fit in the transaction.\n"
-                                                             "\nResult:\n"
-                                                             "{\n"
-                                                             "  \"remainingUTXOs\": xxx       (numeric) Number of coinbase utxos still available for shielding.\n"
-                                                             "  \"remainingValue\": xxx       (numeric) Value of coinbase utxos still available for shielding.\n"
-                                                             "  \"shieldingUTXOs\": xxx        (numeric) Number of coinbase utxos being shielded.\n"
-                                                             "  \"shieldingValue\": xxx        (numeric) Value of coinbase utxos being shielded.\n"
-                                                             "  \"opid\": xxx          (string) An operationid to pass to z_getoperationstatus to get the result of the operation.\n"
-                                                             "}\n"
-                                                             "\nExamples:\n" +
-            HelpExampleCli("z_shieldcoinbase", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" \"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\"") + HelpExampleRpc("z_shieldcoinbase", "\"t1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", \"ztfaW34Gj9FrnGUEf833ywDVL62NWXBM81u6EQnM6VR45eYnXhwztecW1SjxA7JrmAXKJhxhj3vDNEpVCQoSvVoSpmbhtjf\""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
