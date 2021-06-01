@@ -2724,9 +2724,9 @@ UniValue zc_benchmark(const UniValue& params, bool fHelp)
                                  "returning the running times of each sample.")
                 .set_result("[\n"
                             "  {\n"
-                            "    \"runningtime\": (numeric)"
+                            "    \"runningtime\": (numeric)\n"
                             "  }\n"
-                            ", ..."
+                            ", ...\n"
                             "]\n");
         throw runtime_error(
             help_sections.combine_sections());
