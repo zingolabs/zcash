@@ -662,7 +662,7 @@ def transaction_chain(zcash):
 
 STAGES = [
     'simple-commands',
-    'transaction-chain'
+    #'transaction-chain'
 ]
 
 STAGE_COMMANDS = {
