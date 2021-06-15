@@ -3209,19 +3209,19 @@ UniValue z_listaddresses(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("( includeWatchonly )")
+                .set_description("Returns the list of Sprout and Sapling shielded addresses belonging to the wallet.")
+                .set_arguments("1. includeWatchonly (boolean, optional, default=false) Also include watchonly addresses (see 'z_importviewingkey')")
+                .set_result("[                     (json array of string)\n"
+                            "  \"zaddr\"           (string) a zaddr belonging to the wallet\n"
+                            "  ,...\n"
+                            "]");
         throw runtime_error(
-            "z_listaddresses ( includeWatchonly )\n"
-            "\nReturns the list of Sprout and Sapling shielded addresses belonging to the wallet.\n"
-            "\nArguments:\n"
-            "1. includeWatchonly (boolean, optional, default=false) Also include watchonly addresses (see 'z_importviewingkey')\n"
-            "\nResult:\n"
-            "[                     (json array of string)\n"
-            "  \"zaddr\"           (string) a zaddr belonging to the wallet\n"
-            "  ,...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("z_listaddresses", "") + HelpExampleRpc("z_listaddresses", ""));
+            help_sections.combine_sections());
+    }
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
