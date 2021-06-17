@@ -402,7 +402,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1) {
         HelpSections help_sections =
             HelpSections(__func__)
-                .set_usage("( \"jsonrequestobject\"")
+                .set_usage("( \"jsonrequestobject\" )")
                 .set_description("If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.\n"
                                  "It returns data needed to construct a block to work on.\n"
                                  "See https://en.bitcoin.it/wiki/BIP_0022 for full specification.\n"
