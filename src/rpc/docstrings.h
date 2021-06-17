@@ -2,6 +2,7 @@
 #define RPC_DOCSTRINGS_H
 
 #include "tinyformat.h"
+#include <boost/algorithm/string/trim.hpp>
 using namespace std;
 
 class HelpSections
@@ -57,11 +58,13 @@ public:
         // formats data section members into help message
         if (this->examples.empty())
             this->set_examples("");
-        return "Usage:\n" + this->name + " " + this->usage + "\n\n" +
-               "Description:\n" + this->description + "\n\n" +
-               "Arguments:\n" + this->arguments + "\n\n" +
-               "Result:\n" + this->result + "\n\n" +
-               "Examples:\n" + this->examples;
+        string temp = "Usage:\n" + this->name + " " + this->usage + "\n\n" +
+                      "Description:\n" + this->description + "\n\n" +
+                      "Arguments:\n" + this->arguments + "\n\n" +
+                      "Result:\n" + this->result + "\n\n" +
+                      "Examples:\n" + this->examples;
+        boost::trim(temp);
+        return temp;
     }
 
     // setter methods below.
