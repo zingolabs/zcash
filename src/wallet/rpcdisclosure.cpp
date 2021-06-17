@@ -53,7 +53,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
         {
             HelpSections help_sections =
                 HelpSections(__func__)
-                    .set_usage("\"txid\" \"js_index\" \"output_index\" (\"message\"")
+                    .set_usage("\"txid\" \"js_index\" \"output_index\" (\"message\")")
                     .set_description("Generate a payment disclosure for a given joinsplit output.\n" + disabledMsg)
                     .set_arguments("1. \"txid\"            (string, required) \n"
                                    "2. \"js_index\"        (string, required) \n"
