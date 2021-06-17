@@ -45,27 +45,25 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
-    if (fHelp || params.size() < 3 || params.size() > 4 ) {
+    if (fHelp || params.size() < 3 || params.size() > 4) {
         string disabledMsg = "";
         if (!fExperimentalPaymentDisclosure) {
             disabledMsg = experimentalDisabledHelpMsg("z_getpaymentdisclosure", {"paymentdisclosure"});
         }
-
-        throw runtime_error(
-            "z_getpaymentdisclosure \"txid\" \"js_index\" \"output_index\" (\"message\") \n"
-            "\nGenerate a payment disclosure for a given joinsplit output.\n"
-            + disabledMsg +
-            "\nArguments:\n"
-            "1. \"txid\"            (string, required) \n"
-            "2. \"js_index\"        (string, required) \n"
-            "3. \"output_index\"    (string, required) \n"
-            "4. \"message\"         (string, optional) \n"
-            "\nResult:\n"
-            "\"zpd:paymentdisclosure\"  (string) Hex data string, with \"zpd:\" prefix.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("z_getpaymentdisclosure", "96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2 0 0 \"refund\"")
-            + HelpExampleRpc("z_getpaymentdisclosure", "\"96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2\", 0, 0, \"refund\"")
-        );
+        {
+            HelpSections help_sections =
+                HelpSections(__func__)
+                    .set_usage("\"txid\" \"js_index\" \"output_index\" (\"message\"")
+                    .set_description("Generate a payment disclosure for a given joinsplit output.\n" + disabledMsg)
+                    .set_arguments("1. \"txid\"            (string, required) \n"
+                                   "2. \"js_index\"        (string, required) \n"
+                                   "3. \"output_index\"    (string, required) \n"
+                                   "4. \"message\"         (string, optional) ")
+                    .set_result("\"zpd:paymentdisclosure\"  (string) Hex data string, with \"zpd:\" prefix.")
+                    .set_examples("96f12882450429324d5f3b48630e3168220e49ab7b0f066e5c2935a6b88bb0f2 0 0 \"refund\"");
+            throw runtime_error(
+                help_sections.combine_sections());
+        };
     }
 
     if (!fExperimentalPaymentDisclosure) {
@@ -102,7 +100,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
 
     // Check if shielded tx
     if (wtx.vJoinSplit.empty()) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");        
+        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");
     }
 
     // Check js_index
@@ -124,7 +122,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
     }
 
     // Create PaymentDisclosureKey
-    PaymentDisclosureKey key = {hash, (size_t)js_index, (uint8_t)output_index };
+    PaymentDisclosureKey key = {hash, (size_t)js_index, (uint8_t)output_index};
 
     // TODO: In future, perhaps init the DB in init.cpp
     shared_ptr<PaymentDisclosureDB> db = PaymentDisclosureDB::sharedInstance();
@@ -133,13 +131,12 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_DATABASE_ERROR, "Could not find payment disclosure info for the given joinsplit output");
     }
 
-    PaymentDisclosure pd( wtx.joinSplitPubKey, key, info, msg );
+    PaymentDisclosure pd(wtx.joinSplitPubKey, key, info, msg);
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << pd;
     string strHex = HexStr(ss.begin(), ss.end());
     return PAYMENT_DISCLOSURE_BLOB_STRING_PREFIX + strHex;
 }
-
 
 
 /**
@@ -157,13 +154,12 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
 
     if (fHelp || params.size() != 1) {
         HelpSections help_doc = HelpSections(__func__)
-            .set_usage("\"paymentdisclosure\"")
-            .set_description("Validates a payment disclosure.\n" + disabledMsg)
-            .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
-            .set_examples("\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
+                                    .set_usage("\"paymentdisclosure\"")
+                                    .set_description("Validates a payment disclosure.\n" + disabledMsg)
+                                    .set_arguments("1. \"paymentdisclosure\"     (string, required) Hex data string, with \"zpd:\" prefix.")
+                                    .set_examples("\"zpd:706462ff004c561a0447ba2ec51184e6c204...\"");
         throw runtime_error(
-            help_doc.combine_sections()
-        );
+            help_doc.combine_sections());
     }
 
     if (!fExperimentalPaymentDisclosure) {
@@ -181,8 +177,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure prefix not found.");
     }
     string hexInput = strInput.substr(strlen(PAYMENT_DISCLOSURE_BLOB_STRING_PREFIX));
-    if (!IsHex(hexInput))
-    {
+    if (!IsHex(hexInput)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected payment disclosure data in hexadecimal format.");
     }
 
@@ -193,8 +188,8 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         ss >> pd;
         // too much data is ignored, but if not enough data, exception of type ios_base::failure is thrown,
         // CBaseDataStream::read(): end of data: iostream error
-    } catch (const std::exception &e) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure data is malformed.");        
+    } catch (const std::exception& e) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure data is malformed.");
     }
 
     if (pd.payload.marker != PAYMENT_DISCLOSURE_PAYLOAD_MAGIC_BYTES) {
@@ -220,7 +215,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
 
     // Check if shielded tx
     if (tx.vJoinSplit.empty()) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");        
+        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");
     }
 
     UniValue errs(UniValue::VARR);
@@ -258,9 +253,9 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
         dataToBeSigned.begin(), 32);
     o.pushKV("signatureVerified", sigVerified);
     if (!sigVerified) {
-        errs.push_back("Payment disclosure signature does not match transaction signature");        
+        errs.push_back("Payment disclosure signature does not match transaction signature");
     }
-   
+
     KeyIO keyIO(Params());
 
     // Check the payment address is valid
@@ -288,9 +283,9 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
             string memoHexString = HexStr(npt.memo().data(), npt.memo().data() + npt.memo().size());
             o.pushKV("memo", memoHexString);
             o.pushKV("value", ValueFromAmount(npt.value()));
-            
+
             // Check the blockchain commitment matches decrypted note commitment
-            uint256 cm_blockchain =  jsdesc.commitments[pd.payload.n];
+            uint256 cm_blockchain = jsdesc.commitments[pd.payload.n];
             SproutNote note = npt.note(zaddr);
             uint256 cm_decrypted = note.cm();
             bool cm_match = (cm_decrypted == cm_blockchain);
@@ -298,8 +293,8 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp)
             if (!cm_match) {
                 errs.push_back("Commitment derived from payment disclosure does not match blockchain commitment");
             }
-        } catch (const std::exception &e) {
-            errs.push_back(string("Error while decrypting payment disclosure note: ") + string(e.what()) );
+        } catch (const std::exception& e) {
+            errs.push_back(string("Error while decrypting payment disclosure note: ") + string(e.what()));
         }
     }
 
