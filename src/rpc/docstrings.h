@@ -100,7 +100,7 @@ public:
     {
         this->examples += tfm::format(
             this->example_template,
-            "=",
+            "Basic Use",
             this->name,
             example_invocation_args,
             this->name,
