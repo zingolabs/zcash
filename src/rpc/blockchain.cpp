@@ -1194,7 +1194,7 @@ UniValue z_gettreestate(const UniValue& params, bool fHelp)
             HelpSections(__func__)
                 .set_usage("\"hash|height\"")
                 .set_description("Return information about the given block's tree state.")
-                .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block\n")
+                .set_arguments("1. \"hash|height\"          (string, required) The block hash or height. Height can be negative where -1 is the last known valid block")
                 .set_result(
                     "{\n"
                     "  \"hash\": \"hash\",         (string) hex block hash\n"
