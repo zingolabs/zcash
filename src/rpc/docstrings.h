@@ -102,7 +102,7 @@ public:
             this->example_template,
             "Basic Use",
             this->name,
-            example_invocation_args,
+            format_cli_example(example_invocation_args),
             this->name,
             example_invocation_args);
         return *this;
@@ -113,7 +113,7 @@ public:
             this->example_template,
             example_metadata,
             this->name,
-            example_invocation_args,
+            format_cli_example(example_invocation_args),
             this->name,
             example_invocation_args);
 
@@ -125,11 +125,17 @@ public:
             this->example_template,
             example_metadata,
             foreign_rpc,
-            example_invocation_args,
+            format_cli_example(example_invocation_args),
             foreign_rpc,
             example_invocation_args);
 
         return *this;
+    }
+
+private:
+    string format_cli_example(string curl_example_args)
+    {
+        return curl_example_args;
     }
 };
 
