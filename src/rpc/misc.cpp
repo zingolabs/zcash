@@ -984,7 +984,7 @@ UniValue getaddressbalance(const UniValue& params, bool fHelp)
                     "  \"balance\": xxxx,\t(numeric) The current balance in zatoshis\n"
                     "  \"received\": xxxx,\t(numeric) The total number of zatoshis received (including change)\n"
                     "}")
-                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
+                .set_examples("{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}");
         throw runtime_error(help_sections.combine_sections());
     }
 
