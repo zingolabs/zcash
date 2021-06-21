@@ -133,9 +133,14 @@ public:
     }
 
 private:
-    string format_cli_example(string curl_example_args)
+    string format_cli_example(string example_invocation_args)
     {
-        return curl_example_args;
+        if (example_invocation_args[0] == '{') {
+            // && length-1 == }
+            return '\'' + example_invocation_args + '\'';
+        } else {
+            return example_invocation_args;
+        }
     }
 };
 
