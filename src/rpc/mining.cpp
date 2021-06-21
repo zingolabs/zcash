@@ -157,20 +157,21 @@ UniValue getgenerate(const UniValue& params, bool fHelp)
 
 UniValue generate(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 1)
+    if (fHelp || params.size() < 1 || params.size() > 1) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("numblocks")
+                .set_description("Mine blocks immediately (before the RPC call returns)\n"
+                                 "\nNote: this function can only be used on the regtest network")
+                .set_arguments("1. numblocks    (numeric, required) How many blocks are generated immediately.")
+                .set_result("[\n"
+                            "  \"blockhashes\"     (string) hashes of blocks generated\n"
+                            "  , ...\n"
+                            "]")
+                .set_examples("11", "Generate 11 blocks");
         throw runtime_error(
-            "generate numblocks\n"
-            "\nMine blocks immediately (before the RPC call returns)\n"
-            "\nNote: this function can only be used on the regtest network\n"
-            "\nArguments:\n"
-            "1. numblocks    (numeric, required) How many blocks are generated immediately.\n"
-            "\nResult:\n"
-            "[\n"
-            "  \"blockhashes\"     (string) hashes of blocks generated\n"
-            "  , ...\n"
-            "]\n"
-            "\nExamples:\n" +
-            HelpExampleCli("generate", "11"));
+            help_sections.combine_sections());
+    }
 
     if (!Params().MineBlocksOnDemand())
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, "This method can only be used on regtest");
