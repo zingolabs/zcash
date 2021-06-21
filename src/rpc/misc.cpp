@@ -721,7 +721,7 @@ UniValue getaddressutxos(const UniValue& params, bool fHelp)
                     "  \"height\"            (numeric) The block height\n"
                     "}")
                 .set_examples(
-                    "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}'");
+                    "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"chainInfo\": true}");
         throw runtime_error(help_sections.combine_sections());
     }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
