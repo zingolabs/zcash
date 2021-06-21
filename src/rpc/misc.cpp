@@ -1108,7 +1108,7 @@ UniValue getspentinfo(const UniValue& params, bool fHelp)
                     "  ,...\n"
                     "}")
                 .set_examples(
-                    "'{\"txid\": \"33990288fb116981260be1de10b8c764f997674545ab14f9240f00346333b780\", \"index\": 4}'");
+                    "{\"txid\": \"33990288fb116981260be1de10b8c764f997674545ab14f9240f00346333b780\", \"index\": 4}");
         throw runtime_error(help_sections.combine_sections());
     }
 
