@@ -1047,7 +1047,7 @@ UniValue getaddresstxids(const UniValue& params, bool fHelp)
                     "  ,...\n"
                     "]")
                 .set_examples(
-                    "'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}'");
+                    "{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000}");
         throw runtime_error(help_sections.combine_sections());
     }
 
