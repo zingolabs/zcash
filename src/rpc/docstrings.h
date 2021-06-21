@@ -135,8 +135,7 @@ public:
 private:
     string format_cli_example(string example_invocation_args)
     {
-        if (example_invocation_args[0] == '{') {
-            // && length-1 == }
+        if (example_invocation_args[0] == '{' && example_invocation_args[example_invocation_args.length() - 1] == '}') {
             return '\'' + example_invocation_args + '\'';
         } else {
             return example_invocation_args;
