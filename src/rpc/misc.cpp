@@ -888,7 +888,7 @@ UniValue getaddressdeltas(const UniValue& params, bool fHelp)
                     "      \"height\"        (numeric) The height of the end block\n"
                     "    }\n"
                     "}")
-                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}'");
+                .set_examples("{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"], \"start\": 1000, \"end\": 2000, \"chainInfo\": true}");
         throw runtime_error(help_sections.combine_sections());
     }
 
