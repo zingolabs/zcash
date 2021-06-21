@@ -624,7 +624,7 @@ UniValue getaddressmempool(const UniValue& params, bool fHelp)
                     "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
                     "  }\n"
                     "]")
-                .set_examples("'{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}'");
+                .set_examples("{\"addresses\": [\"tmYXBYJj1K7vhejSec5osXK2QsGa5MTisUQ\"]}");
         throw runtime_error(help_sections.combine_sections());
     }
     if (!(fExperimentalInsightExplorer || fExperimentalLightWalletd)) {
