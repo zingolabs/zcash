@@ -2647,10 +2647,10 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
                             "  \"changepos\": n          (numeric) The position of the added change output, or -1\n"
                             "}\n"
                             "\"hex\"             ")
-                .set_examples("\"[]\" \"{\\\"myaddress\\\":0.01}\"", "Create a transaction with no inputs")
+                .set_examples("\"[]\" \"{\\\"myaddress\\\":0.01}\"", "Create a transaction with no inputs", "createrawtransaction")
                 .set_examples("\"rawtransactionhex\"", "Add sufficient unsigned inputs to meet the output value")
-                .set_examples("\"fundedtransactionhex\"", "Sign the transaction")
-                .set_examples("\"signedtransactionhex\"", "Send the transaction");
+                .set_examples("\"fundedtransactionhex\"", "Sign the transaction", "signrawtransaction")
+                .set_examples("\"signedtransactionhex\"", "Send the transaction", "sendrawtransaction");
         throw runtime_error(
             help_sections.combine_sections());
     }
