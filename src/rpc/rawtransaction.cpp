@@ -721,64 +721,65 @@ static void TxInErrorToJSON(const CTxIn& txin, UniValue& vErrorsRet, const std::
 
 UniValue signrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 5)
-        throw runtime_error(
-            "signrawtransaction \"hexstring\" ( [{\"txid\":\"id\",\"vout\":n,\"scriptPubKey\":\"hex\",\"redeemScript\":\"hex\"},...] [\"privatekey1\",...] sighashtype )\n"
-            "\nSign inputs for raw transaction (serialized, hex-encoded).\n"
-            "The second optional argument (may be null) is an array of previous transaction outputs that\n"
-            "this transaction depends on but may not yet be in the block chain.\n"
-            "The third optional argument (may be null) is an array of base58-encoded private\n"
-            "keys that, if given, will be the only keys used to sign the transaction.\n"
+    if (fHelp || params.size() < 1 || params.size() > 5) {
 #ifdef ENABLE_WALLET
-            + HelpRequiringPassphrase() + "\n"
+        string help_requiring_passphrase =
+            "\n" + HelpRequiringPassphrase();
+#else string help_requiring_passphrase = "";
 #endif
-
-                                          "\nArguments:\n"
-                                          "1. \"hexstring\"     (string, required) The transaction hex string\n"
-                                          "2. \"prevtxs\"       (string, optional) An json array of previous dependent transaction outputs\n"
-                                          "     [               (json array of json objects, or 'null' if none provided)\n"
-                                          "       {\n"
-                                          "         \"txid\":\"id\",             (string, required) The transaction id\n"
-                                          "         \"vout\":n,                  (numeric, required) The output number\n"
-                                          "         \"scriptPubKey\": \"hex\",   (string, required) script key\n"
-                                          "         \"redeemScript\": \"hex\",   (string, required for P2SH) redeem script\n"
-                                          "         \"amount\": value            (numeric, required) The amount spent\n"
-                                          "       }\n"
-                                          "       ,...\n"
-                                          "    ]\n"
-                                          "3. \"privatekeys\"     (string, optional) A json array of base58-encoded private keys for signing\n"
-                                          "    [                  (json array of strings, or 'null' if none provided)\n"
-                                          "      \"privatekey\"   (string) private key in base58-encoding\n"
-                                          "      ,...\n"
-                                          "    ]\n"
-                                          "4. \"sighashtype\"     (string, optional, default=ALL) The signature hash type. Must be one of\n"
-                                          "       \"ALL\"\n"
-                                          "       \"NONE\"\n"
-                                          "       \"SINGLE\"\n"
-                                          "       \"ALL|ANYONECANPAY\"\n"
-                                          "       \"NONE|ANYONECANPAY\"\n"
-                                          "       \"SINGLE|ANYONECANPAY\"\n"
-                                          "5.  \"branchid\"       (string, optional) The hex representation of the consensus branch id to sign with."
-                                          " This can be used to force signing with consensus rules that are ahead of the node's current height.\n"
-
-                                          "\nResult:\n"
-                                          "{\n"
-                                          "  \"hex\" : \"value\",           (string) The hex-encoded raw transaction with signature(s)\n"
-                                          "  \"complete\" : true|false,   (boolean) If the transaction has a complete set of signatures\n"
-                                          "  \"errors\" : [                 (json array of objects) Script verification errors (if there are any)\n"
-                                          "    {\n"
-                                          "      \"txid\" : \"hash\",           (string) The hash of the referenced, previous transaction\n"
-                                          "      \"vout\" : n,                (numeric) The index of the output to spent and used as input\n"
-                                          "      \"scriptSig\" : \"hex\",       (string) The hex-encoded signature script\n"
-                                          "      \"sequence\" : n,            (numeric) Script sequence number\n"
-                                          "      \"error\" : \"text\"           (string) Verification or signing error related to the input\n"
-                                          "    }\n"
-                                          "    ,...\n"
-                                          "  ]\n"
-                                          "}\n"
-
-                                          "\nExamples:\n" +
-            HelpExampleCli("signrawtransaction", "\"myhex\"") + HelpExampleRpc("signrawtransaction", "\"myhex\""));
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hexstring\" ( [{\"txid\":\"id\",\"vout\":n,\"scriptPubKey\":\"hex\",\"redeemScript\":\"hex\"},...] [\"privatekey1\",...] sighashtype )")
+                .set_description("Sign inputs for raw transaction (serialized, hex-encoded).\n"
+                                 "The second optional argument (may be null) is an array of previous transaction outputs that\n"
+                                 "this transaction depends on but may not yet be in the block chain.\n"
+                                 "The third optional argument (may be null) is an array of base58-encoded private\n"
+                                 "keys that, if given, will be the only keys used to sign the transaction." +
+                                 help_requiring_passphrase)
+                .set_arguments("1. \"hexstring\"     (string, required) The transaction hex string\n"
+                               "2. \"prevtxs\"       (string, optional) An json array of previous dependent transaction outputs\n"
+                               "     [               (json array of json objects, or 'null' if none provided)\n"
+                               "       {\n"
+                               "         \"txid\":\"id\",             (string, required) The transaction id\n"
+                               "         \"vout\":n,                  (numeric, required) The output number\n"
+                               "         \"scriptPubKey\": \"hex\",   (string, required) script key\n"
+                               "         \"redeemScript\": \"hex\",   (string, required for P2SH) redeem script\n"
+                               "         \"amount\": value            (numeric, required) The amount spent\n"
+                               "       }\n"
+                               "       ,...\n"
+                               "    ]\n"
+                               "3. \"privatekeys\"     (string, optional) A json array of base58-encoded private keys for signing\n"
+                               "    [                  (json array of strings, or 'null' if none provided)\n"
+                               "      \"privatekey\"   (string) private key in base58-encoding\n"
+                               "      ,...\n"
+                               "    ]\n"
+                               "4. \"sighashtype\"     (string, optional, default=ALL) The signature hash type. Must be one of\n"
+                               "       \"ALL\"\n"
+                               "       \"NONE\"\n"
+                               "       \"SINGLE\"\n"
+                               "       \"ALL|ANYONECANPAY\"\n"
+                               "       \"NONE|ANYONECANPAY\"\n"
+                               "       \"SINGLE|ANYONECANPAY\"\n"
+                               "5.  \"branchid\"       (string, optional) The hex representation of the consensus branch id to sign with."
+                               " This can be used to force signing with consensus rules that are ahead of the node's current height.")
+                .set_result("{\n"
+                            "  \"hex\" : \"value\",           (string) The hex-encoded raw transaction with signature(s)\n"
+                            "  \"complete\" : true|false,   (boolean) If the transaction has a complete set of signatures\n"
+                            "  \"errors\" : [                 (json array of objects) Script verification errors (if there are any)\n"
+                            "    {\n"
+                            "      \"txid\" : \"hash\",           (string) The hash of the referenced, previous transaction\n"
+                            "      \"vout\" : n,                (numeric) The index of the output to spent and used as input\n"
+                            "      \"scriptSig\" : \"hex\",       (string) The hex-encoded signature script\n"
+                            "      \"sequence\" : n,            (numeric) Script sequence number\n"
+                            "      \"error\" : \"text\"           (string) Verification or signing error related to the input\n"
+                            "    }\n"
+                            "    ,...\n"
+                            "  ]\n"
+                            "}")
+                .set_examples("\"myhex\"");
+        throw runtime_error(
+            help_sections.combine_sections());
+    }
 
 #ifdef ENABLE_WALLET
     LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
