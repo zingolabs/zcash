@@ -980,23 +980,22 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
 
 UniValue sendrawtransaction(const UniValue& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 2) {
+        HelpSections help_sections =
+            HelpSections(__func__)
+                .set_usage("\"hexstring\" ( allowhighfees )")
+                .set_description("Submits raw transaction (serialized, hex-encoded) to local node and network.\n"
+                                 "\nAlso see createrawtransaction and signrawtransaction calls.")
+                .set_arguments("1. \"hexstring\"    (string, required) The hex string of the raw transaction)\n"
+                               "2. allowhighfees    (boolean, optional, default=false) Allow high fees")
+                .set_result("\"hex\"             (string) The transaction hash in hex")
+                .set_examples("\"[{\\\"txid\\\" : \\\"mytxid\\\",\\\"vout\\\":0}]\" \"{\\\"myaddress\\\":0.01}\"", "Create a transaction", "createrawtransaction")
+                .set_examples("\"myhex\"", "Sign the transaction, and get back the hex", "signrawtransaction")
+                .set_examples("\"signedhex\"", "Send the transaction (signed hex)");
+        //"\nAs a json rpc call\n" + HelpExampleRpc("sendrawtransaction", "\"signedhex\""));
         throw runtime_error(
-            "sendrawtransaction \"hexstring\" ( allowhighfees )\n"
-            "\nSubmits raw transaction (serialized, hex-encoded) to local node and network.\n"
-            "\nAlso see createrawtransaction and signrawtransaction calls.\n"
-            "\nArguments:\n"
-            "1. \"hexstring\"    (string, required) The hex string of the raw transaction)\n"
-            "2. allowhighfees    (boolean, optional, default=false) Allow high fees\n"
-            "\nResult:\n"
-            "\"hex\"             (string) The transaction hash in hex\n"
-            "\nExamples:\n"
-            "\nCreate a transaction\n" +
-            HelpExampleCli("createrawtransaction", "\"[{\\\"txid\\\" : \\\"mytxid\\\",\\\"vout\\\":0}]\" \"{\\\"myaddress\\\":0.01}\"") +
-            "Sign the transaction, and get back the hex\n" + HelpExampleCli("signrawtransaction", "\"myhex\"") +
-            "\nSend the transaction (signed hex)\n" + HelpExampleCli("sendrawtransaction", "\"signedhex\"") +
-            "\nAs a json rpc call\n" + HelpExampleRpc("sendrawtransaction", "\"signedhex\""));
-
+            help_sections.combine_sections());
+    }
     LOCK(cs_main);
     RPCTypeCheck(params, boost::assign::list_of(UniValue::VSTR)(UniValue::VBOOL));
 
