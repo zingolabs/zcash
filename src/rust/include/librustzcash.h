@@ -11,25 +11,6 @@
   #include <stdalign.h>
 #endif
 
-#define NODE_SERIALIZED_LENGTH 171
-#define ENTRY_SERIALIZED_LENGTH (NODE_SERIALIZED_LENGTH + 9)
-
-typedef struct HistoryNode {
-    unsigned char bytes[NODE_SERIALIZED_LENGTH];
-}  HistoryNode;
-static_assert(
-    sizeof(HistoryNode) == NODE_SERIALIZED_LENGTH,
-    "HistoryNode struct is not the same size as the underlying byte array");
-static_assert(alignof(HistoryNode) == 1, "HistoryNode struct alignment is not 1");
-
-typedef struct HistoryEntry {
-    unsigned char bytes[ENTRY_SERIALIZED_LENGTH];
-}  HistoryEntry;
-static_assert(
-    sizeof(HistoryEntry) == ENTRY_SERIALIZED_LENGTH,
-    "HistoryEntry struct is not the same size as the underlying byte array");
-static_assert(alignof(HistoryEntry) == 1, "HistoryEntry struct alignment is not 1");
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -156,7 +137,9 @@ extern "C" {
 
     /// Creates a Sapling verification context. Please free this
     /// when you're done.
-    void * librustzcash_sapling_verification_ctx_init();
+    void * librustzcash_sapling_verification_ctx_init(
+        bool zip216Enabled
+    );
 
     /// Check the validity of a Sapling Spend description,
     /// accumulating the value commitment into the context.
@@ -218,6 +201,7 @@ extern "C" {
     /// The result is also of length 32 and placed in `result`.
     /// Returns false if the diversifier or pk_d is not valid
     bool librustzcash_sapling_compute_cmu(
+        bool zip216_enabled,
         const unsigned char *diversifier,
         const unsigned char *pk_d,
         const uint64_t value,
@@ -231,6 +215,7 @@ extern "C" {
     /// the result is written to the 32-byte
     /// `result` buffer.
     bool librustzcash_sapling_ka_agree(
+        bool zip216_enabled,
         const unsigned char *p,
         const unsigned char *sk,
         unsigned char *result
@@ -327,33 +312,6 @@ extern "C" {
         const unsigned char *j,
         unsigned char *j_ret,
         unsigned char *addr_ret
-    );
-
-    uint32_t librustzcash_mmr_append(
-        uint32_t cbranch,
-        uint32_t t_len,
-        const uint32_t *ni_ptr,
-        const HistoryEntry *n_ptr,
-        size_t p_len,
-        const HistoryNode *nn_ptr,
-        unsigned char *rt_ret,
-        HistoryNode *buf_ret
-    );
-
-    uint32_t librustzcash_mmr_delete(
-        uint32_t cbranch,
-        uint32_t t_len,
-        const uint32_t *ni_ptr,
-        const HistoryEntry *n_ptr,
-        size_t p_len,
-        size_t e_len,
-        unsigned char *rt_ret
-    );
-
-    uint32_t librustzcash_mmr_hash_node(
-        uint32_t cbranch,
-        const HistoryNode *n_ptr,
-        unsigned char *h_ret
     );
 
     /// Fills the provided buffer with random bytes. This is intended to

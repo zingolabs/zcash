@@ -819,6 +819,7 @@ bool ContextualCheckTransaction(
     bool beforeOverwinter = !overwinterActive;
     bool heartwoodActive = consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_HEARTWOOD);
     bool canopyActive = consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_CANOPY);
+    bool nu5Active = consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_NU5);
     bool futureActive = consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_ZFUTURE);
 
     assert(!saplingActive || overwinterActive); // Sapling cannot be active unless Overwinter is
@@ -1121,7 +1122,12 @@ bool ContextualCheckTransaction(
     if (!tx.vShieldedSpend.empty() ||
         !tx.vShieldedOutput.empty())
     {
-        auto ctx = librustzcash_sapling_verification_ctx_init();
+        // The nu5Active flag passed in here enables the new consensus rules from ZIP 216
+        // (https://zips.z.cash/zip-0216#specification) on the following fields:
+        //
+        // - spendAuthSig in Sapling Spend descriptions
+        // - bindingSigSapling
+        auto ctx = librustzcash_sapling_verification_ctx_init(nu5Active);
 
         for (const SpendDescription &spend : tx.vShieldedSpend) {
             if (!librustzcash_sapling_check_spend(
@@ -1182,7 +1188,7 @@ bool ContextualCheckTransaction(
 
 
 bool CheckTransaction(const CTransaction& tx, CValidationState &state,
-                      ProofVerifier& verifier)
+                      ProofVerifier& verifier, orchard::AuthValidator& orchardAuth)
 {
     // Don't count coinbase transactions because mining skews the count
     if (!tx.IsCoinBase()) {
@@ -1202,6 +1208,20 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state,
 
         // Sapling zk-SNARK proofs are checked in librustzcash_sapling_check_{spend,output},
         // called from ContextualCheckTransaction.
+
+        // Check bundle-specific Orchard consensus rules. Since we check encoding
+        // consensus rules at parse time, and signature validation is batched, all we are
+        // checking here is proof validity. Once we implement batched proof verification,
+        // this will move into orchardAuth.
+        auto orchardBundle = tx.GetOrchardBundle();
+        if (!orchardBundle.CheckBundleSpecificConsensusRules()) {
+            return state.DoS(
+                100, error("CheckTransaction(): Orchard bundle proof does not verify"),
+                REJECT_INVALID, "bad-txns-orchard-verification-failed");
+        }
+
+        // Queue Orchard signatures to be batch-validated.
+        orchardBundle.QueueSignatureValidation(orchardAuth, tx.GetHash());
 
         return true;
     }
@@ -1498,8 +1518,12 @@ bool AcceptToMemoryPool(
         return false;
     }
 
+    // This will be a single-transaction batch, which is still more efficient as every
+    // Orchard bundle contains at least two signatures.
+    auto orchardAuth = orchard::AuthValidator::Batch();
+
     auto verifier = ProofVerifier::Strict();
-    if (!CheckTransaction(tx, state, verifier))
+    if (!CheckTransaction(tx, state, verifier, orchardAuth))
         return error("AcceptToMemoryPool: CheckTransaction failed");
 
     // Check transaction contextually against the set of consensus rules which apply in the next block to be mined.
@@ -1640,9 +1664,9 @@ bool AcceptToMemoryPool(
             }
         }
 
-        // We don't yet know if the transaction commits to consensusBranchId,
-        // but if the entry gets added to the mempool, then it has passed
-        // ContextualCheckInputs and therefore this is correct.
+        // For v1-v4 transactions, we don't yet know if the transaction commits
+        // to consensusBranchId, but if the entry gets added to the mempool, then
+        // it has passed ContextualCheckInputs and therefore this is correct.
         CTxMemPoolEntry entry(tx, nFees, GetTime(), dPriority, chainActive.Height(), mempool.HasNoInputsOf(tx), fSpendsCoinbase, consensusBranchId);
         unsigned int nSize = entry.GetTxSize();
 
@@ -1693,6 +1717,13 @@ bool AcceptToMemoryPool(
                                       nFees, maxTxFee);
             LogPrint("mempool", errmsg.c_str());
             return state.Error("AcceptToMemoryPool: " + errmsg);
+        }
+
+        // Check Orchard bundle authorizations.
+        // This is done near the end to help prevent CPU exhaustion
+        // denial-of-service attacks.
+        if (!orchardAuth.Validate()) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-orchard-bundle-authorization");
         }
 
         // Check against previous transactions
@@ -2712,7 +2743,8 @@ static bool ShouldCheckTransactions(const CChainParams& chainparams, const CBloc
 }
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex,
-                  CCoinsViewCache& view, const CChainParams& chainparams, bool fJustCheck)
+                  CCoinsViewCache& view, const CChainParams& chainparams,
+                  bool fJustCheck, bool fCheckAuthDataRoot)
 {
     AssertLockHeld(cs_main);
 
@@ -2726,13 +2758,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     // proof verification is expensive, disable if possible
     auto verifier = fExpensiveChecks ? ProofVerifier::Strict() : ProofVerifier::Disabled();
 
+    // Disable Orchard batch signature validation if possible.
+    auto orchardAuth = fExpensiveChecks ?
+        orchard::AuthValidator::Batch() : orchard::AuthValidator::Disabled();
+
     // If in initial block download, and this block is an ancestor of a checkpoint,
     // and -ibdskiptxverification is set, disable all transaction checks.
     bool fCheckTransactions = ShouldCheckTransactions(chainparams, pindex);
 
     // Check it again to verify JoinSplit proofs, and in case a previous version let a bad block in
-    if (!CheckBlock(block, state, chainparams, verifier, !fJustCheck, !fJustCheck, fCheckTransactions))
+    if (!CheckBlock(block, state, chainparams, verifier, orchardAuth,
+        !fJustCheck, !fJustCheck, fCheckTransactions))
+    {
         return false;
+    }
 
     // verify that the view's current state corresponds to the previous block
     uint256 hashPrevBlock = pindex->pprev == NULL ? uint256() : pindex->pprev->GetBlockHash();
@@ -2777,6 +2816,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (*pindex->nChainSaplingValue < 0) {
                 return state.DoS(100, error("ConnectBlock(): turnstile violation in Sapling shielded value pool"),
                              REJECT_INVALID, "turnstile-violation-sapling-shielded-pool");
+            }
+        }
+
+        // Orchard
+        //
+        // If we've reached ConnectBlock, we have all transactions of
+        // parents and can expect nChainOrchardValue not to be std::nullopt.
+        // However, the miner and mining RPCs may not have populated this
+        // value and will call `TestBlockValidity`. So, we act
+        // conditionally.
+        if (pindex->nChainOrchardValue) {
+            if (*pindex->nChainOrchardValue < 0) {
+                return state.DoS(100, error("ConnectBlock(): turnstile violation in Orchard shielded value pool"),
+                                 REJECT_INVALID, "turnstile-violation-orchard");
             }
         }
     }
@@ -2836,6 +2889,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     auto prevConsensusBranchId = CurrentEpochBranchId(pindex->nHeight - 1, chainparams.GetConsensus());
 
     size_t total_sapling_tx = 0;
+    size_t total_orchard_tx = 0;
 
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
@@ -2966,9 +3020,23 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!(tx.vShieldedSpend.empty() && tx.vShieldedOutput.empty())) {
             total_sapling_tx += 1;
         }
+        if (tx.GetOrchardBundle().IsPresent()) {
+            total_orchard_tx += 1;
+        }
 
         vPos.push_back(std::make_pair(tx.GetHash(), pos));
         pos.nTxOffset += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
+    }
+
+    // Derive the various block commitments.
+    // We only derive them if they will be used for this block.
+    std::optional<uint256> hashAuthDataRoot;
+    std::optional<uint256> hashChainHistoryRoot;
+    if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_NU5)) {
+        hashAuthDataRoot = block.BuildAuthDataMerkleTree();
+    }
+    if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_HEARTWOOD)) {
+        hashChainHistoryRoot = view.GetHistoryRoot(prevConsensusBranchId);
     }
 
     view.PushAnchor(sprout_tree);
@@ -2985,19 +3053,48 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_HEARTWOOD)) {
             pindex->hashFinalSaplingRoot = sapling_tree.root();
         }
+
+        // - If this block is before NU5 activation:
+        //   - hashAuthDataRoot and hashFinalOrchardRoot are always null.
+        //   - We don't set hashChainHistoryRoot here to maintain the invariant
+        //     documented in CBlockIndex (which was ensured in AddToBlockIndex).
+        // - If this block is on or after NU5 activation, this is where we set
+        //   the correct values of hashAuthDataRoot, hashFinalOrchardRoot, and
+        //   hashChainHistoryRoot; in particular, blocks that are never passed
+        //   to ConnectBlock() (and thus never on the main chain) will stay with
+        //   these set to null.
+        if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_NU5)) {
+            pindex->hashAuthDataRoot = hashAuthDataRoot.value();
+            pindex->hashFinalOrchardRoot = uint256(); // TODO: replace with Orchard tree root
+            pindex->hashChainHistoryRoot = hashChainHistoryRoot.value();
+        }
     }
     blockundo.old_sprout_tree_root = old_sprout_tree_root;
 
-    if (IsActivationHeight(pindex->nHeight, chainparams.GetConsensus(), Consensus::UPGRADE_HEARTWOOD)) {
-        // In the block that activates ZIP 221, block.hashLightClientRoot MUST
+    if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_NU5)) {
+        if (fCheckAuthDataRoot) {
+            // If NU5 is active, block.hashBlockCommitments must be the top digest
+            // of the ZIP 244 block commitments linked list.
+            // https://zips.z.cash/zip-0244#block-header-changes
+            uint256 hashBlockCommitments = DeriveBlockCommitmentsHash(
+                hashChainHistoryRoot.value(),
+                hashAuthDataRoot.value());
+            if (block.hashBlockCommitments != hashBlockCommitments) {
+                return state.DoS(100,
+                    error("ConnectBlock(): block's hashBlockCommitments is incorrect (should be ZIP 244 block commitment)"),
+                    REJECT_INVALID, "bad-block-commitments-hash");
+            }
+        }
+    } else if (IsActivationHeight(pindex->nHeight, chainparams.GetConsensus(), Consensus::UPGRADE_HEARTWOOD)) {
+        // In the block that activates ZIP 221, block.hashBlockCommitments MUST
         // be set to all zero bytes.
-        if (!block.hashLightClientRoot.IsNull()) {
+        if (!block.hashBlockCommitments.IsNull()) {
             return state.DoS(100,
-                error("ConnectBlock(): block's hashLightClientRoot is incorrect (should be null)"),
+                error("ConnectBlock(): block's hashBlockCommitments is incorrect (should be null)"),
                 REJECT_INVALID, "bad-heartwood-root-in-block");
         }
     } else if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_HEARTWOOD)) {
-        // If Heartwood is active, block.hashLightClientRoot must be the same as
+        // If Heartwood is active, block.hashBlockCommitments must be the same as
         // the root of the history tree for the previous block. We only store
         // one tree per epoch, so we have two possible cases:
         // - If the previous block is in the previous epoch, this block won't
@@ -3005,32 +3102,47 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         // - If the previous block is in this epoch, this block would affect
         //   this epoch's tree root, but as we haven't updated the tree for this
         //   block yet, view.GetHistoryRoot() returns the root we need.
-        if (block.hashLightClientRoot != view.GetHistoryRoot(prevConsensusBranchId)) {
+        if (block.hashBlockCommitments != hashChainHistoryRoot.value()) {
             return state.DoS(100,
-                error("ConnectBlock(): block's hashLightClientRoot is incorrect (should be history tree root)"),
+                error("ConnectBlock(): block's hashBlockCommitments is incorrect (should be history tree root)"),
                 REJECT_INVALID, "bad-heartwood-root-in-block");
         }
     } else if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_SAPLING)) {
-        // If Sapling is active, block.hashLightClientRoot must be the
+        // If Sapling is active, block.hashBlockCommitments must be the
         // same as the root of the Sapling tree
-        if (block.hashLightClientRoot != sapling_tree.root()) {
+        if (block.hashBlockCommitments != sapling_tree.root()) {
             return state.DoS(100,
-                error("ConnectBlock(): block's hashLightClientRoot is incorrect (should be Sapling tree root)"),
+                error("ConnectBlock(): block's hashBlockCommitments is incorrect (should be Sapling tree root)"),
                 REJECT_INVALID, "bad-sapling-root-in-block");
         }
     }
 
     // History read/write is started with Heartwood update.
     if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_HEARTWOOD)) {
-        auto historyNode = libzcash::NewLeaf(
-            block.GetHash(),
-            block.nTime,
-            block.nBits,
-            pindex->hashFinalSaplingRoot,
-            ArithToUint256(GetBlockProof(*pindex)),
-            pindex->nHeight,
-            total_sapling_tx
-        );
+        HistoryNode historyNode;
+        if (chainparams.GetConsensus().NetworkUpgradeActive(pindex->nHeight, Consensus::UPGRADE_NU5)) {
+            historyNode = libzcash::NewV2Leaf(
+                block.GetHash(),
+                block.nTime,
+                block.nBits,
+                pindex->hashFinalSaplingRoot,
+                pindex->hashFinalOrchardRoot,
+                ArithToUint256(GetBlockProof(*pindex)),
+                pindex->nHeight,
+                total_sapling_tx,
+                total_orchard_tx
+            );
+        } else {
+            historyNode = libzcash::NewV1Leaf(
+                block.GetHash(),
+                block.nTime,
+                block.nBits,
+                pindex->hashFinalSaplingRoot,
+                ArithToUint256(GetBlockProof(*pindex)),
+                pindex->nHeight,
+                total_sapling_tx
+            );
+        }
 
         view.PushHistoryNode(consensusBranchId, historyNode);
     }
@@ -3044,6 +3156,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0].GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
+
+    // Ensure Orchard signatures are valid (if we are checking them)
+    if (!orchardAuth.Validate()) {
+        return state.DoS(100,
+            error("ConnectBlock(): an Orchard bundle within the block is invalid"),
+            REJECT_INVALID, "bad-orchard-bundle-authorization");
+    }
 
     if (!control.Wait())
         return state.DoS(100, false);
@@ -3295,6 +3414,13 @@ struct PoolMetrics {
         return stats;
     }
 
+    static PoolMetrics Orchard(CBlockIndex *pindex, CCoinsViewCache *view) {
+        PoolMetrics stats;
+        stats.value = pindex->nChainOrchardValue;
+
+        return stats;
+    }
+
     static PoolMetrics Transparent(CBlockIndex *pindex, CCoinsViewCache *view) {
         PoolMetrics stats;
         // TODO: Collect transparent pool value.
@@ -3451,11 +3577,9 @@ uint64_t nNotifiedSequence = 0;
 bool static ConnectTip(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexNew, const CBlock* pblock)
 {
     assert(pblock && pindexNew->pprev == chainActive.Tip());
-    int64_t nTime1 = GetTimeMicros();
     // Apply the block atomically to the chain state.
-    int64_t nTime2 = GetTimeMicros(); nTimeReadFromDisk += nTime2 - nTime1;
+    int64_t nTime2 = GetTimeMicros();
     int64_t nTime3;
-    LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         CCoinsViewCache view(pcoinsTip);
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, chainparams);
@@ -3498,11 +3622,10 @@ bool static ConnectTip(CValidationState& state, const CChainParams& chainparams,
 
     EnforceNodeDeprecation(pindexNew->nHeight);
 
-    int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5; nTimeTotal += nTime6 - nTime1;
+    int64_t nTime6 = GetTimeMicros(); nTimePostConnect += nTime6 - nTime5;
     LogPrint("bench", "  - Connect postprocess: %.2fms [%.2fs]\n", (nTime6 - nTime5) * 0.001, nTimePostConnect * 0.000001);
-    LogPrint("bench", "- Connect block: %.2fms [%.2fs]\n", (nTime6 - nTime1) * 0.001, nTimeTotal * 0.000001);
+    // Total connection time benchmarking occurs in ActivateBestChainStep.
     MetricsIncrementCounter("zcash.chain.verified.block.total");
-    MetricsHistogram("zcash.chain.verified.block.seconds", (nTime6 - nTime1) * 0.000001);
     return true;
 }
 
@@ -3664,6 +3787,7 @@ static bool ActivateBestChainStep(CValidationState& state, const CChainParams& c
 
         // Connect new blocks.
         for (CBlockIndex *pindexConnect : reverse_iterate(vpindexToConnect)) {
+            int64_t nTime1 = GetTimeMicros();
             const CBlock* pconnectBlock;
             CBlock block;
             if (pblock && pindexConnect == pindexMostWork) {
@@ -3674,6 +3798,8 @@ static bool ActivateBestChainStep(CValidationState& state, const CChainParams& c
                     return AbortNode(state, "Failed to read block");
                 pconnectBlock = &block;
             }
+            int64_t nTime2 = GetTimeMicros(); nTimeReadFromDisk += nTime2 - nTime1;
+            LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
 
             if (!ConnectTip(state, chainparams, pindexConnect, pconnectBlock)) {
                 if (state.IsInvalid()) {
@@ -3689,6 +3815,10 @@ static bool ActivateBestChainStep(CValidationState& state, const CChainParams& c
                     return false;
                 }
             } else {
+                int64_t nTime3 = GetTimeMicros(); nTimeTotal += nTime3 - nTime1;
+                LogPrint("bench", "- Connect block: %.2fms [%.2fs]\n", (nTime3 - nTime1) * 0.001, nTimeTotal * 0.000001);
+                MetricsHistogram("zcash.chain.verified.block.seconds", (nTime3 - nTime1) * 0.000001);
+
                 PruneBlockIndexCandidates();
                 if (!pindexOldTip || chainActive.Tip()->nChainWork > pindexOldTip->nChainWork) {
                     // We're in a better position than we were. Return temporarily to release the lock.
@@ -3872,15 +4002,26 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block, const Consensus::Params&
         pindexNew->pprev = (*miPrev).second;
         pindexNew->nHeight = pindexNew->pprev->nHeight + 1;
 
-        if (IsActivationHeight(pindexNew->nHeight, consensusParams, Consensus::UPGRADE_HEARTWOOD)) {
-            // hashFinalSaplingRoot is currently null, and will be set correctly in ConnectBlock.
+        if (consensusParams.NetworkUpgradeActive(pindexNew->nHeight, Consensus::UPGRADE_NU5)) {
+            // The following hashes will be null if this block has never been
+            // connected to a main chain; they will be (re)set correctly in
+            // ConnectBlock:
+            // - hashFinalSaplingRoot
+            // - hashFinalOrchardRoot
+            // - hashChainHistoryRoot
+        } else if (IsActivationHeight(pindexNew->nHeight, consensusParams, Consensus::UPGRADE_HEARTWOOD)) {
+            // hashFinalSaplingRoot and hashFinalOrchardRoot will be null if this block has
+            // never been connected to a main chain; they will be (re)set correctly in
+            // ConnectBlock.
             // hashChainHistoryRoot is null.
         } else if (consensusParams.NetworkUpgradeActive(pindexNew->nHeight, Consensus::UPGRADE_HEARTWOOD)) {
-            // hashFinalSaplingRoot is currently null, and will be set correctly in ConnectBlock.
-            pindexNew->hashChainHistoryRoot = pindexNew->hashLightClientRoot;
+            // hashFinalSaplingRoot and hashFinalOrchardRoot will be null if this block has
+            // never been connected to a main chain; they will be (re)set correctly in
+            // ConnectBlock.
+            pindexNew->hashChainHistoryRoot = pindexNew->hashBlockCommitments;
         } else {
-            // hashChainHistoryRoot is null.
-            pindexNew->hashFinalSaplingRoot = pindexNew->hashLightClientRoot;
+            // hashFinalOrchardRoot and hashChainHistoryRoot are null.
+            pindexNew->hashFinalSaplingRoot = pindexNew->hashBlockCommitments;
         }
 
         pindexNew->BuildSkip();
@@ -3946,12 +4087,16 @@ bool ReceivedBlockTransactions(
     pindexNew->nChainTx = 0;
     CAmount sproutValue = 0;
     CAmount saplingValue = 0;
+    CAmount orchardValue = 0;
     for (auto tx : block.vtx) {
         // Negative valueBalance "takes" money from the transparent value pool
         // and adds it to the Sapling value pool. Positive valueBalance "gives"
         // money to the transparent value pool, removing from the Sapling value
         // pool. So we invert the sign here.
         saplingValue += -tx.valueBalance;
+
+        // Orchard valueBalance behaves the same way as Sapling valueBalance.
+        orchardValue += -tx.GetOrchardBundle().GetValueBalance();
 
         for (auto js : tx.vJoinSplit) {
             sproutValue += js.vpub_old;
@@ -3962,6 +4107,8 @@ bool ReceivedBlockTransactions(
     pindexNew->nChainSproutValue = std::nullopt;
     pindexNew->nSaplingValue = saplingValue;
     pindexNew->nChainSaplingValue = std::nullopt;
+    pindexNew->nOrchardValue = orchardValue;
+    pindexNew->nChainOrchardValue = std::nullopt;
     pindexNew->nFile = pos.nFile;
     pindexNew->nDataPos = pos.nPos;
     pindexNew->nUndoPos = 0;
@@ -3990,9 +4137,15 @@ bool ReceivedBlockTransactions(
                 } else {
                     pindex->nChainSaplingValue = std::nullopt;
                 }
+                if (pindex->pprev->nChainOrchardValue) {
+                    pindex->nChainOrchardValue = *pindex->pprev->nChainOrchardValue + pindex->nOrchardValue;
+                } else {
+                    pindex->nChainOrchardValue = std::nullopt;
+                }
             } else {
                 pindex->nChainSproutValue = pindex->nSproutValue;
                 pindex->nChainSaplingValue = pindex->nSaplingValue;
+                pindex->nChainOrchardValue = pindex->nOrchardValue;
             }
 
             // Fall back to hardcoded Sprout value pool balance
@@ -4136,6 +4289,7 @@ bool CheckBlock(const CBlock& block,
                 CValidationState& state,
                 const CChainParams& chainparams,
                 ProofVerifier& verifier,
+                orchard::AuthValidator& orchardAuth,
                 bool fCheckPOW,
                 bool fCheckMerkleRoot,
                 bool fCheckTransactions)
@@ -4186,7 +4340,7 @@ bool CheckBlock(const CBlock& block,
 
     // Check transactions
     for (const CTransaction& tx : block.vtx)
-        if (!CheckTransaction(tx, state, verifier))
+        if (!CheckTransaction(tx, state, verifier, orchardAuth))
             return error("CheckBlock(): CheckTransaction failed");
 
     unsigned int nSigOps = 0;
@@ -4388,9 +4542,9 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
  * Store block on disk.
  * If dbp is non-NULL, the file is known to already reside on disk.
  *
- * JoinSplit proofs are not verified here; the only caller of AcceptBlock
- * (ProcessNewBlock) later invokes ActivateBestChain, which ultimately calls
- * ConnectBlock in a manner that can verify the proofs
+ * JoinSplit proofs and Orchard authorizations are not verified here; the only
+ * caller of AcceptBlock (ProcessNewBlock) later invokes ActivateBestChain,
+ * which ultimately calls ConnectBlock in a manner that can verify the proofs.
  */
 static bool AcceptBlock(const CBlock& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex, bool fRequested, CDiskBlockPos* dbp)
 {
@@ -4422,10 +4576,12 @@ static bool AcceptBlock(const CBlock& block, CValidationState& state, const CCha
         if (fTooFarAhead) return true;      // Block height is too high
     }
 
-    // See method docstring for why this is always disabled.
+    // See method docstring for why these are always disabled.
     auto verifier = ProofVerifier::Disabled();
+    auto orchardAuth = orchard::AuthValidator::Disabled();
+
     bool fCheckTransactions = ShouldCheckTransactions(chainparams, pindex);
-    if ((!CheckBlock(block, state, chainparams, verifier, true, true, fCheckTransactions)) ||
+    if ((!CheckBlock(block, state, chainparams, verifier, orchardAuth, true, true, fCheckTransactions)) ||
          !ContextualCheckBlock(block, state, chainparams, pindex->pprev, fCheckTransactions)) {
         if (state.IsInvalid() && !state.CorruptionPossible()) {
             pindex->nStatus |= BLOCK_FAILED_VALID;
@@ -4511,18 +4667,20 @@ bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams,
     CBlockIndex indexDummy(block);
     indexDummy.pprev = pindexPrev;
     indexDummy.nHeight = pindexPrev->nHeight + 1;
-    // JoinSplit proofs are verified in ConnectBlock
+
+    // JoinSplit proofs and Orchard authorizations are verified in ConnectBlock
     auto verifier = ProofVerifier::Disabled();
+    auto orchardAuth = orchard::AuthValidator::Disabled();
 
     // NOTE: CheckBlockHeader is called by CheckBlock
     if (!ContextualCheckBlockHeader(block, state, chainparams, pindexPrev))
         return false;
     // The following may be duplicative of the `CheckBlock` call within `ConnectBlock`
-    if (!CheckBlock(block, state, chainparams, verifier, false, fCheckMerkleRoot, true))
+    if (!CheckBlock(block, state, chainparams, verifier, orchardAuth, false, fCheckMerkleRoot, true))
         return false;
     if (!ContextualCheckBlock(block, state, chainparams, pindexPrev, true))
         return false;
-    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true))
+    if (!ConnectBlock(block, state, &indexDummy, viewNew, chainparams, true, fCheckMerkleRoot))
         return false;
     assert(state.IsValid());
 
@@ -4735,16 +4893,23 @@ bool static LoadBlockIndexDB(const CChainParams& chainparams)
                     } else {
                         pindex->nChainSaplingValue = std::nullopt;
                     }
+                    if (pindex->pprev->nChainOrchardValue) {
+                        pindex->nChainOrchardValue = *pindex->pprev->nChainOrchardValue + pindex->nOrchardValue;
+                    } else {
+                        pindex->nChainOrchardValue = std::nullopt;
+                    }
                 } else {
                     pindex->nChainTx = 0;
                     pindex->nChainSproutValue = std::nullopt;
                     pindex->nChainSaplingValue = std::nullopt;
+                    pindex->nChainOrchardValue = std::nullopt;
                     mapBlocksUnlinked.insert(std::make_pair(pindex->pprev, pindex));
                 }
             } else {
                 pindex->nChainTx = pindex->nTx;
                 pindex->nChainSproutValue = pindex->nSproutValue;
                 pindex->nChainSaplingValue = pindex->nSaplingValue;
+                pindex->nChainOrchardValue = pindex->nOrchardValue;
             }
 
             // Fall back to hardcoded Sprout value pool balance
@@ -4756,6 +4921,7 @@ bool static LoadBlockIndexDB(const CChainParams& chainparams)
             if (fExperimentalDeveloperSetPoolSizeZero) {
                 pindex->nChainSproutValue = 0;
                 pindex->nChainSaplingValue = 0;
+                pindex->nChainOrchardValue = 0;
             }
         }
         // Construct in-memory chain of branch IDs.
@@ -4913,6 +5079,9 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
     // Flags used to permit skipping checks for efficiency
     auto verifier = ProofVerifier::Disabled(); // No need to verify JoinSplits twice
     bool fCheckTransactions = true;
+    // We may as well check Orchard authorizations if we are checking
+    // transactions, since we can batch-validate them.
+    auto orchardAuth = orchard::AuthValidator::Batch();
 
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev)
     {
@@ -4928,7 +5097,7 @@ bool CVerifyDB::VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview,
 
         // check level 1: verify block validity
         fCheckTransactions = ShouldCheckTransactions(chainparams, pindex);
-        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams, verifier, true, true, fCheckTransactions))
+        if (nCheckLevel >= 1 && !CheckBlock(block, state, chainparams, verifier, orchardAuth, true, true, fCheckTransactions))
             return error("VerifyDB(): *** found bad block at %d, hash=%s\n", pindex->nHeight, pindex->GetBlockHash().ToString());
 
         // check level 2: verify undo validity
@@ -5134,6 +5303,14 @@ bool RewindBlockIndex(const CChainParams& chainparams, bool& clearWitnessCaches)
     }
 
     PruneBlockIndexCandidates();
+
+    // Ensure that pindexBestHeader points to the block index entry with the most work;
+    // setBlockIndexCandidates entries are sorted by work, highest at the end.
+    {
+        std::set<CBlockIndex*, CBlockIndexWorkComparator>::reverse_iterator it = setBlockIndexCandidates.rbegin();
+        assert(it != setBlockIndexCandidates.rend());
+        pindexBestHeader = *it;
+    }
 
     CheckBlockIndex(chainparams.GetConsensus());
 

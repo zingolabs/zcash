@@ -7,6 +7,8 @@
 #include "utiltest.h"
 #include "zcash/Proof.hpp"
 
+#include <rust/orchard.h>
+
 class MockCValidationState : public CValidationState {
 public:
     MOCK_METHOD5(DoS, bool(int level, bool ret,
@@ -26,15 +28,24 @@ public:
 
 TEST(CheckBlock, VersionTooLow) {
     auto verifier = ProofVerifier::Strict();
+    auto orchardAuth = orchard::AuthValidator::Batch();
 
     CBlock block;
     block.nVersion = 1;
 
     MockCValidationState state;
     EXPECT_CALL(state, DoS(100, false, REJECT_INVALID, "version-too-low", false)).Times(1);
-    EXPECT_FALSE(CheckBlock(block, state, Params(), verifier, false, false, true));
+    EXPECT_FALSE(CheckBlock(block, state, Params(), verifier, orchardAuth, false, false, true));
 }
 
+
+// Subclass of CTransaction which doesn't call UpdateHash when constructing
+// from a CMutableTransaction.  This enables us to create a CTransaction
+// with bad values which normally trigger an exception during construction.
+class UNSAFE_CTransaction : public CTransaction {
+    public:
+        UNSAFE_CTransaction(const CMutableTransaction &tx) : CTransaction(tx, true) {}
+};
 
 // Test that a Sprout tx with negative version is still rejected
 // by CheckBlock under Sprout consensus rules.
@@ -55,7 +66,8 @@ TEST(CheckBlock, BlockSproutRejectsBadVersion) {
     mtx.nVersion = -1;
     mtx.nVersionGroupId = 0;
 
-    CTransaction tx {mtx};
+    EXPECT_THROW((CTransaction(mtx)), std::ios_base::failure);
+    UNSAFE_CTransaction tx {mtx};
     CBlock block;
     block.vtx.push_back(tx);
 
@@ -63,9 +75,10 @@ TEST(CheckBlock, BlockSproutRejectsBadVersion) {
     CBlockIndex indexPrev {Params().GenesisBlock()};
 
     auto verifier = ProofVerifier::Strict();
+    auto orchardAuth = orchard::AuthValidator::Batch();
 
     EXPECT_CALL(state, DoS(100, false, REJECT_INVALID, "bad-txns-version-too-low", false)).Times(1);
-    EXPECT_FALSE(CheckBlock(block, state, Params(), verifier, false, false, true));
+    EXPECT_FALSE(CheckBlock(block, state, Params(), verifier, orchardAuth, false, false, true));
 }
 
 
