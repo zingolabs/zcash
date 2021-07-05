@@ -127,13 +127,13 @@ class AddFundingStreamValueToTx
 {
 private:
     CMutableTransaction &mtx;
-    void* ctx; 
+    void* ctx;
     const CAmount fundingStreamValue;
     const libzcash::Zip212Enabled zip212Enabled;
 public:
     AddFundingStreamValueToTx(
-            CMutableTransaction &mtx, 
-            void* ctx, 
+            CMutableTransaction &mtx,
+            void* ctx,
             const CAmount fundingStreamValue,
             const libzcash::Zip212Enabled zip212Enabled): mtx(mtx), ctx(ctx), fundingStreamValue(fundingStreamValue), zip212Enabled(zip212Enabled) {}
 
@@ -145,7 +145,7 @@ public:
         auto odesc = output.Build(ctx);
         if (odesc) {
             mtx.vShieldedOutput.push_back(odesc.value());
-            mtx.valueBalance -= fundingStreamValue;
+            mtx.valueBalanceSapling -= fundingStreamValue;
             return true;
         } else {
             return false;
@@ -232,7 +232,7 @@ public:
 
         bool success = librustzcash_sapling_binding_sig(
             ctx,
-            mtx.valueBalance,
+            mtx.valueBalanceSapling,
             dataToBeSigned.begin(),
             mtx.bindingSig.data());
 
@@ -249,7 +249,7 @@ public:
         auto ctx = librustzcash_sapling_proving_ctx_init();
 
         auto miner_reward = SetFoundersRewardAndGetMinerValue(ctx);
-        mtx.valueBalance -= miner_reward;
+        mtx.valueBalanceSapling -= miner_reward;
 
         uint256 ovk;
 
@@ -294,8 +294,14 @@ CMutableTransaction CreateCoinbaseTransaction(const CChainParams& chainparams, C
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(chainparams.GetConsensus(), nHeight);
         mtx.vin.resize(1);
         mtx.vin[0].prevout.SetNull();
-        // Set to 0 so expiry height does not apply to coinbase txs
-        mtx.nExpiryHeight = 0;
+        if (chainparams.GetConsensus().NetworkUpgradeActive(nHeight, Consensus::UPGRADE_NU5)) {
+            // ZIP 203: From NU5 onwards, nExpiryHeight is set to the block height in
+            // coinbase transactions.
+            mtx.nExpiryHeight = nHeight;
+        } else {
+            // Set to 0 so expiry height does not apply to coinbase txs
+            mtx.nExpiryHeight = 0;
+        }
 
         // Add outputs and sign
         std::visit(
@@ -462,6 +468,7 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const MinerAddre
         // so.
         CAmount sproutValue = 0;
         CAmount saplingValue = 0;
+        CAmount orchardValue = 0;
         bool monitoring_pool_balances = true;
         if (chainparams.ZIP209Enabled()) {
             if (pindexPrev->nChainSproutValue) {
@@ -471,6 +478,11 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const MinerAddre
             }
             if (pindexPrev->nChainSaplingValue) {
                 saplingValue = *pindexPrev->nChainSaplingValue;
+            } else {
+                monitoring_pool_balances = false;
+            }
+            if (pindexPrev->nChainOrchardValue) {
+                orchardValue = *pindexPrev->nChainOrchardValue;
             } else {
                 monitoring_pool_balances = false;
             }
@@ -536,8 +548,10 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const MinerAddre
 
                 CAmount sproutValueDummy = sproutValue;
                 CAmount saplingValueDummy = saplingValue;
+                CAmount orchardValueDummy = orchardValue;
 
-                saplingValueDummy += -tx.valueBalance;
+                saplingValueDummy += -tx.GetValueBalanceSapling();
+                orchardValueDummy += -tx.GetOrchardBundle().GetValueBalance();
 
                 for (auto js : tx.vJoinSplit) {
                     sproutValueDummy += js.vpub_old;
@@ -552,9 +566,14 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const MinerAddre
                     LogPrintf("CreateNewBlock(): tx %s appears to violate Sapling turnstile\n", tx.GetHash().ToString());
                     continue;
                 }
+                if (orchardValueDummy < 0) {
+                    LogPrintf("CreateNewBlock(): tx %s appears to violate Orchard turnstile\n", tx.GetHash().ToString());
+                    continue;
+                }
 
                 sproutValue = sproutValueDummy;
                 saplingValue = saplingValueDummy;
+                orchardValue = orchardValueDummy;
             }
 
             UpdateCoins(tx, view, nHeight);
@@ -622,12 +641,17 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const MinerAddre
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-        if (IsActivationHeight(nHeight, chainparams.GetConsensus(), Consensus::UPGRADE_HEARTWOOD)) {
-            pblock->hashLightClientRoot.SetNull();
+        if (chainparams.GetConsensus().NetworkUpgradeActive(nHeight, Consensus::UPGRADE_NU5)) {
+            // hashBlockCommitments depends on the block transactions, so we have to
+            // update it whenever the coinbase transaction changes. Leave it unset here,
+            // like hashMerkleRoot, and instead cache what we will need to calculate it.
+            pblocktemplate->hashChainHistoryRoot = view.GetHistoryRoot(prevConsensusBranchId);
+        } else if (IsActivationHeight(nHeight, chainparams.GetConsensus(), Consensus::UPGRADE_HEARTWOOD)) {
+            pblock->hashBlockCommitments.SetNull();
         } else if (chainparams.GetConsensus().NetworkUpgradeActive(nHeight, Consensus::UPGRADE_HEARTWOOD)) {
-            pblock->hashLightClientRoot = view.GetHistoryRoot(prevConsensusBranchId);
+            pblock->hashBlockCommitments = view.GetHistoryRoot(prevConsensusBranchId);
         } else {
-            pblock->hashLightClientRoot = sapling_tree.root();
+            pblock->hashBlockCommitments = sapling_tree.root();
         }
         UpdateTime(pblock, chainparams.GetConsensus(), pindexPrev);
         pblock->nBits          = GetNextWorkRequired(pindexPrev, pblock, chainparams.GetConsensus());
@@ -683,8 +707,13 @@ void GetMinerAddress(MinerAddress &minerAddress)
     }
 }
 
-void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
+void IncrementExtraNonce(
+    CBlockTemplate* pblocktemplate,
+    const CBlockIndex* pindexPrev,
+    unsigned int& nExtraNonce,
+    const Consensus::Params& consensusParams)
 {
+    CBlock *pblock = &pblocktemplate->block;
     // Update nExtraNonce
     static uint256 hashPrevBlock;
     if (hashPrevBlock != pblock->hashPrevBlock)
@@ -700,6 +729,11 @@ void IncrementExtraNonce(CBlock* pblock, const CBlockIndex* pindexPrev, unsigned
 
     pblock->vtx[0] = txCoinbase;
     pblock->hashMerkleRoot = BlockMerkleRoot(*pblock);
+    if (consensusParams.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_NU5)) {
+        pblock->hashBlockCommitments = DeriveBlockCommitmentsHash(
+            pblocktemplate->hashChainHistoryRoot,
+            pblock->BuildAuthDataMerkleTree());
+    }
 }
 
 static bool ProcessBlockFound(const CBlock* pblock, const CChainParams& chainparams)
@@ -798,7 +832,7 @@ void static BitcoinMiner(const CChainParams& chainparams)
                 return;
             }
             CBlock *pblock = &pblocktemplate->block;
-            IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
+            IncrementExtraNonce(pblocktemplate.get(), pindexPrev, nExtraNonce, chainparams.GetConsensus());
 
             LogPrintf("Running ZcashMiner with %u transactions in block (%u bytes)\n", pblock->vtx.size(),
                 ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
