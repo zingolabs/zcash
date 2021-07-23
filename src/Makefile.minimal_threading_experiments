@@ -1,3 +1,4 @@
-a.out: main.cpp
-	@rm -f a.out main.o
-	@clang++ -l boost_thread -pthread -I ${BOOST_HEADERS} -v main.cpp -o a.out
+mte = minimal_threading_experiments
+$(mte).out: $(mte).cpp
+	@rm -f $(mte).out $(mte).o
+	@clang++ -l boost_thread -pthread -v $(mte).cpp -o $(mte).out
