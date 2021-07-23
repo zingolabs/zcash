@@ -1,0 +1,3 @@
+a.out: main.cpp
+	@rm -f a.out main.o
+	@clang++ -l boost_thread -pthread -I ${BOOST_HEADERS} -v main.cpp -o a.out
