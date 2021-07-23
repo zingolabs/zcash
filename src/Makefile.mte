@@ -1,0 +1,4 @@
+mte = minimal_threading_experiments
+$(mte).out: $(mte).cpp
+	@rm -f $(mte).out $(mte).o
+	@clang++ -l boost_thread -pthread -v $(mte).cpp -o $(mte).out
