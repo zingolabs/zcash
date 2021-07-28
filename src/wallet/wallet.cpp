@@ -32,6 +32,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <cstdio>
 #include <variant>
 
 #include <boost/algorithm/string/replace.hpp>
@@ -2798,6 +2799,10 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
             SaplingMerkleTree saplingTree;
             // This should never fail: we should always be able to get the tree
             // state on the path to the tip of our chain
+            auto wallet_span = TracingSpan("info", "XXXXX", "ScanForWalletTransactions");
+            auto spanGuard = wallet_span.Enter();
+            TracingInfo("XXXXX", std::to_string(gettid()).c_str());
+            TracingInfo("main", "Goodbye!");
             assert(pcoinsTip->GetSproutAnchorAt(pindex->hashSproutAnchor, sproutTree));
             if (pindex->pprev) {
                 if (Params().GetConsensus().NetworkUpgradeActive(pindex->pprev->nHeight,  Consensus::UPGRADE_SAPLING)) {

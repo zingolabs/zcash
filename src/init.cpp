@@ -852,7 +852,7 @@ void InitLogging()
     fLogIPs = GetBoolArg("-logips", DEFAULT_LOGIPS);
 
     // Set up the initial filtering directive from the -debug flags.
-    std::string initialFilter = LogConfigFilter();
+    std::string initialFilter = "trace";
 
     fs::path pathDebug = GetDebugLogPath();
     const fs::path::string_type& pathDebugStr = pathDebug.native();
