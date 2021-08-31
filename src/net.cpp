@@ -1409,7 +1409,7 @@ void ThreadDNSAddressSeed()
         } else {
             vector<CNetAddr> vIPs;
             vector<CAddress> vAdd;
-            if (LookupHost(seed.host.c_str(), vIPs))
+            if (LookupHost(seed.host, vIPs))
             {
                 for (const CNetAddr& ip : vIPs)
                 {
