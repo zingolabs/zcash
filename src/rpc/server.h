@@ -30,7 +30,6 @@ namespace RPCServer
 }
 
 class CBlockIndex;
-class CNetAddr;
 
 class JSONRequest
 {
