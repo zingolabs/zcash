@@ -911,7 +911,7 @@ bool operator<(const CNetAddr& a, const CNetAddr& b)
     return (memcmp(a.ip, b.ip, 16) < 0);
 }
 
-bool CNetAddr::GetInAddr(struct in_addr* pipv4Addr) const
+bool CNetAddr::GetIPv4Addr(struct in_addr* pipv4Addr) const
 {
     if (!IsIPv4())
         return false;
@@ -996,6 +996,7 @@ std::vector<unsigned char> CNetAddr::GetGroup() const
 
 uint64_t CNetAddr::GetHash() const
 {
+    // Looks like we're just taking the first 1/4 of the digest?
     uint256 hash = Hash(&ip[0], &ip[16]);
     uint64_t nRet;
     memcpy(&nRet, &hash, sizeof(nRet));
@@ -1180,7 +1181,7 @@ bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
         *addrlen = sizeof(struct sockaddr_in);
         struct sockaddr_in *paddrin = (struct sockaddr_in*)paddr;
         memset(paddrin, 0, *addrlen);
-        if (!GetInAddr(&paddrin->sin_addr))
+        if (!GetIPv4Addr(&paddrin->sin_addr))
             return false;
         paddrin->sin_family = AF_INET;
         paddrin->sin_port = htons(port);
