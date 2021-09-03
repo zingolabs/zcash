@@ -1255,7 +1255,7 @@ CSubNet::CSubNet(const std::string &strSubnet, bool fAllowLookup)
     if (LookupHost(strAddress.c_str(), vIP, 1, fAllowLookup))
     {
         network = vIP[0];
-        if (slash != strSubnet.npos)
+        if (slash != strSubnet.npos) // This means '/' was found. Else -1 == -1
         {
             std::string strNetmask = strSubnet.substr(slash + 1);
             int32_t n;
