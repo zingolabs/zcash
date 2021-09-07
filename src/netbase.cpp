@@ -1262,13 +1262,13 @@ CSubNet::CSubNet(const std::string &strSubnet, bool fAllowLookup)
             // IPv4 addresses start at offset 12, and first 12 bytes must match, so just offset n
             const int astartofs = network.IsIPv4() ? 12 : 0;
             if (ParseInt32(strNetmask, &n)) // If valid number, assume /24 symtex
-            {
+            {   // I think the interface to ParseInt32 is very dangerous.
                 if(n >= 0 && n <= (128 - astartofs*8)) // Only valid if in range of bits of address
                 {
                     n += astartofs*8;
                     // Clear bits [n..127]
                     for (; n < 128; ++n)
-                        netmask[n>>3] &= ~(1<<(7-(n&7)));
+                        netmask[n>>3] &= ~(1<<(7-(n&7))); // I am curious about the motivation behind this design.
                 }
                 else
                 {

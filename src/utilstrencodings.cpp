@@ -282,7 +282,7 @@ bool ParseInt32(const std::string& str, int32_t *out)
     errno = 0; // strtol will not set errno if valid
     long int n = strtol(str.c_str(), &endp, 10);  // What's up with arg 2, can it just be uninitialized int*?
     if(out) {
-        *out = (int32_t)n;
+        *out = (int32_t)n;   //  So this can set out to a narrow of n..?  And out is defined outside this scope?
     }
     // Note that strtol returns a *long int*, so even if strtol doesn't report an over/underflow
     // we still have to check that the returned value is within the range of an *int32_t*. On 64-bit
