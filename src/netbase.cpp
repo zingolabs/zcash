@@ -1268,7 +1268,7 @@ CSubNet::CSubNet(const std::string &strSubnet, bool fAllowLookup)
                     n += astartofs*8;
                     // Clear bits [n..127]
                     for (; n < 128; ++n)
-                        netmask[n>>3] &= ~(1<<(7-(n&7))); // I am curious about the motivation behind this design.
+                        netmask[n>>3] &= ~(1<<(7-(n&7))); // `n` can be any bit, it's not constrained to a byte bound
                 }
                 else
                 {
@@ -1293,10 +1293,12 @@ CSubNet::CSubNet(const std::string &strSubnet, bool fAllowLookup)
     }
     else
     {
-        valid = false;
+        valid = false;  //  This value can be poisoned with an attack subnet with a > 4_000_000_000 /suffix.
     }
 
     // Normalize network according to netmask
+    // WARNING:  valid may be false, at least because strtol couldn't squish the value of strNetmask into 
+    // an int32_t.   We'll need to test this possibility.
     for(int x=0; x<16; ++x)
         network.ip[x] &= netmask[x];
 }
