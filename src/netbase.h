@@ -160,8 +160,7 @@ class CService : public CNetAddr
         CService(const struct in_addr& ipv4Addr, unsigned short port);
         CService(const struct sockaddr_in& addr);
         explicit CService(const char *pszIpPort, int portDefault = 0, bool fAllowLookup = false);
-        explicit CService(const std::string& strIpPort, int portDefault, bool fAllowLookup = false);
-        explicit CService(const std::string& strIpPort, bool fAllowLookup = false);
+        explicit CService(const std::string& strIpPort, int portDefault = 0, bool fAllowLookup = false);
         void Init();
         void SetPort(unsigned short portIn);
         unsigned short GetPort() const;

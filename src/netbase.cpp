@@ -1129,14 +1129,6 @@ CService::CService(const char *pszIpPort, int portDefault, bool fAllowLookup)
         *this = ip;
 }
 
-CService::CService(const std::string &strIpPort, bool fAllowLookup)
-{
-    Init();
-    CService ip;
-    if (Lookup(strIpPort.c_str(), ip, 0, fAllowLookup))
-        *this = ip;
-}
-
 CService::CService(const std::string &strIpPort, int portDefault, bool fAllowLookup)
 {
     Init();
