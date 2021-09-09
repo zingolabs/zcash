@@ -158,6 +158,8 @@ BOOST_AUTO_TEST_CASE(subnet_test)
 
     CSubNet subnet = CSubNet("1.2.3.4/255.255.255.255");
     BOOST_CHECK_EQUAL(subnet.ToString(), "1.2.3.4/32");
+    subnet = CSubNet("192.168.44.4/192.168.44.7");
+    BOOST_CHECK_EQUAL(subnet.ToString(), "flurble");
     subnet = CSubNet("1.2.3.4/255.255.255.254");
     BOOST_CHECK_EQUAL(subnet.ToString(), "1.2.3.4/31");
     subnet = CSubNet("1.2.3.4/255.255.255.252");
