@@ -1121,14 +1121,6 @@ bool CService::SetSockAddr(const struct sockaddr *paddr)
     }
 }
 
-CService::CService(const char *pszIpPort, bool fAllowLookup)
-{
-    Init();
-    CService ip;
-    if (Lookup(pszIpPort, ip, 0, fAllowLookup))
-        *this = ip;
-}
-
 CService::CService(const char *pszIpPort, int portDefault, bool fAllowLookup)
 {
     Init();
