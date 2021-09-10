@@ -1157,7 +1157,7 @@ bool operator<(const CService& a, const CService& b)
     return (CNetAddr)a < (CNetAddr)b || ((CNetAddr)a == (CNetAddr)b && a.port < b.port);
 }
 
-bool CService::GetSockAddr(struct sockaddr* paddr, socklen_t *addrlen) const
+bool CService::GetSockAddr(struct sockaddr* const paddr, socklen_t *addrlen) const
 {
     if (IsIPv4()) {
         if (*addrlen < (socklen_t)sizeof(struct sockaddr_in))
