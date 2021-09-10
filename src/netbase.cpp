@@ -1114,7 +1114,7 @@ bool CService::SetSockAddr(const struct sockaddr *paddr)
         *this = CService(*(const struct sockaddr_in*)paddr);
         return true;
     case AF_INET6:
-        *this = CService(*(const struct sockaddr_in6*)paddr);
+        *this = CService(*(const struct sockaddr_in6*)paddr); // Maybe this is safe
         return true;
     default:
         return false;
@@ -1175,7 +1175,7 @@ bool CService::GetSockAddr(struct sockaddr* const paddr, socklen_t *addrlen) con
         if (*addrlen < (socklen_t)sizeof(struct sockaddr_in6))
             return false;
         *addrlen = sizeof(struct sockaddr_in6);
-        struct sockaddr_in6 *paddrin6 = (struct sockaddr_in6*)paddr;
+        struct sockaddr_in6 *paddrin6 = (struct sockaddr_in6*)paddr; // This cast takes more memory than the original had.
         memset(paddrin6, 0, *addrlen);
         if (!GetIn6Addr(&paddrin6->sin6_addr))
             return false;
