@@ -534,7 +534,7 @@ bool GetProxy(enum Network net, proxyType &proxyInfoOut) {
     return true;
 }
 
-bool SetNameProxy(const proxyType &addrProxy) {
+bool SetNameProxy(const proxyType &addrProxy) { // The returned bool is never checked.
     if (!addrProxy.IsValid())
         return false;
     LOCK(cs_proxyInfos);
@@ -542,7 +542,7 @@ bool SetNameProxy(const proxyType &addrProxy) {
     return true;
 }
 
-bool GetNameProxy(proxyType &nameProxyOut) {
+static bool GetNameProxy(proxyType &nameProxyOut) {
     LOCK(cs_proxyInfos);
     if(!nameProxy.IsValid())
         return false;
