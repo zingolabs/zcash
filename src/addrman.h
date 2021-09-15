@@ -18,7 +18,7 @@
 #include <vector>
 
 /**
- * Extended statistics about a CAddress
+ * Extended statistics about a CAddress, has connection information.
  */
 class CAddrInfo : public CAddress
 {
