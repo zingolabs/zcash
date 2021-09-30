@@ -6,6 +6,7 @@
 #include "main.h"
 #include "test/test_bitcoin.h"
 #include "test/test_random.h"
+#include <span.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -105,7 +106,7 @@ BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
                 if (currentPos + 1 > fileSize)
                     continue;
                 bf.SetLimit(currentPos + 1);
-                bf >> FLATDATA(a);
+                bf >> MakeSpan(a);
                 for (uint8_t i = 0; i < 1; ++i) {
                     BOOST_CHECK_EQUAL(a[i], currentPos);
                     currentPos++;
@@ -117,7 +118,7 @@ BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
                 if (currentPos + 2 > fileSize)
                     continue;
                 bf.SetLimit(currentPos + 2);
-                bf >> FLATDATA(a);
+                bf >> MakeSpan(a);
                 for (uint8_t i = 0; i < 2; ++i) {
                     BOOST_CHECK_EQUAL(a[i], currentPos);
                     currentPos++;
@@ -129,7 +130,7 @@ BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
                 if (currentPos + 5 > fileSize)
                     continue;
                 bf.SetLimit(currentPos + 5);
-                bf >> FLATDATA(a);
+                bf >> MakeSpan(a);
                 for (uint8_t i = 0; i < 5; ++i) {
                     BOOST_CHECK_EQUAL(a[i], currentPos);
                     currentPos++;
