@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
     BOOST_CHECK(vAddr.size() == percent23);
     BOOST_CHECK(vAddr.size() == 461);
     // (Addrman.size() < number of addresses added) due to address collisons.
-    BOOST_CHECK(addrman.size() == 2007);
+    BOOST_CHECK(addrman.size() == 2006U);
 }
 
 
