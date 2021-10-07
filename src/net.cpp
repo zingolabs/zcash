@@ -1482,7 +1482,7 @@ void static ProcessOneShot()
     CAddress addr;
     CSemaphoreGrant grant(*semOutbound, true);
     if (grant) {
-        if (!OpenNetworkConnection(addr, &grant, strDest.c_str(), true))
+        if (!OpenNetworkConnection(addr, false, &grant, strDest.c_str(), true))
             AddOneShot(strDest);
     }
 }
@@ -1498,7 +1498,7 @@ void ThreadOpenConnections()
             for (const std::string& strAddr : mapMultiArgs["-connect"])
             {
                 CAddress addr(CService(), NODE_NONE);
-                OpenNetworkConnection(addr, NULL, strAddr.c_str());
+                OpenNetworkConnection(addr, false, NULL, strAddr.c_str());
                 for (int i = 0; i < 10 && i < nLoop; i++)
                 {
                     MilliSleep(500);
@@ -1577,7 +1577,7 @@ void ThreadOpenConnections()
             }
         }
 
-        int64_t nANow = GetAdjustedTime();
+        int64_t nANow = GetTime();
         int nTries = 0;
         while (true)
         {
@@ -1641,7 +1641,7 @@ void ThreadOpenAddedConnections()
             for (const std::string& strAddNode : lAddresses) {
                 CAddress addr;
                 CSemaphoreGrant grant(*semOutbound);
-                OpenNetworkConnection(addr, &grant, strAddNode.c_str());
+                OpenNetworkConnection(addr, false, &grant, strAddNode.c_str());
                 MilliSleep(500);
             }
             MilliSleep(120000); // Retry every 2 minutes
@@ -1689,7 +1689,7 @@ void ThreadOpenAddedConnections()
             CSemaphoreGrant grant(*semOutbound);
             /* We want -addnode to work even for nodes that don't provide all
              * wanted services, so pass in nServices=NODE_NONE to CAddress. */
-            OpenNetworkConnection(CAddress(vserv[i % vserv.size()], NODE_NONE), &grant);
+            OpenNetworkConnection(CAddress(vserv[i % vserv.size()], NODE_NONE), false, &grant);
             MilliSleep(500);
         }
         MilliSleep(120000); // Retry every 2 minutes
