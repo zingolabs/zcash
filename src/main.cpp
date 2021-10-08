@@ -6246,6 +6246,12 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
 
     if (strCommand == "version")
     {
+        // Feeler connections exist only to verify if address is online.
+        if (pfrom->fFeeler) {
+            assert(pfrom->fInbound == false);
+            pfrom->fDisconnect = true;
+        }
+
         // Each connection can only send one version message
         if (pfrom->nVersion != 0)
         {
@@ -6261,9 +6267,9 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
         uint64_t nNonce = 1;
         std::string strSubVer;
         std::string cleanSubVer;
-        uint64_t nServices;
-        vRecv >> pfrom->nVersion >> nServices >> nTime >> addrMe;
-        pfrom->nServices = nServices;
+        uint64_t nServiceInt;
+        vRecv >> pfrom->nVersion >> nServiceInt >> nTime >> addrMe;
+        pfrom->nServices = ServiceFlags(nServiceInt);
         if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
         {
             // disconnect from peers older than this proto version

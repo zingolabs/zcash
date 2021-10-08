@@ -126,6 +126,7 @@ BITCOIN_CORE_H = \
   addrman.h \
   alert.h \
   amount.h \
+  asmap.h \
   arith_uint256.h \
   asyncrpcoperation.h \
   asyncrpcqueue.h \
@@ -173,6 +174,7 @@ BITCOIN_CORE_H = \
   metrics.h \
   miner.h \
   net.h \
+  netaddress.h \
   netbase.h \
   noui.h \
   policy/fees.h \
@@ -201,6 +203,7 @@ BITCOIN_CORE_H = \
   script/standard.h \
   script/ismine.h \
   serialize.h \
+  span.h \
   spentindex.h \
   streams.h \
   support/allocators/secure.h \
@@ -390,6 +393,7 @@ libbitcoin_common_a_SOURCES = \
   key.cpp \
   key_io.cpp \
   keystore.cpp \
+  netaddress.cpp \
   netbase.cpp \
   primitives/block.cpp \
   primitives/transaction.cpp \
@@ -414,6 +418,7 @@ libbitcoin_common_a_SOURCES = \
 libbitcoin_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_util_a_SOURCES = \
+  asmap.cpp \
   support/lockedpool.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \

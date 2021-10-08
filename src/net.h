@@ -11,7 +11,7 @@
 #include "compat.h"
 #include "fs.h"
 #include "limitedmap.h"
-#include "netbase.h"
+#include "netaddress.h"
 #include "protocol.h"
 #include "random.h"
 #include "streams.h"
@@ -23,6 +23,7 @@
 #include <atomic>
 #include <deque>
 #include <stdint.h>
+#include <memory>
 
 #ifndef WIN32
 #include <arpa/inet.h>
@@ -45,6 +46,8 @@ namespace boost {
 static const int PING_INTERVAL = 2 * 60;
 /** Time after which to disconnect, after waiting for a ping response (or inactivity). */
 static const int TIMEOUT_INTERVAL = 20 * 60;
+/** Run the feeler connection loop once every 2 minutes or 120 seconds. **/
+static const int FEELER_INTERVAL = 120;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 50000;
 /** The maximum number of new addresses to accumulate before announcing. */
@@ -87,12 +90,43 @@ CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const CSubNet& subNet);
 CNode* FindNode(const std::string& addrName);
 CNode* FindNode(const CService& ip);
-CNode* ConnectNode(CAddress addrConnect, const char *pszDest = NULL);
-bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
+
+class CConnman
+{
+public:
+    CConnman();
+    ~CConnman();
+    bool Start(boost::thread_group& threadGroup, std::string& strNodeError);
+    void Stop();
+    bool BindListenPort(const CService &bindAddr, std::string& strError, bool fWhitelisted = false);
+    bool OpenNetworkConnection(const CAddress& addrConnect, bool fCountFailure, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false, bool fFeeler = false);
+
+private:
+    struct ListenSocket {
+        SOCKET socket;
+        bool whitelisted;
+
+        ListenSocket(SOCKET socket_, bool whitelisted_) : socket(socket_), whitelisted(whitelisted_) {}
+    };
+
+    void ThreadOpenAddedConnections();
+    void ProcessOneShot();
+    void ThreadOpenConnections();
+    void ThreadMessageHandler();
+    void AcceptConnection(const ListenSocket& hListenSocket);
+    void ThreadSocketHandler();
+    void ThreadDNSAddressSeed();
+
+    CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure);
+
+    std::vector<ListenSocket> vhListenSocket;
+};
+extern std::unique_ptr<CConnman> g_connman;
+void MapPort(bool fUseUPnP);
 unsigned short GetListenPort();
 bool BindListenPort(const CService &bindAddr, std::string& strError, bool fWhitelisted = false);
-void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler);
-bool StopNode();
+bool StartNode(CConnman& connman, boost::thread_group& threadGroup, CScheduler& scheduler, std::string& strNodeError);
+bool StopNode(CConnman& connman);
 void SocketSendData(CNode *pnode);
 
 typedef int NodeId;
@@ -155,7 +189,7 @@ CAddress GetLocalAddress(const CNetAddr *paddrPeer = NULL);
 
 extern bool fDiscover;
 extern bool fListen;
-extern uint64_t nLocalServices;
+extern ServiceFlags nLocalServices;
 extern uint64_t nLocalHostNonce;
 extern CAddrMan addrman;
 
@@ -187,7 +221,7 @@ class CNodeStats
 {
 public:
     NodeId nodeid;
-    uint64_t nServices;
+    ServiceFlags nServices;
     bool fRelayTxes;
     int64_t nLastSend;
     int64_t nLastRecv;
@@ -253,7 +287,7 @@ class CNode
 {
 public:
     // socket
-    std::atomic<uint64_t> nServices;
+    ServiceFlags nServices;
     SOCKET hSocket;
     CDataStream ssSend;
     std::string strSendCommand; // Current command being assembled in ssSend
@@ -284,6 +318,7 @@ public:
     std::string strSubVer, cleanSubVer;
     CCriticalSection cs_SubVer; // used for both cleanSubVer and strSubVer
     bool fWhitelisted; // This peer can bypass DoS banning.
+    bool fFeeler; // If true this node is being used as a short lived feeler.
     bool fOneShot;
     bool fClient;
     bool fInbound;
@@ -446,21 +481,21 @@ public:
 
 
 
-    void AddAddressKnown(const CAddress& addr)
+    void AddAddressKnown(const CAddress& _addr)
     {
-        addrKnown.insert(addr.GetKey());
+        addrKnown.insert(_addr.GetKey());
     }
 
-    void PushAddress(const CAddress& addr, FastRandomContext &insecure_rand)
+    void PushAddress(const CAddress& _addr, FastRandomContext &insecure_rand)
     {
         // Known checking here is only to save space from duplicates.
         // SendMessages will filter it again for knowns that were added
         // after addresses were pushed.
-        if (addr.IsValid() && !addrKnown.contains(addr.GetKey())) {
+        if (_addr.IsValid() && !addrKnown.contains(_addr.GetKey())) {
             if (vAddrToSend.size() >= MAX_ADDR_TO_SEND) {
-                vAddrToSend[insecure_rand.randrange(vAddrToSend.size())] = addr;
+                vAddrToSend[insecure_rand.randrange(vAddrToSend.size())] = _addr;
             } else {
-                vAddrToSend.push_back(addr);
+                vAddrToSend.push_back(_addr);
             }
         }
     }

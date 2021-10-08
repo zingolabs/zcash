@@ -10,7 +10,7 @@
 #ifndef BITCOIN_PROTOCOL_H
 #define BITCOIN_PROTOCOL_H
 
-#include "netbase.h"
+#include "netaddress.h"
 #include "serialize.h"
 #include "uint256.h"
 #include "version.h"
@@ -50,10 +50,10 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
-        READWRITE(FLATDATA(pchMessageStart));
-        READWRITE(FLATDATA(pchCommand));
+        READWRITE(pchMessageStart);
+        READWRITE(pchCommand);
         READWRITE(nMessageSize);
-        READWRITE(FLATDATA(pchChecksum));
+        READWRITE(pchChecksum);
     }
 
     char pchMessageStart[MESSAGE_START_SIZE];
@@ -63,7 +63,9 @@ public:
 };
 
 /** nServices flags */
-enum {
+enum ServiceFlags : uint64_t {
+    // Nothing
+    NODE_NONE = 0,
     // NODE_NETWORK means that the node is capable of serving the block chain. It is currently
     // set by all Bitcoin Core nodes, and is unset by SPV clients or other peers that just want
     // network services but don't provide them.
@@ -87,7 +89,7 @@ class CAddress : public CService
 {
 public:
     CAddress();
-    explicit CAddress(CService ipIn, uint64_t nServicesIn = NODE_NETWORK);
+    explicit CAddress(CService ipIn, ServiceFlags nServicesIn);
 
     void Init();
 
@@ -104,13 +106,15 @@ public:
         if ((s.GetType() & SER_DISK) ||
             (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
             READWRITE(nTime);
-        READWRITE(nServices);
-        READWRITE(*(CService*)this);
+        uint64_t nServicesInt = nServices;
+        READWRITE(nServicesInt);
+        nServices = static_cast<ServiceFlags>(nServicesInt);
+        READWRITEAS(CService, *this);
     }
 
     // TODO: make private (improves encapsulation)
 public:
-    uint64_t nServices;
+    ServiceFlags nServices;
 
     // disk and network only
     unsigned int nTime;
