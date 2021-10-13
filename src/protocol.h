@@ -45,16 +45,7 @@ public:
     std::string GetCommand() const;
     bool IsValid(const MessageStartChars& messageStart) const;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
-        READWRITE(pchMessageStart);
-        READWRITE(pchCommand);
-        READWRITE(nMessageSize);
-        READWRITE(pchChecksum);
-    }
+    SERIALIZE_METHODS(CMessageHeader, obj) { READWRITE(obj.pchMessageStart, obj.pchCommand, obj.nMessageSize, obj.pchChecksum); }
 
     char pchMessageStart[MESSAGE_START_SIZE];
     char pchCommand[COMMAND_SIZE];
@@ -93,23 +84,19 @@ public:
 
     void Init();
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
+    SERIALIZE_METHODS(CAddress, obj)
     {
-        if (ser_action.ForRead())
-            Init();
+        SER_READ(obj, obj.Init());
         int nVersion = s.GetVersion();
-        if (s.GetType() & SER_DISK)
+        if (s.GetType() & SER_DISK) {
             READWRITE(nVersion);
+        }
         if ((s.GetType() & SER_DISK) ||
-            (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
-            READWRITE(nTime);
-        uint64_t nServicesInt = nServices;
-        READWRITE(nServicesInt);
-        nServices = static_cast<ServiceFlags>(nServicesInt);
-        READWRITEAS(CService, *this);
+            (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH))) {
+            READWRITE(obj.nTime);
+        }
+        READWRITE(Using<CustomUintFormatter<8>>(obj.nServices));
+        READWRITEAS(CService, obj);
     }
 
     // TODO: make private (improves encapsulation)
@@ -142,48 +129,7 @@ public:
     CInv(int typeIn, const uint256& hashIn);
     CInv(int typeIn, const uint256& hashIn, const uint256& hashAuxIn);
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
-        int nVersion = s.GetVersion();
-        READWRITE(type);
-
-        // The implicit P2P network protocol inherited from Bitcoin Core has
-        // zcashd nodes sort-of ignoring unknown CInv message types in inv
-        // messages: they are added to the known transaction inventory, but
-        // AlreadyHave returns true, so we do nothing with them. Meanwhile for
-        // getdata messages, ProcessGetData ignores unknown message types
-        // entirely.
-        //
-        // As of v4.5.0, we change the implementation behaviour to reject
-        // undefined message types instead of ignoring them.
-        switch (type) {
-        case MSG_TX:
-        case MSG_BLOCK:
-        case MSG_FILTERED_BLOCK:
-            break;
-        case MSG_WTX:
-            if (nVersion < CINV_WTX_VERSION) {
-                throw std::ios_base::failure(
-                    "Negotiated protocol version does not support CInv message type MSG_WTX");
-            }
-            break;
-        default:
-            // This includes UNDEFINED, which should never be serialized.
-            throw std::ios_base::failure("Unknown CInv message type");
-        }
-
-        READWRITE(hash);
-        if (type == MSG_WTX) {
-            // We've already checked above that nVersion >= CINV_WTX_VERSION.
-            READWRITE(hashAux);
-        } else if (type == MSG_TX && ser_action.ForRead()) {
-            // Ensure that this value is set consistently in memory for MSG_TX.
-            hashAux = LEGACY_TX_AUTH_DIGEST;
-        }
-    }
+    SERIALIZE_METHODS(CInv, obj) { READWRITE(obj.type, obj.hash); }
 
     friend bool operator<(const CInv& a, const CInv& b);
 
