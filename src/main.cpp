@@ -26,6 +26,7 @@
 #include "policy/policy.h"
 #include "pow.h"
 #include "reverse_iterator.h"
+#include "streams.h"
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "undo.h"
@@ -6345,6 +6346,9 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
 
         // Change version
         pfrom->PushMessage("verack");
+        //
+        // Signal ADDRv2 support (BIP155).
+        pfrom->PushMessage("sendaddrv2");
         pfrom->ssSend.SetVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
 
         if (!pfrom->fInbound)
@@ -6443,10 +6447,19 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
     }
 
 
-    else if (strCommand == "addr")
+    else if (strCommand == "addr" || strCommand == "addrv2")
     {
+        int stream_version = vRecv.GetVersion();
+        if (strCommand == "addrv2") {
+            // Add ADDRV2_FORMAT to the version so that the CNetAddr and CAddress
+            // unserialize methods know that an address in v2 format is coming.
+            stream_version |= ADDRV2_FORMAT;
+        }
+
+        OverrideStream<CDataStream> s(&vRecv, vRecv.GetType(), stream_version);
         vector<CAddress> vAddr;
-        vRecv >> vAddr;
+
+        s >> vAddr;
 
         // Don't want addr from older versions unless seeding
         if (pfrom->nVersion < CADDR_TIME_VERSION && addrman.size() > 1000)
@@ -6505,6 +6518,12 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
         if (pfrom->fOneShot)
             pfrom->fDisconnect = true;
     }
+
+    if (strCommand == "sendaddrv2") {
+        pfrom->m_wants_addrv2 = true;
+        return true;
+    }
+
 
 
     else if (strCommand == "inv")
@@ -7406,6 +7425,16 @@ bool SendMessages(const Consensus::Params& params, CNode* pto)
             pto->nNextAddrSend = PoissonNextSend(nNow, AVG_ADDRESS_BROADCAST_INTERVAL);
             vector<CAddress> vAddr;
             vAddr.reserve(pto->vAddrToSend.size());
+
+            const char* msg_type;
+            int make_flags;
+            if (pto->m_wants_addrv2) {
+                msg_type = "addrv2";
+                make_flags = ADDRV2_FORMAT;
+            } else {
+                msg_type = "addr";
+                make_flags = 0;
+            }
             for (const CAddress& addr : pto->vAddrToSend)
             {
                 if (!pto->addrKnown.contains(addr.GetKey()))
@@ -7415,7 +7444,7 @@ bool SendMessages(const Consensus::Params& params, CNode* pto)
                     // receiver rejects addr messages larger than 1000
                     if (vAddr.size() >= 1000)
                     {
-                        pto->PushMessage("addr", vAddr);
+                        pto->PushMessage(msg_type, vAddr);
                         vAddr.clear();
                     }
                 }
