@@ -13,6 +13,7 @@
 #include "timedata.h"
 #include "tinyformat.h"
 #include "util.h"
+#include "tracing.h"
 
 #include <map>
 #include <set>
@@ -319,7 +320,11 @@ public:
             mapUnkIds[(*it).first] = nIds;
             const CAddrInfo &info = (*it).second;
             if (info.nRefCount) {
-                assert(nIds != nNew); // this means nNew was wrong, oh ow
+                std::string nidlog = "nIds: " + std::to_string(nIds);
+                std::string nnewlog = "nNew: " + std::to_string(nNew);
+                TracingInfo("main", nidlog.c_str());
+                TracingInfo("main", nnewlog.c_str());
+                //assert(nIds != nNew); // this means nNew was wrong, oh ow
                 s << info;
                 nIds++;
             }
