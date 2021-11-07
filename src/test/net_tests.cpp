@@ -7,7 +7,6 @@
 #include <test/util/setup_common.h>
 
 #include <boost/test/unit_test.hpp>
-#include "serialize.h"
 #include "streams.h"
 #include "net.h"
 #include "netbase.h"
