@@ -5,7 +5,6 @@
 #include "netbase.h"
 #include "test/test_bitcoin.h"
 #include "protocol.h"
-#include "version.h"
 
 #include <string>
 
