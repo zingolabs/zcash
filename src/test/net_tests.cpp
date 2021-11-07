@@ -3,7 +3,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include "addrman.h"
 #include "test/test_bitcoin.h"
-#include <string>
 
 #include "utilstrencodings.h"
 #include <span.h>
