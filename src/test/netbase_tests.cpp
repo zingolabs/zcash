@@ -5,13 +5,7 @@
 #include "netbase.h"
 #include "test/test_bitcoin.h"
 #include "protocol.h"
-#include "serialize.h"
-#include "streams.h"
-#include "version.h"
 
-#include <string>
-
-#include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
