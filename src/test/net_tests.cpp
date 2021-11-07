@@ -17,11 +17,9 @@
 #include "net.h"
 #include "netbase.h"
 #include "chainparams.h"
+#include <ios>
 
 using namespace std;
-#include <ios>
-#include <string>
-
 class CAddrManSerializationMock : public CAddrMan
 {
 public:
