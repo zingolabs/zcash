@@ -4,7 +4,6 @@
 #include "addrman.h"
 #include "test/test_bitcoin.h"
 
-#include <span.h>
 #include <test/util/setup_common.h>
 
 #include <boost/test/unit_test.hpp>
