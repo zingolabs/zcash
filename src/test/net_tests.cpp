@@ -8,7 +8,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include "net.h"
-#include "netbase.h"
 #include "chainparams.h"
 #include <ios>
 
