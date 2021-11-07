@@ -9,7 +9,6 @@
 #include <boost/test/unit_test.hpp>
 #include "net.h"
 
-using namespace std;
 class CAddrManSerializationMock : public CAddrMan
 {
 public:
