@@ -20,7 +20,6 @@
 
 using namespace std;
 #include <ios>
-#include <memory>
 #include <string>
 
 class CAddrManSerializationMock : public CAddrMan
