@@ -15,13 +15,13 @@ using namespace std;
  */
 class HasReason {
 public:
-    explicit HasReason(const std::string& reason) : m_reason(reason) {}
+    explicit HasReason(const string& reason) : m_reason(reason) {}
     template <typename E>
     bool operator() (const E& e) const {
-        return std::string(e.what()).find(m_reason) != std::string::npos;
+        return string(e.what()).find(m_reason) != string::npos;
     };
 private:
-    const std::string m_reason;
+    const string m_reason;
 };
 
 #endif
