@@ -1437,6 +1437,7 @@ void DumpAddresses()
     int64_t nStart = GetTimeMillis();
 
     CAddrDB adb;
+    LogPrintf("About to try to write to CAddrDB adb******************************************");
     adb.Write(addrman);
 
     LogPrint("net", "Flushed %d addresses to peers.dat  %dms\n",

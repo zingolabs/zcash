@@ -6354,7 +6354,7 @@ bool static ProcessMessage(const CChainParams& chainparams, CNode* pfrom, string
         // Change version
         pfrom->PushMessage("verack");
         //
-        // Signal ADDRv2 support (BIP155).
+        // Signal ADDRv2 support (ZIP155).
         pfrom->PushMessage("sendaddrv2");
         pfrom->ssSend.SetVersion(min(pfrom->nVersion, PROTOCOL_VERSION));
 

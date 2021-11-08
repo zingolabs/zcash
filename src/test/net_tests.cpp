@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "05"          // address length
                            "01020304")); // address
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 IPv4 address with length 5 (should be 4)"));
+                          HasReason("ZIP155 IPv4 address with length 5 (should be 4)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "04"    // address length
                            "00")); // address
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 IPv6 address with length 4 (should be 16)"));
+                          HasReason("ZIP155 IPv6 address with length 4 (should be 16)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "07"    // address length
                            "00")); // address
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 TORv2 address with length 7 (should be 10)"));
+                          HasReason("ZIP155 TORv2 address with length 7 (should be 10)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "00" // address
                            ));
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 TORv3 address with length 0 (should be 32)"));
+                          HasReason("ZIP155 TORv3 address with length 0 (should be 32)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 
@@ -480,7 +480,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "00" // address
                            ));
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 I2P address with length 3 (should be 32)"));
+                          HasReason("ZIP155 I2P address with length 3 (should be 32)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 
@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE(cnetaddr_unserialize_v2)
                            "00" // address
                            ));
     BOOST_CHECK_EXCEPTION(s >> addr, std::ios_base::failure,
-                          HasReason("BIP155 CJDNS address with length 1 (should be 16)"));
+                          HasReason("ZIP155 CJDNS address with length 1 (should be 16)"));
     BOOST_REQUIRE(!s.empty()); // The stream is not consumed on invalid input.
     s.clear();
 

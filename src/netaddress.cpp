@@ -26,26 +26,26 @@
 constexpr size_t CNetAddr::V1_SERIALIZATION_SIZE;
 constexpr size_t CNetAddr::MAX_ADDRV2_SIZE;
 
-CNetAddr::BIP155Network CNetAddr::GetBIP155Network() const
+CNetAddr::ZIP155Network CNetAddr::GetZIP155Network() const
 {
     switch (m_net) {
     case NET_IPV4:
-        return BIP155Network::IPV4;
+        return ZIP155Network::IPV4;
     case NET_IPV6:
-        return BIP155Network::IPV6;
+        return ZIP155Network::IPV6;
     case NET_ONION:
         switch (m_addr.size()) {
         case ADDR_TORV2_SIZE:
-            return BIP155Network::TORV2;
+            return ZIP155Network::TORV2;
         case ADDR_TORV3_SIZE:
-            return BIP155Network::TORV3;
+            return ZIP155Network::TORV3;
         default:
             assert(false);
         }
     case NET_I2P:
-        return BIP155Network::I2P;
+        return ZIP155Network::I2P;
     case NET_CJDNS:
-        return BIP155Network::CJDNS;
+        return ZIP155Network::CJDNS;
     case NET_INTERNAL:   // should have been handled before calling this function
     case NET_UNROUTABLE: // m_net is never and should not be set to NET_UNROUTABLE
     case NET_MAX:        // m_net is never and should not be set to NET_MAX
@@ -55,56 +55,56 @@ CNetAddr::BIP155Network CNetAddr::GetBIP155Network() const
     assert(false);
 }
 
-bool CNetAddr::SetNetFromBIP155Network(uint8_t possible_bip155_net, size_t address_size)
+bool CNetAddr::SetNetFromZIP155Network(uint8_t possible_bip155_net, size_t address_size)
 {
     switch (possible_bip155_net) {
-    case BIP155Network::IPV4:
+    case ZIP155Network::IPV4:
         if (address_size == ADDR_IPV4_SIZE) {
             m_net = NET_IPV4;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 IPv4 address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 IPv4 address with length %u (should be %u)", address_size,
                       ADDR_IPV4_SIZE));
-    case BIP155Network::IPV6:
+    case ZIP155Network::IPV6:
         if (address_size == ADDR_IPV6_SIZE) {
             m_net = NET_IPV6;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 IPv6 address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 IPv6 address with length %u (should be %u)", address_size,
                       ADDR_IPV6_SIZE));
-    case BIP155Network::TORV2:
+    case ZIP155Network::TORV2:
         if (address_size == ADDR_TORV2_SIZE) {
             m_net = NET_ONION;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 TORv2 address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 TORv2 address with length %u (should be %u)", address_size,
                       ADDR_TORV2_SIZE));
-    case BIP155Network::TORV3:
+    case ZIP155Network::TORV3:
         if (address_size == ADDR_TORV3_SIZE) {
             m_net = NET_ONION;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 TORv3 address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 TORv3 address with length %u (should be %u)", address_size,
                       ADDR_TORV3_SIZE));
-    case BIP155Network::I2P:
+    case ZIP155Network::I2P:
         if (address_size == ADDR_I2P_SIZE) {
             m_net = NET_I2P;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 I2P address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 I2P address with length %u (should be %u)", address_size,
                       ADDR_I2P_SIZE));
-    case BIP155Network::CJDNS:
+    case ZIP155Network::CJDNS:
         if (address_size == ADDR_CJDNS_SIZE) {
             m_net = NET_CJDNS;
             return true;
         }
         throw std::ios_base::failure(
-            strprintf("BIP155 CJDNS address with length %u (should be %u)", address_size,
+            strprintf("ZIP155 CJDNS address with length %u (should be %u)", address_size,
                       ADDR_CJDNS_SIZE));
     }
 
