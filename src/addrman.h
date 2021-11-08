@@ -265,7 +265,7 @@ public:
     //! Serialization versions.
     enum class Format : uint8_t {
         V0_HISTORICAL = 0,    //!< historic format, before commit e6b343d88
-        V1_BIP155 = 1,        //!< same as V2_ASMAP plus addresses are in BIP155 format
+        V1_ZIP155 = 2,        //!< same as V2_ASMAP plus addresses are in ZIP155 format
     };
     /**
      * serialized format:
@@ -301,11 +301,11 @@ public:
     {
         LOCK(cs);
 
-        // Always serialize in the latest version (currently Format::V1_BIP155).
+        // Always serialize in the latest version (currently Format::V1_ZIP155).
 
         OverrideStream<Stream> s(&s_, s_.GetType(), s_.GetVersion() | ADDRV2_FORMAT);
 
-        s << static_cast<uint8_t>(Format::V1_BIP155);
+        s << static_cast<uint8_t>(Format::V1_ZIP155);
         s << ((unsigned char)32);
         s << nKey;
         s << nNew;
@@ -358,9 +358,12 @@ public:
 
         
         Format format;
+        LogPrintf("CAddrMan Unserialize");
         s_ >> Using<CustomUintFormatter<1>>(format);
+        LogPrintf("format read from file is: %u", (unsigned)format);
+        LogPrintf("Format::V1_ZIP155: %u", (unsigned)Format::V1_ZIP155);
 
-        static constexpr Format maximum_supported_format = Format::V1_BIP155;
+        static constexpr Format maximum_supported_format = Format::V1_ZIP155;
         if (format > maximum_supported_format) {
             throw std::ios_base::failure(strprintf(
                 "Unsupported format of addrman database: %u. Maximum supported is %u. "
@@ -370,23 +373,29 @@ public:
         }
 
         int stream_version = s_.GetVersion();
-        if (format >= Format::V1_BIP155) {
+        if (format >= Format::V1_ZIP155) {
             // Add ADDRV2_FORMAT to the version so that the CNetAddr and CAddress
             // unserialize methods know that an address in addrv2 format is coming.
             stream_version |= ADDRV2_FORMAT;
         }
+        LogPrintf("stream_version after |= : %d\n", stream_version);
 
         OverrideStream<Stream> s(&s_, s_.GetType(), stream_version);
 
+        LogPrintf("Override Stream is instantiated!");
         unsigned char nKeySize;
         s >> nKeySize;
+        LogPrintf("The nKeySize is: %u", (unsigned)nKeySize);
         if (nKeySize != 32) throw std::ios_base::failure("Incorrect keysize in addrman deserialization");
         s >> nKey;
+        //LogPrintf("The nKey is: %u", (unsigned)nKey);
         s >> nNew;
+        LogPrintf("The nNew is: %u", (unsigned)nNew);
         s >> nTried;
+        LogPrintf("The nTried is: %u", (unsigned)nTried);
         int nUBuckets = 0;
         s >> nUBuckets;
-        if (format >= Format::V1_BIP155) {
+        if (format >= Format::V1_ZIP155) {
             nUBuckets ^= (1 << 30);
         }
 

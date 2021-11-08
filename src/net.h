@@ -306,7 +306,7 @@ public:
     bool fOneShot;
     bool fClient;
     /**
-     * Whether the peer has signaled support for receiving ADDRv2 (BIP155)
+     * Whether the peer has signaled support for receiving ADDRv2 (ZIP155)
      * messages, implying a preference to receive ADDRv2 instead of ADDR ones.
      */
     std::atomic_bool m_wants_addrv2{false};
@@ -478,8 +478,8 @@ public:
     void PushAddress(const CAddress& _addr, FastRandomContext &insecure_rand)
     {
         // Whether the peer supports the address in `_addr`. For example,
-        // nodes that do not implement BIP155 cannot receive Tor v3 addresses
-        // because they require ADDRv2 (BIP155) encoding.
+        // nodes that do not implement ZIP155 cannot receive Tor v3 addresses
+        // because they require ADDRv2 (ZIP155) encoding.
         const bool addr_format_supported = m_wants_addrv2 || _addr.IsAddrV1Compatible();
 
         // Known checking here is only to save space from duplicates.

@@ -25,7 +25,7 @@
 
 /**
  * A flag that is ORed into the protocol version to designate that addresses
- * should be serialized in (unserialized from) v2 format (BIP155).
+ * should be serialized in (unserialized from) v2 format (ZIP155).
  * Make sure that this does not collide with any of the values in `version.h`
  * or with `SERIALIZE_TRANSACTION_NO_WITNESS`.
  */
@@ -69,13 +69,13 @@ enum Network
 };
 
 /// Prefix of an IPv6 address when it contains an embedded IPv4 address.
-/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
+/// Used when (un)serializing addresses in ADDRv1 format (pre-ZIP155).
 static const std::array<uint8_t, 12> IPV4_IN_IPV6_PREFIX{
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF
 };
 
 /// Prefix of an IPv6 address when it contains an embedded TORv2 address.
-/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
+/// Used when (un)serializing addresses in ADDRv1 format (pre-ZIP155).
 /// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 /// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
 static const std::array<uint8_t, 6> TORV2_IN_IPV6_PREFIX{
@@ -83,7 +83,7 @@ static const std::array<uint8_t, 6> TORV2_IN_IPV6_PREFIX{
 };
 
 /// Prefix of an IPv6 address when it contains an embedded "internal" address.
-/// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
+/// Used when (un)serializing addresses in ADDRv1 format (pre-ZIP155).
 /// The prefix comes from 0xFD + SHA256("bitcoin")[0:5].
 /// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 /// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
@@ -101,7 +101,7 @@ static constexpr size_t ADDR_IPV6_SIZE = 16;
 static constexpr size_t ADDR_TORV2_SIZE = 10;
 
 /// Size of TORv3 address (in bytes). This is the length of just the address
-/// as used in BIP155, without the checksum and the version byte.
+/// as used in ZIP155, without the checksum and the version byte.
 static constexpr size_t ADDR_TORV3_SIZE = 32;
 
 /// Size of I2P address (in bytes).
@@ -179,7 +179,7 @@ class CNetAddr
         bool IsValid() const;
         
         /**
-         * Check if the current object can be serialized in pre-ADDRv2/BIP155 format.
+         * Check if the current object can be serialized in pre-ADDRv2/ZIP155 format.
          */
         bool IsAddrV1Compatible() const;
 
@@ -235,9 +235,9 @@ class CNetAddr
 
     private:
         /**
-         * BIP155 network ids recognized by this software.
+         * ZIP155 network ids recognized by this software.
          */
-        enum BIP155Network : uint8_t {
+        enum ZIP155Network : uint8_t {
             IPV4 = 1,
             IPV6 = 2,
             TORV2 = 3,
@@ -247,35 +247,35 @@ class CNetAddr
         };
 
         /**
-         * Size of CNetAddr when serialized as ADDRv1 (pre-BIP155) (in bytes).
+         * Size of CNetAddr when serialized as ADDRv1 (pre-ZIP155) (in bytes).
          */
         static constexpr size_t V1_SERIALIZATION_SIZE = ADDR_IPV6_SIZE;
 
         /**
-         * Maximum size of an address as defined in BIP155 (in bytes).
+         * Maximum size of an address as defined in ZIP155 (in bytes).
          * This is only the size of the address, not the entire CNetAddr object
          * when serialized.
          */
         static constexpr size_t MAX_ADDRV2_SIZE = 512;
 
         /**
-         * Get the BIP155 network id of this address.
+         * Get the ZIP155 network id of this address.
          * Must not be called for IsInternal() objects.
-         * @returns BIP155 network id
+         * @returns ZIP155 network id
          */
-        BIP155Network GetBIP155Network() const;
+        ZIP155Network GetZIP155Network() const;
 
         /**
-         * Set `m_net` from the provided BIP155 network id and size after validation.
+         * Set `m_net` from the provided ZIP155 network id and size after validation.
          * @retval true the network was recognized, is valid and `m_net` was set
          * @retval false not recognised (from future?) and should be silently ignored
-         * @throws std::ios_base::failure if the network is one of the BIP155 founding
+         * @throws std::ios_base::failure if the network is one of the ZIP155 founding
          * networks (id 1..6) with wrong address size.
          */
-        bool SetNetFromBIP155Network(uint8_t possible_bip155_net, size_t address_size);
+        bool SetNetFromZIP155Network(uint8_t possible_bip155_net, size_t address_size);
 
         /**
-         * Serialize in pre-ADDRv2/BIP155 format to an array.
+         * Serialize in pre-ADDRv2/ZIP155 format to an array.
          */
         void SerializeV1Array(uint8_t (&arr)[V1_SERIALIZATION_SIZE]) const
         {
@@ -321,7 +321,7 @@ class CNetAddr
         }
 
         /**
-         * Serialize in pre-ADDRv2/BIP155 format to a stream.
+         * Serialize in pre-ADDRv2/ZIP155 format to a stream.
          */
         template <typename Stream>
         void SerializeV1Stream(Stream& s) const
@@ -334,7 +334,7 @@ class CNetAddr
         }
 
         /**
-         * Serialize as ADDRv2 / BIP155.
+         * Serialize as ADDRv2 / ZIP155.
          */
         template <typename Stream>
         void SerializeV2Stream(Stream& s) const
@@ -342,18 +342,18 @@ class CNetAddr
             if (IsInternal()) {
                 // Serialize NET_INTERNAL as embedded in IPv6. We need to
                 // serialize such addresses from addrman.
-                s << static_cast<uint8_t>(BIP155Network::IPV6);
+                s << static_cast<uint8_t>(ZIP155Network::IPV6);
                 s << COMPACTSIZE(ADDR_IPV6_SIZE);
                 SerializeV1Stream(s);
                 return;
             }
 
-            s << static_cast<uint8_t>(GetBIP155Network());
+            s << static_cast<uint8_t>(GetZIP155Network());
             s << m_addr;
         }
 
         /**
-         * Unserialize from a pre-ADDRv2/BIP155 format from an array.
+         * Unserialize from a pre-ADDRv2/ZIP155 format from an array.
          */
         void UnserializeV1Array(uint8_t (&arr)[V1_SERIALIZATION_SIZE])
         {
@@ -363,7 +363,7 @@ class CNetAddr
         }
 
         /**
-         * Unserialize from a pre-ADDRv2/BIP155 format from a stream.
+         * Unserialize from a pre-ADDRv2/ZIP155 format from a stream.
          */
         template <typename Stream>
         void UnserializeV1Stream(Stream& s)
@@ -376,7 +376,7 @@ class CNetAddr
         }
 
         /**
-         * Unserialize from a ADDRv2 / BIP155 format.
+         * Unserialize from a ADDRv2 / ZIP155 format.
          */
         template <typename Stream>
         void UnserializeV2Stream(Stream& s)
@@ -394,7 +394,7 @@ class CNetAddr
 
             scopeId = 0;
 
-            if (SetNetFromBIP155Network(bip155_net, address_size)) {
+            if (SetNetFromZIP155Network(bip155_net, address_size)) {
                 m_addr.resize(address_size);
                 s >> MakeSpan(m_addr);
 
@@ -423,7 +423,7 @@ class CNetAddr
                 // IPv4 and TORv2 are not supposed to be embedded in IPv6 (like in V1
                 // encoding). Unserialize as !IsValid(), thus ignoring them.
             } else {
-                // If we receive an unknown BIP155 network id (from the future?) then
+                // If we receive an unknown ZIP155 network id (from the future?) then
                 // ignore the address - unserialize as !IsValid().
                 s.ignore(address_size);
             }
