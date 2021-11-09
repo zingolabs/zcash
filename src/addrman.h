@@ -407,6 +407,7 @@ public:
             throw std::ios_base::failure("Corrupt CAddrMan serialization, nTried exceeds limit.");
         }
 
+        LogPrintf("About to iterate over CAddInfos.");
         // Deserialize entries from the new table.
         for (int n = 0; n < nNew; n++) {
             CAddrInfo &info = mapInfo[n];
@@ -414,6 +415,7 @@ public:
             mapAddr[info] = n;
             info.nRandomPos = vRandom.size();
             vRandom.push_back(n);
+            LogPrintf("About to iterate over CAddInfos.");
             if (format != Format::V0_HISTORICAL || nUBuckets != ADDRMAN_NEW_BUCKET_COUNT) {
                 // In case the new table data cannot be used (nVersion unknown, or bucket count wrong),
                 // immediately try to give them a reference based on their primary source address.
