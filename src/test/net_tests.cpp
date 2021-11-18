@@ -64,6 +64,7 @@ CDataStream AddrmanToStream(CAddrManSerializationMock& _addrman)
     CDataStream ssPeersIn(SER_DISK, CLIENT_VERSION);
     ssPeersIn << Params().MessageStart();
     ssPeersIn << _addrman;
+    BOOST_CHECK_EQUAL("1", HexStr(ssPeersIn));
     return ssPeersIn;
 }
 
@@ -145,23 +146,19 @@ BOOST_AUTO_TEST_CASE(caddrdb_read_addrv2)
         unsigned char pchMsgTmp[4];
         ssPeers1 >> pchMsgTmp;
         ssPeers1 >> addrman1;
-        /*
         BOOST_CHECK_EQUAL(pchMsgTmp[0], 'a');
         BOOST_CHECK_EQUAL(pchMsgTmp[1], 'a');
         BOOST_CHECK_EQUAL(pchMsgTmp[2], 'a');
         BOOST_CHECK_EQUAL(pchMsgTmp[3], 'a');
-        */
     } catch (const std::exception& e) {
         exceptionThrown = true;
     }
 
-    /*
     BOOST_CHECK_EQUAL(HexStr(ssPeers1), "030af1f2f3f4f5f6f7f8f9fa");
     BOOST_CHECK_EQUAL(HexStr(ssPeers1), "030af1f2f3f4f5f6f7f8f9fa");
 
     BOOST_CHECK(addrman1.size() == 3);
     BOOST_CHECK(exceptionThrown == false);
-    */
 }
 
 BOOST_AUTO_TEST_CASE(caddrdb_read_corrupted)
