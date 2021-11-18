@@ -64,7 +64,6 @@ CDataStream AddrmanToStream(CAddrManSerializationMock& _addrman)
     CDataStream ssPeersIn(SER_DISK, CLIENT_VERSION);
     ssPeersIn << Params().MessageStart();
     ssPeersIn << _addrman;
-    BOOST_CHECK_EQUAL("1", HexStr(ssPeersIn));
     return ssPeersIn;
 }
 
@@ -138,6 +137,7 @@ BOOST_AUTO_TEST_CASE(caddrdb_read_addrv2)
 
     // Test that the de-serialization does not throw an exception.
     CDataStream ssPeers1 = AddrmanToStream(addrmanUncorrupted);
+    BOOST_CHECK_EQUAL("1", HexStr(ssPeers1));
     bool exceptionThrown = false;
     CAddrMan addrman1;
 
