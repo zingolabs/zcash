@@ -269,6 +269,7 @@ public:
     };
     /**
      * serialized format:
+     * * 4 bytes of ....
      * * version byte (@see `Format`)
      * * 0x20 + nKey (serialized as if it were a vector, for backward compatibility)
      * * nNew
