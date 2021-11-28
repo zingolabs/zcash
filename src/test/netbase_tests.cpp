@@ -48,7 +48,6 @@ BOOST_AUTO_TEST_CASE(netbase_networks)
     BOOST_CHECK(ResolveIP("2001::8888").GetNetwork()                             == NET_IPV6);
     BOOST_CHECK(ResolveIP("FD87:D87E:EB43:edb1:8e4:3588:e546:35ca").GetNetwork() == NET_ONION);
     BOOST_CHECK(CreateInternal("foo.com").GetNetwork()                           == NET_INTERNAL);
-
 }
 
 BOOST_AUTO_TEST_CASE(netbase_properties)
@@ -441,7 +440,7 @@ static constexpr const char* stream_addrv2_hex =
     "01"                               // service flags, COMPACTSIZE(NODE_NETWORK)
     "04"                               // network id, TorV3
     "20"                               // address length, COMPACTSIZE(32)
-    "53cd5648488c4707914182655b7664034e09e66f7e8cbf1084e654eb56c5bd88" // 32 bytes of key + 2 bytes checksum
+    "53cd5648488c4707914182655b7664034e09e66f7e8cbf1084e654eb56c5bd88" // 32 bytes of key + 2 bytes checksum THIS COMMENT APPEARS TO BE INCORRECT, THE STRING IS 32 bytes.
     "235a";                            // port
 
 BOOST_AUTO_TEST_CASE(caddress_serialize_v1)
@@ -462,6 +461,14 @@ BOOST_AUTO_TEST_CASE(caddress_unserialize_v1)
 }
 
 BOOST_AUTO_TEST_CASE(caddress_serialize_v2)
+{
+    CDataStream s(SER_NETWORK, PROTOCOL_VERSION | ADDRV2_FORMAT);
+
+    s << with_torv3_addresses_fixture;
+    BOOST_CHECK_EQUAL(HexStr(s), stream_addrv2_hex);
+}
+
+BOOST_AUTO_TEST_CASE(caddress_serialize_hash_v2)
 {
     CDataStream s(SER_NETWORK, PROTOCOL_VERSION | ADDRV2_FORMAT);
 
@@ -493,7 +500,7 @@ static constexpr const char* torv3_hex =
     "01"                               // service flags, COMPACTSIZE(NODE_NETWORK)
     "04"                               // network id, TorV3
     "20"                               // address length, COMPACTSIZE(32)
-    "53cd5648488c4707914182655b7664034e09e66f7e8cbf1084e654eb56c5bd88" // 32 bytes of key + 2 bytes checksum
+    "53cd5648488c4707914182655b7664034e09e66f7e8cbf1084e654eb56c5bd88" // 32 bytes of key
     "235a";                            // port
 
 BOOST_AUTO_TEST_CASE(caddress_unserialize_v2_torv3_specific)
