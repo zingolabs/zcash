@@ -67,6 +67,25 @@ CDataStream AddrmanToStream(CAddrManSerializationMock& _addrman)
     return ssPeersIn;
 }
 
+CDataStream AddrV2manToStreamForAddrDB(CAddrManSerializationMock& _addrman)
+{
+    BOOST_CHECK_EQUAL(SER_DISK, 2);
+    BOOST_CHECK_EQUAL(CLIENT_VERSION, 4050151);
+    CDataStream ssPeersIn(SER_DISK, CLIENT_VERSION | ADDRV2_FORMAT);
+    ssPeersIn << Params().MessageStart(); // Unserialization with a CAddrDB will require these bytes
+    ssPeersIn << _addrman;
+    return ssPeersIn;
+}
+
+static CAddress TorV3CAddress(const char* torv3)
+{
+    CNetAddr addr;
+    addr.SetSpecial(torv3);
+    CService serv = CService(addr, 9050);
+
+    return CAddress(serv, NODE_NONE);
+}
+
 BOOST_FIXTURE_TEST_SUITE(net_tests, BasicTestingSetup)
 
 BOOST_AUTO_TEST_CASE(caddrdb_read)
@@ -113,73 +132,32 @@ BOOST_AUTO_TEST_CASE(caddrdb_read)
     BOOST_CHECK(addrman2.size() == 3);
 }
 
-static CNetAddr TorV3CNetAddr(const char* torv3)
+BOOST_AUTO_TEST_CASE(caddrdb_read_tv3)
 {
-    CNetAddr addr;
-    addr.SetSpecial(torv3);
-    return addr;
-}
+    CAddrManUncorrupted addrmanUncorrupted;
+    addrmanUncorrupted.MakeDeterministic();
 
-BOOST_AUTO_TEST_CASE(caddrdb_read_addrv2)
-{
-    CAddrManUncorrupted amtv3;
-    amtv3.MakeDeterministic();
-
-    CNetAddr torv3addr = TorV3CNetAddr("kpgvmscirrdqpekbqjsvw5teanhatztpp2gl6eee4zkowvwfxwenqaid.onion");
-    CService v3addrport = CService(torv3addr, 9050);
-
+    CAddress torv3_address = TorV3CAddress("kpgvmscirrdqpekbqjsvw5teanhatztpp2gl6eee4zkowvwfxwenqaid.onion");
     CService source;
     Lookup("252.5.1.1", source, 8333, false);
+    addrmanUncorrupted.Add(torv3_address, source);
 
-    bool fadded = amtv3.Add(CAddress(v3addrport, NODE_NONE), source);
+    CDataStream ssonetv3peer = AddrV2manToStreamForAddrDB(addrmanUncorrupted);
 
-    BOOST_CHECK(fadded == true);
-
-    // Test that the de-serialization does not throw an exception.
-    CDataStream ssPeers1 = AddrmanToStream(amtv3);
-    BOOST_CHECK_EQUAL("1", HexStr(ssPeers1));
     bool exceptionThrown = false;
+    CAddrMan receiver;
 
-
-    // Inspect IPv6-only addrman
-    CAddrManUncorrupted amipv6;
-    amipv6.MakeDeterministic();
-
-    CService sipv6;
-    Lookup("ffff:eeee:dddd:cccc:bbbb:aaaa:9999:8888", sipv6, 7777, false);
-    CAddress addr = CAddress(sipv6, NODE_NONE);
-
-    CService source2;
-    Lookup("252.5.1.1", source2, 8334, false);
-
-    bool fadded2 = amipv6.Add(CAddress(sipv6, NODE_NONE), source);
-
-    BOOST_CHECK(fadded2 == true);
-
-    // Test that the de-serialization does not throw an exception.
-    CDataStream ssPeers2 = AddrmanToStream(amipv6);
-    BOOST_CHECK_EQUAL("2", HexStr(ssPeers2));
-
-    CAddrMan addrman1;
-
-    BOOST_CHECK(addrman1.size() == 0);
+    BOOST_CHECK(receiver.size() == 0);
     try {
         unsigned char pchMsgTmp[4];
-        ssPeers1 >> pchMsgTmp;
-        ssPeers1 >> addrman1;
-        BOOST_CHECK_EQUAL(pchMsgTmp[0], 'a');
-        BOOST_CHECK_EQUAL(pchMsgTmp[1], 'a');
-        BOOST_CHECK_EQUAL(pchMsgTmp[2], 'a');
-        BOOST_CHECK_EQUAL(pchMsgTmp[3], 'a');
+        ssonetv3peer >> pchMsgTmp;
+        BOOST_CHECK_EQUAL(0x24, pchMsgTmp[0]);
+        BOOST_CHECK_EQUAL(0xe9, pchMsgTmp[1]);
+        BOOST_CHECK_EQUAL(0x27, pchMsgTmp[2]);
+        BOOST_CHECK_EQUAL(0x64, pchMsgTmp[3]);
     } catch (const std::exception& e) {
         exceptionThrown = true;
     }
-
-    BOOST_CHECK_EQUAL(HexStr(ssPeers1), "030af1f2f3f4f5f6f7f8f9fa");
-    BOOST_CHECK_EQUAL(HexStr(ssPeers1), "030af1f2f3f4f5f6f7f8f9fa");
-
-    BOOST_CHECK(addrman1.size() == 3);
-    BOOST_CHECK(exceptionThrown == false);
 }
 
 BOOST_AUTO_TEST_CASE(caddrdb_read_corrupted)

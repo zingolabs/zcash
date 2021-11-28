@@ -269,7 +269,6 @@ public:
     };
     /**
      * serialized format:
-     * * 4 bytes of ....
      * * version byte (@see `Format`)
      * * 0x20 + nKey (serialized as if it were a vector, for backward compatibility)
      * * nNew
@@ -408,7 +407,7 @@ public:
             throw std::ios_base::failure("Corrupt CAddrMan serialization, nTried exceeds limit.");
         }
 
-        LogPrintf("About to iterate over CAddInfos.");
+        LogPrintf("About to iterate over nNew CAddInfos.");
         // Deserialize entries from the new table.
         for (int n = 0; n < nNew; n++) {
             CAddrInfo &info = mapInfo[n];
@@ -416,7 +415,6 @@ public:
             mapAddr[info] = n;
             info.nRandomPos = vRandom.size();
             vRandom.push_back(n);
-            LogPrintf("About to iterate over CAddInfos.");
             if (format != Format::V0_HISTORICAL || nUBuckets != ADDRMAN_NEW_BUCKET_COUNT) {
                 // In case the new table data cannot be used (nVersion unknown, or bucket count wrong),
                 // immediately try to give them a reference based on their primary source address.
@@ -430,6 +428,7 @@ public:
         }
         nIdCount = nNew;
 
+        LogPrintf("About to iterate over nTried CAddInfos.");
         // Deserialize entries from the tried table.
         int nLost = 0;
         for (int n = 0; n < nTried; n++) {
@@ -451,6 +450,7 @@ public:
         }
         nTried -= nLost;
 
+        LogPrintf("About to iterate over buckets.");
         // Deserialize positions in the new table (if possible).
         for (int bucket = 0; bucket < nUBuckets; bucket++) {
             int nSize = 0;
@@ -469,6 +469,7 @@ public:
             }
         }
 
+        LogPrintf("About to prune.");
         // Prune new entries with refcount 0 (as a result of collisions).
         int nLostUnk = 0;
         for (std::map<int, CAddrInfo>::const_iterator it = mapInfo.begin(); it != mapInfo.end(); ) {
@@ -485,6 +486,7 @@ public:
         }
 
         Check();
+        LogPrintf("End of AddrMan Unserialize reached!");
     }
 
     void Clear()
