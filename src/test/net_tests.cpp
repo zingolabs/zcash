@@ -98,6 +98,21 @@ static CAddress TorV3CAddress(const char* torv3)
 
 BOOST_FIXTURE_TEST_SUITE(net_tests, BasicTestingSetup)
 
+BOOST_AUTO_TEST_CASE(read_from_protocol_v1)
+{
+    CAddrDBMock caddrdbm;
+    CAddrManUncorrupted caddrman;
+    BOOST_CHECK_EQUAL(caddrman.size(), 0);
+    bool exceptionThrown = false;
+    try {
+        caddrdbm.Read(caddrman);
+    } catch (const std::exception& e) {
+        exceptionThrown = true;
+    }
+    BOOST_CHECK_EQUAL(caddrman.size(), 50);
+    BOOST_CHECK_EQUAL(exceptionThrown, false);
+}
+
 BOOST_AUTO_TEST_CASE(caddrdb_read)
 {
     CAddrManUncorrupted addrmanUncorrupted;
