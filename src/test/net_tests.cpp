@@ -3,11 +3,21 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include "addrman.h"
 #include "net.h"
+#include "addrdb.cpp"
 
 #include "test/test_bitcoin.h"
 #include "test/util/setup_common.h"
 
 #include <boost/test/unit_test.hpp>
+
+class CAddrDBMock : public CAddrDB
+{
+    public:
+        bool Read(CAddrMan& addr)
+        {
+            return DeserializeFileDB(GetDataDir() / "test" / "from_protv1_peers.dat" , addr);   
+        }
+};
 
 class CAddrManSerializationMock : public CAddrMan
 {
@@ -155,9 +165,24 @@ BOOST_AUTO_TEST_CASE(caddrdb_read_tv3)
         BOOST_CHECK_EQUAL(0xe9, pchMsgTmp[1]);
         BOOST_CHECK_EQUAL(0x27, pchMsgTmp[2]);
         BOOST_CHECK_EQUAL(0x64, pchMsgTmp[3]);
+        ssonetv3peer >> receiver;
     } catch (const std::exception& e) {
         exceptionThrown = true;
     }
+    BOOST_CHECK(receiver.size() == 1);
+    BOOST_CHECK(exceptionThrown == false);
+
+    CDataStream ssonetv3peer2 = AddrV2manToStreamForAddrDB(addrmanUncorrupted);
+
+    CAddrMan addrman2;
+    CAddrDB adb;
+    BOOST_CHECK_EQUAL(addrman2.size(), 0);
+    adb.Read(addrman2, ssonetv3peer2);
+    BOOST_CHECK(addrman2.size() == 1);
+
+    CDataStream ssPeersOut(SER_DISK, CLIENT_VERSION);
+    ssPeersOut << addrman2;
+    BOOST_CHECK_EQUAL("1", HexStr(ssPeersOut).substr(0, 644));
 }
 
 BOOST_AUTO_TEST_CASE(caddrdb_read_corrupted)
