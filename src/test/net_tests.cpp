@@ -13,7 +13,7 @@
 class CAddrDBMock : public CAddrDB
 {
     public:
-        bool Read(CAddrMan& addr, std::string test_datafile = "test/from_protv1_peers.dat")
+        bool Read(CAddrMan& addr, std::string test_datafile)
         {
             return DeserializeFileDB(GetDataDir() / test_datafile, addr);   
         }
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(read_from_serialization_protocol_v1)
     BOOST_CHECK_EQUAL(caddrman.size(), 0);
     bool exceptionThrown = false;
     try {
-        caddrdbm.Read(caddrman);
+        caddrdbm.Read(caddrman, "test/from_protv1_peers.dat");
     } catch (const std::exception& e) {
         exceptionThrown = true;
     }
