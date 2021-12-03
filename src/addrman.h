@@ -264,8 +264,8 @@ protected:
 public:
     //! Serialization versions.
     enum class Format : uint8_t {
-        V0_HISTORICAL = 0,    //!< historic format, before commit e6b343d88
-        V1_ZIP155 = 2,        //!< same as V2_ASMAP plus addresses are in ZIP155 format
+        V0_HISTORICAL = 1,    //!< pre addrv2 serialization format
+        V1_ZIP155 = 2,        //!< addresses are in ZIP155 format
     };
     /**
      * serialized format:
@@ -358,10 +358,7 @@ public:
 
         
         Format format;
-        LogPrintf("CAddrMan Unserialize");
         s_ >> Using<CustomUintFormatter<1>>(format);
-        LogPrintf("format read from file is: %u", (unsigned)format);
-        LogPrintf("Format::V1_ZIP155: %u", (unsigned)Format::V1_ZIP155);
 
         static constexpr Format maximum_supported_format = Format::V1_ZIP155;
         if (format > maximum_supported_format) {
@@ -378,24 +375,17 @@ public:
             // unserialize methods know that an address in addrv2 format is coming.
             stream_version |= ADDRV2_FORMAT;
         }
-        LogPrintf("stream_version after |= : %d\n", stream_version);
-
         OverrideStream<Stream> s(&s_, s_.GetType(), stream_version);
 
-        LogPrintf("Override Stream is instantiated!");
         unsigned char nKeySize;
         s >> nKeySize;
-        LogPrintf("The nKeySize is: %u", (unsigned)nKeySize);
         if (nKeySize != 32) throw std::ios_base::failure("Incorrect keysize in addrman deserialization");
         s >> nKey;
-        //LogPrintf("The nKey is: %u", (unsigned)nKey);
         s >> nNew;
-        LogPrintf("The nNew is: %u", (unsigned)nNew);
         s >> nTried;
-        LogPrintf("The nTried is: %u", (unsigned)nTried);
         int nUBuckets = 0;
         s >> nUBuckets;
-        if (format >= Format::V1_ZIP155) {
+        if (format >= Format::V0_HISTORICAL) {
             nUBuckets ^= (1 << 30);
         }
 
@@ -407,7 +397,6 @@ public:
             throw std::ios_base::failure("Corrupt CAddrMan serialization, nTried exceeds limit.");
         }
 
-        LogPrintf("About to iterate over nNew CAddInfos.");
         // Deserialize entries from the new table.
         for (int n = 0; n < nNew; n++) {
             CAddrInfo &info = mapInfo[n];
@@ -428,7 +417,6 @@ public:
         }
         nIdCount = nNew;
 
-        LogPrintf("About to iterate over nTried CAddInfos.");
         // Deserialize entries from the tried table.
         int nLost = 0;
         for (int n = 0; n < nTried; n++) {
@@ -450,7 +438,6 @@ public:
         }
         nTried -= nLost;
 
-        LogPrintf("About to iterate over buckets.");
         // Deserialize positions in the new table (if possible).
         for (int bucket = 0; bucket < nUBuckets; bucket++) {
             int nSize = 0;
@@ -469,7 +456,6 @@ public:
             }
         }
 
-        LogPrintf("About to prune.");
         // Prune new entries with refcount 0 (as a result of collisions).
         int nLostUnk = 0;
         for (std::map<int, CAddrInfo>::const_iterator it = mapInfo.begin(); it != mapInfo.end(); ) {
@@ -486,7 +472,6 @@ public:
         }
 
         Check();
-        LogPrintf("End of AddrMan Unserialize reached!");
     }
 
     void Clear()
