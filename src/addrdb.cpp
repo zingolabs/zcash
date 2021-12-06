@@ -69,15 +69,15 @@ bool DeserializeDB(Stream& stream, Data& data, bool fCheckSum = true)
         unsigned char pchMsgTmp[4];
         verifier >> pchMsgTmp;
         // ... verify the network matches ours
-        LogPrintf("About to run memcmp");
+        
         if (memcmp(pchMsgTmp, Params().MessageStart(), sizeof(pchMsgTmp)))
             return error("%s: Invalid network magic number", __func__);
 
-        LogPrintf("IMMEDIATELY BEFORE SUSPICIOUS DESER");
+        
         // de-serialize data
         verifier >> data;
 
-        LogPrintf("WE HAVE ALREADY FAILED!");
+        
         // verify checksum
         if (fCheckSum) {
             uint256 hashTmp;
