@@ -397,7 +397,9 @@ struct ProxyCredentials
 /** Connect using SOCKS5 (as described in RFC1928) */
 static bool Socks5(const std::string& strDest, int port, const ProxyCredentials *auth, SOCKET& hSocket)
 {
-    LogPrintf("SOCKS5 connecting %s\n", strDest);
+    LogPrintf("SOCKS5 connecting to strDest: %s\n", strDest);
+    LogPrintf("port %d\n", port);
+    LogPrintf("auth %s\n", auth);
     if (strDest.size() > 255) {
         CloseSocket(hSocket);
         return error("Hostname too long");
@@ -473,10 +475,12 @@ static bool Socks5(const std::string& strDest, int port, const ProxyCredentials 
         return error("Error sending to proxy");
     }
     uint8_t pchRet2[4];
+    LogPrintf("Before InterruptibleRecv: %d, %d, %d, %d", pchRet2[0], pchRet2[1], pchRet2[2], pchRet2[3]);
     if (!InterruptibleRecv(pchRet2, 4, SOCKS5_RECV_TIMEOUT, hSocket)) {
         CloseSocket(hSocket);
         return error("Error reading proxy response");
     }
+    LogPrintf("After InterruptibleRecv: %d, %d, %d, %d", pchRet2[0], pchRet2[1], pchRet2[2], pchRet2[3]);
     if (pchRet2[0] != 0x05) {
         CloseSocket(hSocket);
         return error("Proxy failed to accept request");
@@ -673,13 +677,17 @@ static bool ConnectThroughProxy(const proxyType &proxy, const std::string& strDe
         return false;
     }
     // do socks negotiation
+    LogPrintf("ConnectSocketDirectly returned TRUE!");
     if (proxy.randomize_credentials) {
+        LogPrintf("proxy.randomize_credentials");
         ProxyCredentials random_auth;
         static std::atomic_int counter;
         random_auth.username = random_auth.password = strprintf("%i", counter++);
         if (!Socks5(strDest, (unsigned short)port, &random_auth, hSocket))
+            LogPrintf("!Socks5!!");
             return false;
     } else {
+        LogPrintf("NOT proxy.randomize_credentials");
         if (!Socks5(strDest, (unsigned short)port, 0, hSocket))
             return false;
     }
