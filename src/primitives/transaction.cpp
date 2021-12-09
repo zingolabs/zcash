@@ -177,8 +177,8 @@ void CTransaction::UpdateHash() const
     if (!zcash_transaction_digests(
         reinterpret_cast<const unsigned char*>(ss.data()),
         ss.size(),
-        const_cast<uint256*>(&hash)->begin(),
-        const_cast<uint256*>(&authDigest)->begin()))
+        const_cast<uint256*>(&wtxid.hash)->begin(),
+        const_cast<uint256*>(&wtxid.authDigest)->begin()))
     {
         throw std::ios_base::failure("CTransaction::UpdateHash: Invalid transaction format");
     }
@@ -251,8 +251,8 @@ CTransaction& CTransaction::operator=(const CTransaction &tx) {
     *const_cast<Ed25519VerificationKey*>(&joinSplitPubKey) = tx.joinSplitPubKey;
     *const_cast<Ed25519Signature*>(&joinSplitSig) = tx.joinSplitSig;
     *const_cast<binding_sig_t*>(&bindingSig) = tx.bindingSig;
-    *const_cast<uint256*>(&hash) = tx.hash;
-    *const_cast<uint256*>(&authDigest) = tx.authDigest;
+    *const_cast<uint256*>(&wtxid.hash) = tx.wtxid.hash;
+    *const_cast<uint256*>(&wtxid.authDigest) = tx.wtxid.authDigest;
     return *this;
 }
 
@@ -402,7 +402,8 @@ std::string CTransaction::ToString() const
             vShieldedSpend.size(),
             vShieldedOutput.size());
         if (nVersion >= ZIP225_MIN_TX_VERSION) {
-            str += strprintf(", valueBalanceOrchard=%u, vOrchardAction.size=%u",
+            str += strprintf(", nConsensusBranchId=%08x, valueBalanceOrchard=%u, vOrchardAction.size=%u",
+                nConsensusBranchId.value_or(0),
                 orchardBundle.GetValueBalance(),
                 orchardBundle.GetNumActions());
         }
@@ -429,12 +430,22 @@ std::string CTransaction::ToString() const
  * Returns the most recent supported transaction version and version group id,
  * as of the specified activation height and active features.
  */
-TxVersionInfo CurrentTxVersionInfo(const Consensus::Params& consensus, int nHeight) {
+TxVersionInfo CurrentTxVersionInfo(
+    const Consensus::Params& consensus,
+    int nHeight,
+    bool requireSprout)
+{
     if (consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_ZFUTURE)) {
         return {
             .fOverwintered =   true,
             .nVersionGroupId = ZFUTURE_VERSION_GROUP_ID,
             .nVersion =        ZFUTURE_TX_VERSION
+        };
+    } else if (consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_NU5) && !requireSprout) {
+        return {
+            .fOverwintered =   true,
+            .nVersionGroupId = ZIP225_VERSION_GROUP_ID,
+            .nVersion =        ZIP225_TX_VERSION
         };
     } else if (consensus.NetworkUpgradeActive(nHeight, Consensus::UPGRADE_SAPLING)) {
         return {

@@ -77,7 +77,8 @@ struct TxVersionInfo {
  * Returns the current transaction version and version group id,
  * based upon the specified activation height and active features.
  */
-TxVersionInfo CurrentTxVersionInfo(const Consensus::Params& consensus, int nHeight);
+TxVersionInfo CurrentTxVersionInfo(
+    const Consensus::Params& consensus, int nHeight, bool requireSprout);
 
 struct TxParams {
     unsigned int expiryDelta;
@@ -90,6 +91,14 @@ struct TxParams {
 static inline size_t JOINSPLIT_SIZE(int transactionVersion) {
     return transactionVersion >= SAPLING_TX_VERSION ? 1698 : 1802;
 }
+
+/**
+ * A flag that is ORed into the protocol version to designate that a transaction
+ * should be (un)serialized without witness data.
+ * Make sure that this does not collide with any of the values in `version.h`
+ * or with `ADDRV2_FORMAT`.
+ */
+static const int SERIALIZE_TRANSACTION_NO_WITNESS = 0x40000000;
 
 /**
  * The storage format for Sapling Spend descriptions in v5 transactions.
@@ -548,7 +557,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(prevout);
-        READWRITE(*(CScriptBase*)(&scriptSig));
+        READWRITE(scriptSig);
         READWRITE(nSequence);
     }
 
@@ -597,7 +606,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(nValue);
-        READWRITE(*(CScriptBase*)(&scriptPubKey));
+        READWRITE(scriptPubKey);
     }
 
     void SetNull()
@@ -649,6 +658,40 @@ public:
     std::string ToString() const;
 };
 
+struct WTxId
+{
+    const uint256 hash;
+    const uint256 authDigest;
+
+    WTxId() :
+        authDigest(LEGACY_TX_AUTH_DIGEST) {}
+
+    WTxId(const uint256& hashIn, const uint256& authDigestIn) :
+        hash(hashIn), authDigest(authDigestIn) {}
+
+    const std::vector<unsigned char> ToBytes() const {
+        std::vector<unsigned char> vData(hash.begin(), hash.end());
+        vData.insert(vData.end(), authDigest.begin(), authDigest.end());
+        return vData;
+    }
+
+    friend bool operator<(const WTxId& a, const WTxId& b)
+    {
+        return (a.hash < b.hash ||
+            (a.hash == b.hash && a.authDigest < b.authDigest));
+    }
+
+    friend bool operator==(const WTxId& a, const WTxId& b)
+    {
+        return a.hash == b.hash && a.authDigest == b.authDigest;
+    }
+
+    friend bool operator!=(const WTxId& a, const WTxId& b)
+    {
+        return a.hash != b.hash || a.authDigest != b.authDigest;
+    }
+};
+
 struct CMutableTransaction;
 
 /** The basic transaction that is broadcasted on the network and contained in
@@ -664,9 +707,7 @@ private:
     OrchardBundle orchardBundle;
 
     /** Memory only. */
-    const uint256 hash;
-    /** Memory only. */
-    const uint256 authDigest;
+    const WTxId wtxid;
     void UpdateHash() const;
 
 protected:
@@ -686,6 +727,8 @@ public:
     static const int32_t OVERWINTER_MAX_CURRENT_VERSION = 3;
     static const int32_t SAPLING_MIN_CURRENT_VERSION = 4;
     static const int32_t SAPLING_MAX_CURRENT_VERSION = 4;
+    static const int32_t NU5_MIN_CURRENT_VERSION = 4;
+    static const int32_t NU5_MAX_CURRENT_VERSION = 5;
 
     static_assert(SPROUT_MIN_CURRENT_VERSION >= SPROUT_MIN_TX_VERSION,
                   "standard rule for tx version should be consistent with network rule");
@@ -702,6 +745,13 @@ public:
 
     static_assert( (SAPLING_MAX_CURRENT_VERSION <= SAPLING_MAX_TX_VERSION &&
                     SAPLING_MAX_CURRENT_VERSION >= SAPLING_MIN_CURRENT_VERSION),
+                  "standard rule for tx version should be consistent with network rule");
+
+    static_assert(NU5_MIN_CURRENT_VERSION >= SAPLING_MIN_TX_VERSION,
+                  "standard rule for tx version should be consistent with network rule");
+
+    static_assert( (NU5_MAX_CURRENT_VERSION <= ZIP225_MAX_TX_VERSION &&
+                    NU5_MAX_CURRENT_VERSION >= NU5_MIN_CURRENT_VERSION),
                   "standard rule for tx version should be consistent with network rule");
 
     // The local variables are made const to prevent unintended modification
@@ -781,7 +831,14 @@ public:
 
         if (isZip225V5) {
             // Common Transaction Fields (plus version bytes above)
-            READWRITE(*nConsensusBranchId);
+            if (ser_action.ForRead()) {
+                uint32_t consensusBranchId;
+                READWRITE(consensusBranchId);
+                *const_cast<std::optional<uint32_t>*>(&nConsensusBranchId) = consensusBranchId;
+            } else {
+                uint32_t consensusBranchId = nConsensusBranchId.value();
+                READWRITE(consensusBranchId);
+            }
             READWRITE(*const_cast<uint32_t*>(&nLockTime));
             READWRITE(*const_cast<uint32_t*>(&nExpiryHeight));
 
@@ -848,7 +905,7 @@ public:
     }
 
     const uint256& GetHash() const {
-        return hash;
+        return wtxid.hash;
     }
 
     /**
@@ -857,7 +914,11 @@ public:
      * For v1-v4 transactions, this returns the null hash (i.e. all-zeroes).
      */
     const uint256& GetAuthDigest() const {
-        return authDigest;
+        return wtxid.authDigest;
+    }
+
+    const WTxId& GetWTxId() const {
+        return wtxid;
     }
 
     uint32_t GetHeader() const {
@@ -920,12 +981,12 @@ public:
 
     friend bool operator==(const CTransaction& a, const CTransaction& b)
     {
-        return a.hash == b.hash;
+        return a.wtxid.hash == b.wtxid.hash;
     }
 
     friend bool operator!=(const CTransaction& a, const CTransaction& b)
     {
-        return a.hash != b.hash;
+        return a.wtxid.hash != b.wtxid.hash;
     }
 
     std::string ToString() const;
@@ -1001,7 +1062,14 @@ struct CMutableTransaction
 
         if (isZip225V5) {
             // Common Transaction Fields (plus version bytes above)
-            READWRITE(*nConsensusBranchId);
+            if (ser_action.ForRead()) {
+                uint32_t consensusBranchId;
+                READWRITE(consensusBranchId);
+                nConsensusBranchId = consensusBranchId;
+            } else {
+                uint32_t consensusBranchId = nConsensusBranchId.value();
+                READWRITE(consensusBranchId);
+            }
             READWRITE(nLockTime);
             READWRITE(nExpiryHeight);
 
