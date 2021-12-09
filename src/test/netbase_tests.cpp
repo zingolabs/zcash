@@ -3,6 +3,8 @@
 // file COPYING or https://www.opensource.org/licenses/mit-license.php .
 
 #include "netbase.h"
+#include "netbase.cpp"
+#include "compat.h"
 #include "test/test_bitcoin.h"
 #include "protocol.h"
 
@@ -38,6 +40,11 @@ static CNetAddr CreateInternal(const char* host)
     CNetAddr addr;
     addr.SetInternal(host);
     return addr;
+}
+
+BOOST_AUTO_TEST_CASE(socks5){
+    SOCKET hSocket(19);
+    Socks5("testdest", 7878, 0, hSocket);
 }
 
 BOOST_AUTO_TEST_CASE(netbase_networks)
