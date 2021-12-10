@@ -684,7 +684,6 @@ static bool ConnectThroughProxy(const proxyType &proxy, const std::string& strDe
         static std::atomic_int counter;
         random_auth.username = random_auth.password = strprintf("%i", counter++);
         if (!Socks5(strDest, (unsigned short)port, &random_auth, hSocket))
-            LogPrintf("!Socks5!!");
             return false;
     } else {
         LogPrintf("NOT proxy.randomize_credentials");
