@@ -254,7 +254,7 @@ def main():
 
     run_tests(test_list, config["environment"]["SRCDIR"], config["environment"]["BUILDDIR"], config["environment"]["EXEEXT"], args.jobs, args.coverage, passon_args)
 
-def run_tests(test_list, src_dir, build_dir, exeext, jobs=1, enable_coverage=False, args=[]):
+def run_tests(test_list, src_dir, build_dir, exeext, maximum_concurrent_jobs=1, enable_coverage=False, args=[]):
     BOLD = ("","")
     if os.name == 'posix':
         # primitive formatting on supported
@@ -277,7 +277,7 @@ def run_tests(test_list, src_dir, build_dir, exeext, jobs=1, enable_coverage=Fal
     else:
         coverage = None
 
-    if len(test_list) > 1 and jobs > 1:
+    if len(test_list) > 1 and maximum_concurrent_jobs > 1:
         # Populate cache
         subprocess.check_output([tests_dir + 'create_cache.py'] + flags)
 
@@ -286,7 +286,7 @@ def run_tests(test_list, src_dir, build_dir, exeext, jobs=1, enable_coverage=Fal
     time_sum = 0
     time0 = time.time()
 
-    job_queue = RPCTestHandler(jobs, tests_dir, test_list, flags)
+    job_queue = RPCTestHandler(maximum_concurrent_jobs, tests_dir, test_list, flags)
 
     max_len_name = len(max(test_list, key=len))
     results = BOLD[1] + "%s | %s | %s\n\n" % ("TEST".ljust(max_len_name), "PASSED", "DURATION") + BOLD[0]
@@ -316,7 +316,7 @@ def run_tests(test_list, src_dir, build_dir, exeext, jobs=1, enable_coverage=Fal
 
 class RPCTestHandler:
     """
-    Trigger the testscrips passed in via the list.
+    Trigger the testscripts passed in via the list.
     """
 
     def __init__(self, num_tests_parallel, tests_dir, test_list=None, flags=None):
@@ -338,6 +338,7 @@ class RPCTestHandler:
             self.num_running += 1
             t = self.test_list.pop(0)
             port_seed = ["--portseed={}".format(len(self.test_list) + self.portseed_offset)]
+            print("port_seed: %s" % port_seed)
             log_stdout = tempfile.SpooledTemporaryFile(max_size=2**16)
             log_stderr = tempfile.SpooledTemporaryFile(max_size=2**16)
             self.jobs.append((t,
