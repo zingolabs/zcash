@@ -1163,7 +1163,16 @@ class CTransaction(object):
 class CBlockHeader(object):
     def __init__(self, header=None):
         if header is None:
-            self.set_null()
+            self.nVersion = 4
+            self.hashPrevBlock = 0
+            self.hashMerkleRoot = 0
+            self.hashFinalSaplingRoot = 0
+            self.nTime = 0
+            self.nBits = 0
+            self.nNonce = 0
+            self.nSolution = []
+            self.sha256 = None
+            self.hash = None
         else:
             self.nVersion = header.nVersion
             self.hashPrevBlock = header.hashPrevBlock
@@ -1177,17 +1186,6 @@ class CBlockHeader(object):
             self.hash = header.hash
             self.calc_sha256()
 
-    def set_null(self):
-        self.nVersion = 4
-        self.hashPrevBlock = 0
-        self.hashMerkleRoot = 0
-        self.hashFinalSaplingRoot = 0
-        self.nTime = 0
-        self.nBits = 0
-        self.nNonce = 0
-        self.nSolution = []
-        self.sha256 = None
-        self.hash = None
 
     def deserialize(self, f):
         self.nVersion = struct.unpack("<i", f.read(4))[0]
