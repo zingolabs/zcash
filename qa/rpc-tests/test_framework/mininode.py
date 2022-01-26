@@ -147,14 +147,14 @@ def uint256_from_str(s):
     return r
 
 
-def uint256_from_compact(c):
+def expand_target_threshold_from_nBits(c):
     nbytes = (c >> 24) & 0xFF
     v = (c & 0xFFFFFF) << (8 * (nbytes - 3))
     return v
 
 
 def block_work_from_compact(c):
-    target = uint256_from_compact(c)
+    target = expand_target_threshold_from_nBits(c)
     return 2**256 // (target + 1)
 
 
@@ -1293,7 +1293,7 @@ class CBlock(CBlockHeader):
         if not gbp_validate(self.nSolution, digest, n, k):
             return False
         self.calc_sha256()
-        target = uint256_from_compact(self.nBits)
+        target = expand_target_threshold_from_nBits(self.nBits)
         if self.sha256 > target:
             return False
         for tx in self.vtx:
@@ -1304,7 +1304,7 @@ class CBlock(CBlockHeader):
         return True
 
     def solve(self, n=48, k=5):
-        target = uint256_from_compact(self.nBits)
+        target = expand_target_threshold_from_nBits(self.nBits)
         # H(I||...
         digest = blake2b(digest_size=(512//n)*n//8, person=zcash_person(n, k))
         digest.update(super(CBlock, self).serialize()[:108])
